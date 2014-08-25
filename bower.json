@@ -1,0 +1,9 @@
+{
+	"name": "prototypo-core",
+	"version": "0.0.1",
+	"dependencies": {
+	},
+	"devDependencies": {
+		"requirejs": "~2.1.14"
+	}
+}
