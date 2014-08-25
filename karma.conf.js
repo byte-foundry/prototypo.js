@@ -10,8 +10,7 @@ module.exports = function(config) {
 			'karma-requirejs',
 			'karma-phantomjs-launcher',
 			'karma-chrome-launcher',
-			'karma-firefox-launcher',
-			'karma-chai'
+			'karma-firefox-launcher'
 		],
 
 		// base path that will be used to resolve all patterns (eg. files, exclude)
@@ -25,7 +24,7 @@ module.exports = function(config) {
 
 		// list of files / patterns to load in the browser
 		files: [
-			{pattern: 'src/*.js', included: false},
+			{pattern: 'src/**/*.js', included: false},
 			{pattern: 'test/spec/*.js', included: false},
 			'test/test-main.js'
 		],

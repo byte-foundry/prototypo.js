@@ -1,8 +1,8 @@
 'use strict';
 /*jshint -W030 */
-console.log('HEEEEEEEEEEEEEEEEEEEEEERE');
-define(['Point'], function( Point ) {
-console.log('TTTTTTTTTHHHHHEEEEEEEEEEEERE');
+
+define(['classes/Point'], function( Point ) {
+
 	describe('Point structure', function() {
 
 		var _Point, p0, p1, p2, p3, p4, p5, p6;

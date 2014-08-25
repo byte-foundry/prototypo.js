@@ -1,6 +1,6 @@
 'use strict';
 
-define('Point', [], function() {
+define(function() {
 
 		function Point(x, y) {
 
