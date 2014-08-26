@@ -24,14 +24,15 @@ module.exports = function(config) {
 
 		// list of files / patterns to load in the browser
 		files: [
-			'src/test-main.js',
-			{pattern: 'src/**/*.js', included: false}
+			'test-main.conf.js',
+			'bower_components/traceur-runtime/traceur-runtime.js',
+			{pattern: 'bower_components/**/*.js', included: false},
+			{pattern: 'es5/**/*.js', included: false}
 		],
-
 
 		// list of files to exclude
 		exclude: [
-			'src/main.js'
+			'es5/main.js'
 		],
 
 
@@ -57,7 +58,7 @@ module.exports = function(config) {
 
 		// level of logging
 		// possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
-		logLevel: config.LOG_INFO,
+		logLevel: config.LOG_DEBUG,
 
 
 		// enable / disable watching file and executing tests whenever any file changes

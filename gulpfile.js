@@ -4,14 +4,17 @@ var gulp = require('gulp');
 
 var $ = require('gulp-load-plugins')();
 
-gulp.task('clean', function () {
-	return gulp.src(['es5', 'dist'], { read: false }).pipe($.rimraf());
+['es5', 'dist'].forEach(function(path) {
+	gulp.task('clean-' + path, function() {
+		return gulp.src([path], { read: false })
+			.pipe($.rimraf());
+	});
 });
 
-gulp.task('build', ['lint', 'test', 'clean'], function() {
-	$.requirejs({
-		baseUrl: 'src/',
-		name: 'bower_components/almond/almond',
+gulp.task('build', ['lint', 'test', 'clean-dist'], function() {
+	return $.requirejs({
+		baseUrl: 'es5/',
+		name: '../bower_components/almond/almond',
 		include: ['main'],
 		insertRequire: ['main'],
 		out: 'prototypo.js',
@@ -25,8 +28,8 @@ gulp.task('build', ['lint', 'test', 'clean'], function() {
 
 // var wiredep = require('wiredep');
 
-gulp.task('traceur', function() {
-	return gulp.src('src/**/*.js')
+gulp.task('traceur', ['clean-es5'], function() {
+	return gulp.src(['src/**/*.js', '!src/bower_components/*'])
 		.pipe($.sourcemaps.init())
 		.pipe($.traceur({
 			modules: 'amd'
@@ -43,7 +46,7 @@ gulp.task('lint', function() {
 		.pipe($.jshint.reporter('fail'));
 });
 
-gulp.task('test', function() {
+gulp.task('test', ['traceur'], function() {
 	return gulp.src('undefined.js')
 		.pipe($.karma({
 			configFile: 'karma.conf.js',

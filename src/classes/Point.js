@@ -1,110 +1,123 @@
-'use strict';
+class Point {
 
-define(function() {
-
-		function Point(x, y) {
-
-			// new is optional in tests
-			if ( !( this instanceof Point ) ) {
-				return new Point( x, y );
-			}
-
-			if ( x === undefined || x === null ) {
-				this.coords = new Float32Array([x, y]);
-
-			} else if ( x.constructor === Array || x.constructor === Float32Array ) {
-				this.coords = new Float32Array(x);
-
-			} else if ( typeof x === 'object' && ( 'x' in x || 'y' in x ) ) {
-				this.coords = new Float32Array([x.x, x.y]);
-
-			} else {
-				this.coords = new Float32Array([x, y]);
-
-			}
+	constructor( x, y ) {
+		// new is optional in tests
+		if ( !( this instanceof Point ) ) {
+			return new Point( x, y );
 		}
 
-		// .x and .y are more convenient than .coords[0] and .coords[1]
-		Object.defineProperty(Point.prototype, 'x', {
-			get: function() { return this.coords[0]; },
-			set: function( x ) { this.coords[0] = x; }
-		});
-		Object.defineProperty(Point.prototype, 'y', {
-			get: function() { return this.coords[1]; },
-			set: function( y ) { this.coords[1] = y; }
-		});
+		if ( x === undefined || x === null ) {
+			this.coords = new Float32Array([x, y]);
 
-		// a setter for x/y coordinates that behaves exactly like the constructor
-		Point.prototype._ = function(x, y) {
-			if ( x === undefined || x === null ) {
-				this.coords[0] = x;
-				this.coords[1] = y;
+		} else if ( x.constructor === Array || x.constructor === Float32Array ) {
+			this.coords = new Float32Array(x);
 
-			} else if ( x.constructor === Array || x.constructor === Float32Array ) {
-				this.coords[0] = x[0];
-				this.coords[1] = x[1];
+		} else if ( typeof x === 'object' && ( 'x' in x || 'y' in x ) ) {
+			this.coords = new Float32Array([x.x, x.y]);
 
-			} else if ( typeof x === 'object' && ( 'x' in x || 'y' in x ) ) {
-				this.coords[0] = x.x;
-				this.coords[1] = x.y;
+		} else {
+			this.coords = new Float32Array([x, y]);
 
-			} else {
-				this.coords[0] = x;
-				this.coords[1] = y;
+		}
+	}
 
-			}
+	// .x and .y are more convenient than .coords[0] and .coords[1]
+	get x() {
+		return this.coords[0];
+	}
+	set x( x ) {
+		this.coords[0] = x;
+	}
+	get y() {
+		return this.coords[1];
+	}
+	set y( y ) {
+		this.coords[1] = y;
+	}
 
-			return this;
-		};
+	// a setter for x/y coordinates that behaves exactly like the constructor
+	_(x, y) {
+		if ( x === undefined || x === null ) {
+			this.coords[0] = x;
+			this.coords[1] = y;
 
-		Point.prototype.translate = function( x, y ) {
-			var p = x instanceof Point ?
-					x:
-					new Point( x, y );
+		} else if ( x.constructor === Array || x.constructor === Float32Array ) {
+			this.coords[0] = x[0];
+			this.coords[1] = x[1];
 
-			if ( !isNaN( p.coords[0] ) ) {
-				this.coords[0] += p.coords[0];
-			}
-			if ( !isNaN( p.coords[1] ) ) {
-				this.coords[1] += p.coords[1];
-			}
+		} else if ( typeof x === 'object' && ( 'x' in x || 'y' in x ) ) {
+			this.coords[0] = x.x;
+			this.coords[1] = x.y;
 
-			return this;
-		};
+		} else {
+			this.coords[0] = x;
+			this.coords[1] = y;
 
-		Point.prototype.translateX = function( x ) {
-			this.coords[0] += x;
-			return this;
-		};
+		}
 
-		Point.prototype.translateY = function( y ) {
-			this.coords[1] += y;
-			return this;
-		};
+		return this;
+	}
 
-		Point.prototype.transform = function( m ) {
-			var coords0 = this.coords[0];
+	translate( x, y ) {
+		var p = x instanceof Point ?
+				x:
+				new Point( x, y );
 
-			if ( m.constructor === Float32Array ) {
-				this.coords[0] = m[0] * coords0 + m[2] * this.coords[1] + m[4];
-				this.coords[1] = m[1] * coords0 + m[3] * this.coords[1] + m[5];
+		if ( !isNaN( p.coords[0] ) ) {
+			this.coords[0] += p.coords[0];
+		}
+		if ( !isNaN( p.coords[1] ) ) {
+			this.coords[1] += p.coords[1];
+		}
 
-			// a.constructor === SVGMatrix
-			} else {
-				this.coords[0] = m.a * coords0 + m.c * this.coords[1] + m.e;
-				this.coords[1] = m.b * coords0 + m.d * this.coords[1] + m.f;
-			}
-			return this;
-		};
+		return this;
+	}
 
-		Point.prototype.toString = Point.prototype.toJSON = function() {
-			return ( isNaN( this.coords[0] ) ? 'NaN' : Math.round( this.coords[0] ) ) +
-				' ' +
-				( isNaN( this.coords[1] ) ? 'NaN' : Math.round( this.coords[1] ) );
-		};
+	translateX( x ) {
+		this.coords[0] += x;
+		return this;
+	}
 
-		return Point;
-	});
+	translateY( y ) {
+		this.coords[1] += y;
+		return this;
+	}
+
+	transform( m, isRecursive ) {
+		var coords0 = this.coords[0];
+
+		if ( m.constructor === Float32Array ) {
+			this.coords[0] = m[0] * coords0 + m[2] * this.coords[1] + m[4];
+			this.coords[1] = m[1] * coords0 + m[3] * this.coords[1] + m[5];
+
+		// a.constructor === SVGMatrix
+		} else {
+			this.coords[0] = m.a * coords0 + m.c * this.coords[1] + m.e;
+			this.coords[1] = m.b * coords0 + m.d * this.coords[1] + m.f;
+		}
+
+		if ( isRecursive && this.children ) {
+			this.children.forEach( child => child.transform( m, isRecursive ) );
+		}
+
+		return this;
+	}
+
+	toString() {
+		return ( isNaN( this.coords[0] ) ? 'NaN' : Math.round( this.coords[0] ) ) +
+			' ' +
+			( isNaN( this.coords[1] ) ? 'NaN' : Math.round( this.coords[1] ) );
+	}
+
+	toJSON() {
+		return this.toString();
+	}
+}
+
+export default Point;
+
+	// 	return Point;
+	// });
 
 	// some functions need to be added to the prototype at runtime to avoid circular dependency
 	/*.run(function(Point, pointOn) {

@@ -16,7 +16,6 @@
   "regexp": true,
   "undef": true,
   "unused": true,
-  "strict": true,
   "trailing": true,
   "smarttabs": true,
   "globals": {
@@ -28,6 +27,7 @@
     "it": false,
     "expect": false,
     "inject": false,
-    "module": false
+    "module": false,
+    "_": false
   }
 }

@@ -2,7 +2,7 @@
 
 var tests = [];
 for (var file in window.__karma__.files) {
-	if (window.__karma__.files.hasOwnProperty(file)) {console.log(file);
+	if (window.__karma__.files.hasOwnProperty(file)) {
 		if (/spec\.js$/i.test(file)) {
 			tests.push(file);
 		}
@@ -11,14 +11,14 @@ for (var file in window.__karma__.files) {
 
 requirejs.config({
 	// Karma serves files from '/base'
-	baseUrl: '/base/src',
+	baseUrl: '/base/es5',
 
 	paths: {
-		lodash: 'bower_components/lodash/dist/lodash',
+		'lodash': 'bower_components/lodash/dist/lodash'
 	},
 
 	shim: {
-		lodash: {
+		'lodash': {
 			exports: '_'
 		}
 	},

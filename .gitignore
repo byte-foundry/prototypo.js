@@ -1,6 +1,4 @@
 node_modules
-src/bower_components
-dist
+bower_components
 .tmp
 npm-debug.log
-karma.conf-bak.js
