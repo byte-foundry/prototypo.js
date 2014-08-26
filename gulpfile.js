@@ -5,7 +5,7 @@ var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 
 gulp.task('clean', function () {
-	return gulp.src(['.tmp', 'dist'], { read: false }).pipe($.rimraf());
+	return gulp.src(['es5', 'dist'], { read: false }).pipe($.rimraf());
 });
 
 gulp.task('build', ['lint', 'test', 'clean'], function() {
@@ -25,6 +25,16 @@ gulp.task('build', ['lint', 'test', 'clean'], function() {
 
 // var wiredep = require('wiredep');
 
+gulp.task('traceur', function() {
+	return gulp.src('src/**/*.js')
+		.pipe($.sourcemaps.init())
+		.pipe($.traceur({
+			modules: 'amd'
+		}))
+		.pipe($.sourcemaps.write())
+		.pipe(gulp.dest('es5'));
+});
+
 gulp.task('lint', function() {
 	return gulp.src(['src/*.js', 'src/classes/*.js'])
 		.pipe($.size())
@@ -34,12 +44,6 @@ gulp.task('lint', function() {
 });
 
 gulp.task('test', function() {
-	// var bowerDeps = wiredep({
-	// 	directory: 'src/bower_components',
-	// 	dependencies: true,
-	// 	devDependencies: true
-	// });
-
 	return gulp.src('undefined.js')
 		.pipe($.karma({
 			configFile: 'karma.conf.js',

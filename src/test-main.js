@@ -2,7 +2,7 @@
 
 var tests = [];
 for (var file in window.__karma__.files) {
-	if (window.__karma__.files.hasOwnProperty(file)) {
+	if (window.__karma__.files.hasOwnProperty(file)) {console.log(file);
 		if (/spec\.js$/i.test(file)) {
 			tests.push(file);
 		}
@@ -14,13 +14,13 @@ requirejs.config({
 	baseUrl: '/base/src',
 
 	paths: {
-		//'underscore': '../lib/underscore',
+		lodash: 'bower_components/lodash/dist/lodash',
 	},
 
 	shim: {
-		// 'underscore': {
-		// 	exports: '_'
-		// }
+		lodash: {
+			exports: '_'
+		}
 	},
 
 	// ask Require.js to load these files (all our tests)
