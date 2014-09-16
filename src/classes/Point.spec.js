@@ -10,20 +10,17 @@ describe('Point structure', function() {
 	beforeEach(function() {
 		_Point = Point;
 		p0 = new Point(3,6);
-		p1 = Point(2,5);
-		p2 = Point([2,5]);
-		p3 = Point('2','5');
-		p4 = Point(['2','5']);
-		p5 = Point(p1);
-		p6 = Point({x: 2, y: 5});
-	});
-
-	it('can be called with or without new', function() {
-		expect(p0 instanceof _Point).to.be.true;
-		expect(p1 instanceof _Point).to.be.true;
+		p1 = new Point(2,5);
+		p2 = new Point([2,5]);
+		p3 = new Point('2','5');
+		p4 = new Point(['2','5']);
+		p5 = new Point(p1);
+		p6 = new Point({x: 2, y: 5});
 	});
 
 	it('accepts two args: x and y', function() {
+		expect(p0.constructor).to.be.equal(Point);
+
 		expect(p0.x).to.equal(3);
 		expect(p0.y).to.equal(6);
 
@@ -59,27 +56,27 @@ describe('Point structure', function() {
 	});
 
 	it('accepts undefined parameters', function() {
-		var p1 = Point( undefined, 5 );
+		var p1 = new Point( undefined, 5 );
 		expect(p1.x).to.deep.equal(NaN);
 		expect(p1.y).to.equal(5);
 
-		var p2 = Point( 2, undefined );
+		var p2 = new Point( 2, undefined );
 		expect(p2.y).to.deep.equal(NaN);
 		expect(p2.x).to.equal(2);
 
-		var p3 = Point([undefined, 5]);
+		var p3 = new Point([undefined, 5]);
 		expect(p3.x).to.deep.equal(NaN);
 		expect(p3.y).to.equal(5);
 
-		var p4 = Point([2, undefined]);
+		var p4 = new Point([2, undefined]);
 		expect(p4.y).to.deep.equal(NaN);
 		expect(p4.x).to.equal(2);
 
-		var p5 = Point({y: 5});
+		var p5 = new Point({y: 5});
 		expect(p5.x).to.deep.equal(NaN);
 		expect(p5.y).to.equal(5);
 
-		var p6 = Point({x: 2});
+		var p6 = new Point({x: 2});
 		expect(p6.y).to.deep.equal(NaN);
 		expect(p6.x).to.equal(2);
 	});
@@ -92,30 +89,30 @@ describe('translatePoint', function () {
 	beforeEach(function() {
 		_Point = Point;
 		p0 = new Point(3,6);
-		p1 = Point(2,5);
-		p2 = Point([2,5]);
-		p3 = Point('2','5');
-		p4 = Point(['2','5']);
-		p5 = Point(p1);
-		p6 = Point({x: 2, y: 5});
+		p1 = new Point(2,5);
+		p2 = new Point([2,5]);
+		p3 = new Point('2','5');
+		p4 = new Point(['2','5']);
+		p5 = new Point(p1);
+		p6 = new Point({x: 2, y: 5});
 	});
 
 	it('can translate a Point on x axis', function() {
-		var p1 = Point(2,5);
+		var p1 = new Point(2,5);
 		p1.translateX(4);
 
 		expect(p1.x).to.equal(6);
 	});
 
 	it('can translate a Point on y axis', function() {
-		var p1 = Point(2,5);
+		var p1 = new Point(2,5);
 		p1.translateY(-2);
 
 		expect(p1.y).to.equal(3);
 	});
 
 	it('can translate a Point on x and y axis', function() {
-		var p1 = Point(2,5);
+		var p1 = new Point(2,5);
 		p1.translate(4,-2);
 
 		expect(p1.x).to.equal(6);
@@ -123,13 +120,13 @@ describe('translatePoint', function () {
 	});
 
 	it('can translate a Point with NaN coords', function() {
-		var p1 = Point(2,undefined);
+		var p1 = new Point(2,undefined);
 		p1.translate(4,-2);
 
 		expect(p1.x).to.equal(6);
 		expect(p1.y).to.deep.equal(NaN);
 
-		var p2 = Point(undefined,5);
+		var p2 = new Point(undefined,5);
 		p2.translate(4,-2);
 
 		expect(p2.y).to.equal(3);
@@ -137,10 +134,10 @@ describe('translatePoint', function () {
 	});
 
 	it('accepts the same arguments in Point constructor and translate method', function() {
-		expect( Point(0,0).translate( 10, 20 ).toString() ).to.equal('10 20');
-		expect( Point(0,0).translate( [10, 20] ).toString() ).to.equal('10 20');
-		expect( Point(0,0).translate( {x: 10, y: 20} ).toString() ).to.equal('10 20');
-		expect( Point(0,0).translate( Point(10, 20) ).toString() ).to.equal('10 20');
+		expect( (new Point(0,0)).translate( 10, 20 ).toString() ).to.equal('10 20');
+		expect( (new Point(0,0)).translate( [10, 20] ).toString() ).to.equal('10 20');
+		expect( (new Point(0,0)).translate( {x: 10, y: 20} ).toString() ).to.equal('10 20');
+		expect( (new Point(0,0)).translate( new Point(10, 20) ).toString() ).to.equal('10 20');
 	});
 });
 

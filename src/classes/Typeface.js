@@ -4,8 +4,9 @@ function Typeface( config ) {
 		this[i] = config[i];
 	}
 
-	this.components = {};
-	this.characters = {};
+	this.glyphs = {};
+	this.info = {};
+	this.kerning = {};
 }
 
 export default Typeface;

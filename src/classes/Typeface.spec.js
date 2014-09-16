@@ -11,10 +11,12 @@ describe('Typeface structure', function() {
 		expect(t.bar).to.be.false;
 		expect(t.baz).to.equal('hello');
 
-		expect(t.components).to.be.an('object');
-		expect(t.components).to.be.empty;
-		expect(t.characters).to.be.an('object');
-		expect(t.characters).to.be.empty;
+		expect(t.glyphs).to.be.an('object');
+		expect(t.glyphs).to.be.empty;
+		expect(t.info).to.be.an('object');
+		expect(t.info).to.be.empty;
+		expect(t.kerning).to.be.an('object');
+		expect(t.kerning).to.be.empty;
 	});
 
 });
