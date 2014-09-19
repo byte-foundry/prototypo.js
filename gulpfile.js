@@ -57,3 +57,8 @@ gulp.task('test', ['traceur'], function() {
 			throw err;
 		});
 });
+
+gulp.task('copy-font', function() {
+	return gulp.src(['test_font/*.json'])
+		.pipe(gulp.dest('es5'));
+});

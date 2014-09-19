@@ -108,6 +108,20 @@ Object.mixin(Point.prototype, {
 	}
 });
 
+Point.prototype.onLine = function( knownCoord, p1, p2 ) {
+	var origin = p1,
+		vector = [
+			p2.x - p1.x,
+			p2.y - p1.y
+		];
+
+	if ( knownCoord === 'x' ) {
+		this.coords[1] = ( this.coords[0] - origin.x ) / vector[0] * vector[1] + origin.y;
+	} else {
+		this.coords[0] = ( this.coords[1] - origin.y ) / vector[1] * vector[0] + origin.x;
+	}
+}
+
 export default Point;
 
 	// 	return Point;

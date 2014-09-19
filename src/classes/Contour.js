@@ -5,18 +5,20 @@ function Contour( args ) {
 	Classify.prototype.constructor.apply( this );
 
 	this.nodes = [];
-	if ( args.nodes ) {
-		args.nodes.forEach(node => {
-			this.nodes.push( new Node( node ) )
-		});
-	}
+	// if ( args.nodes ) {
+	// 	args.nodes.forEach(node => {
+	// 		this.nodes.push( new Node( node ) )
+	// 	});
+	// }
 }
 
 Contour.prototype = Object.create(Classify.prototype);
 Contour.prototype.constructor = Contour;
 
 Contour.prototype.addNode = function( args ) {
-	return this.nodes.push( new Node( args ) );
+	var node = new Node( args )
+	this.nodes.push( node );
+	return node;
 };
 
 Contour.prototype.transform = function( m ) {
@@ -35,12 +37,16 @@ Contour.prototype.link = function() {
 
 	while ( i-- ) {
 		if ( this.nodes[i + 1] ) {
-			this.nodes[i].next  this.nodes[i + 1];
+			this.nodes[i].next = this.nodes[i + 1];
 		}
 		if ( this.nodes[i - 1] ) {
-			this.nodes[i].prev  this.nodes[i - 1];
+			this.nodes[i].prev = this.nodes[i - 1];
 		}
 	}
 }
+
+Contour.prototype.update = function( params, contours, anchors ) {
+	this.nodes.forEach(node => node.update( params, contours, anchors, this.nodes ));
+};
 
 export default Contour;

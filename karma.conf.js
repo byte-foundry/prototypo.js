@@ -27,7 +27,8 @@ module.exports = function(config) {
 			'test-main.conf.js',
 			'bower_components/traceur-runtime/traceur-runtime.js',
 			{pattern: 'bower_components/**/*.js', included: false},
-			{pattern: 'es5/**/*.js', included: false}
+			{pattern: 'es5/**/*.js', included: false},
+			{pattern: 'mock_font/*.json', included: false}
 		],
 
 		// list of files to exclude
@@ -72,6 +73,6 @@ module.exports = function(config) {
 
 		// Continuous Integration mode
 		// if true, Karma captures browsers, runs the tests and exits
-		singleRun: false
+		singleRun: true
 	});
 };

@@ -17,8 +17,6 @@ function Node( args ) {
 	this.rCtrl = new Point( args.rCtrl );
 	this.rCtrl.tags.add('control');
 
-	this.onLine = args.onLine,
-	this.onSegment = args.onSegment;
 	this.src = args.src;
 }
 
@@ -42,5 +40,26 @@ Node.prototype.transform = function( m, withCtrls ) {
 
 	return this;
 }
+
+var coords = ['x', 'y'];
+Node.prototype.update = function( params, contours, anchors, nodes ) {
+	for ( var i in this.src ) {
+		var attr = this.src[i];
+
+		if ( typeof attr === 'object' && attr.updater ) {
+			var args = [ contours, anchors, nodes ];
+			attr.parameters.forEach(name => args.push( params[name] ) );
+			this[i] = attr.updater.apply( {}, args );
+		}
+
+		if ( i === 'onLine' ) {
+			var knownCoord = this.src.x === undefined ? 'y' : 'x',
+				p1 = nodes[ this.src.onLine[0].operation.replace(/[^\d]/g, '') ],
+				p2 = nodes[ this.src.onLine[1].operation.replace(/[^\d]/g, '') ];
+
+			this.onLine( knownCoord, p1, p2 );
+		}
+	}
+};
 
 export default Node;
