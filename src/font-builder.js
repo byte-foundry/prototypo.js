@@ -1,5 +1,29 @@
+// TODO: without this flag, it seems that jshint doesn't like arrow functions.
+// Find out what the real problem is
+/*jshint -W030 */
+
 import Font from './classes/Font.js';
-import Glyph from './classes/Glyph.js';
+// import Glyph from './classes/Glyph.js';
+
+function createUpdaters( branch ) {
+	if ( branch.constructor === Object && typeof branch.operation === 'string' ) {
+		var args = ['coutours', 'anchors', 'nodes']
+				.concat( branch.parameters )
+				.concat( 'return ' + branch.operation );
+
+		return ( branch.updater = Function.apply( null, args ) );
+	}
+
+	if ( branch.constructor === Object ) {
+		for ( var i in branch ) {
+			createUpdaters( branch[i] );
+		}
+	}
+
+	if ( branch.constructor === Array ) {
+		branch.forEach(subBranch => createUpdaters( subBranch ));
+	}
+}
 
 function builder( src ) {
 	var font = new Font(),
@@ -14,7 +38,7 @@ function builder( src ) {
 
 		glyphSrc.anchor &&
 		glyphSrc.anchor.forEach(anchorSrc => {
-			createUpdaters( pointSrc );
+			createUpdaters( anchorSrc );
 
 			glyph.addAnchor({ src: anchorSrc });
 		});
@@ -35,26 +59,6 @@ function builder( src ) {
 	}
 
 	return font;
-}
-
-function createUpdaters( branch ) {
-	if ( branch.constructor === Object && typeof branch.operation === 'string' ) {
-		var args = ['coutours', 'anchors', 'nodes']
-				.concat( branch.parameters )
-				.concat( 'return ' + branch.operation );
-
-		return branch.updater = Function.apply( null, args );
-	}
-
-	if ( branch.constructor === Object ) {
-		for ( var i in branch ) {
-			createUpdaters( branch[i] );
-		}
-	}
-
-	if ( branch.constructor === Array ) {
-		branch.forEach(subBranch => createUpdaters( subBranch ));
-	}
 }
 
 export default {

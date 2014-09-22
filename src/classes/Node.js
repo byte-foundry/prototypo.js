@@ -39,9 +39,8 @@ Node.prototype.transform = function( m, withCtrls ) {
 	}
 
 	return this;
-}
+};
 
-var coords = ['x', 'y'];
 Node.prototype.update = function( params, contours, anchors, nodes ) {
 	for ( var i in this.src ) {
 		var attr = this.src[i];

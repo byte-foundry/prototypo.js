@@ -1,6 +1,7 @@
 'use strict';
 
-var gulp = require('gulp');
+var gulp = require('gulp'),
+	requirejs = require('requirejs');
 
 var $ = require('gulp-load-plugins')();
 
@@ -11,19 +12,25 @@ var $ = require('gulp-load-plugins')();
 	});
 });
 
-gulp.task('build', ['lint', 'test', 'clean-dist'], function() {
-	return $.requirejs({
-		baseUrl: 'es5/',
+gulp.task('build', ['lint', 'test', 'clean-dist'], function( done ) {
+	requirejs.optimize({
+		baseUrl: 'es5',
 		name: '../bower_components/almond/almond',
 		include: ['main'],
 		insertRequire: ['main'],
-		out: 'prototypo.js',
+		out: 'dist/prototypo.js',
 		wrap: {
 			startFile: 'src/start.frag',
 			endFile: 'src/end.frag'
 		}
-	})
-	.pipe(gulp.dest('dist'));
+
+	}, function(error) {
+		if ( error ) {
+			throw error;
+		}
+
+		done();
+	});
 });
 
 // var wiredep = require('wiredep');
@@ -56,9 +63,4 @@ gulp.task('test', ['traceur'], function() {
 			// Make sure failed tests cause gulp to exit non-zero
 			throw err;
 		});
-});
-
-gulp.task('copy-font', function() {
-	return gulp.src(['test_font/*.json'])
-		.pipe(gulp.dest('es5'));
 });

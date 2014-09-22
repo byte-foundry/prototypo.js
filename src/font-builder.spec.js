@@ -1,5 +1,5 @@
 import fp from './font-builder.js';
-var build = fp.build;
+//var build = fp.build;
 var updater = fp.updater;
 
 describe('font parser', function() {

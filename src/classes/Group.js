@@ -33,6 +33,6 @@ Group.prototype.transform = function( m ) {
 	this.coords[1] = m[1] * coords0 + m[3] * this.coords[1] + m[5];
 
 	this.children().forEach( child => child.transform( m ) );
-}
+};
 
 export default Group;

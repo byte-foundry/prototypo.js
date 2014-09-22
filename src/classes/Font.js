@@ -5,7 +5,7 @@ function Font() {
 }
 
 Font.prototype.addGlyph = function( name, args ) {
-	return this.glyphs[name] = new Glyph( args );
-}
+	return ( this.glyphs[name] = new Glyph( args ) );
+};
 
 export default Font;

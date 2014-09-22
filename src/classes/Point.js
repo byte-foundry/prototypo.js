@@ -37,6 +37,11 @@ Object.mixin(Point.prototype, {
 		this.coords[1] = y;
 	},
 
+	set(x, y) {
+		this.coords[0] = x;
+		this.coords[1] = y;
+	},
+
 	transform( m ) {
 		var coords0 = this.coords[0];
 		this.coords[0] = m[0] * coords0 + m[2] * this.coords[1] + m[4];
@@ -120,7 +125,7 @@ Point.prototype.onLine = function( knownCoord, p1, p2 ) {
 	} else {
 		this.coords[0] = ( this.coords[1] - origin.y ) / vector[1] * vector[0] + origin.x;
 	}
-}
+};
 
 export default Point;
 

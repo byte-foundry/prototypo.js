@@ -40,7 +40,6 @@
     "http-proxy": "^1.1",
     "gulp-protractor": "0.0.7",
     "gulp-plumber": "^0.6.3",
-    "gulp-requirejs": "^0.1.3",
     "protractor": "^1.0.0",
     "uglify-save-license": "^0.4.1",
     "gulp-traceur": "~0.13.0",

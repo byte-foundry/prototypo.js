@@ -1,7 +1,7 @@
 import Classify from './Classify.js';
 import Contour from './Contour.js';
 
-function Glyph( args ) {
+function Glyph() {
 	Classify.prototype.constructor.apply( this );
 
 	this.contours = [];
@@ -17,13 +17,13 @@ Glyph.prototype = Object.create(Classify.prototype);
 Glyph.prototype.constructor = Glyph;
 
 Glyph.prototype.addContour = function( args ) {
-	var contour = new Contour( args )
+	var contour = new Contour( args );
 	this.contours.push( contour );
 	return contour;
 };
 
 Glyph.prototype.addAnchor = function( args ) {
-	var node = new Node( args )
+	var node = new Node( args );
 	this.nodes.push( node );
 	return node;
 };

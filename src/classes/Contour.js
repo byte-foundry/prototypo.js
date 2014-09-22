@@ -1,7 +1,7 @@
 import Classify from './Classify.js';
 import Node from './Node.js';
 
-function Contour( args ) {
+function Contour() {
 	Classify.prototype.constructor.apply( this );
 
 	this.nodes = [];
@@ -16,7 +16,7 @@ Contour.prototype = Object.create(Classify.prototype);
 Contour.prototype.constructor = Contour;
 
 Contour.prototype.addNode = function( args ) {
-	var node = new Node( args )
+	var node = new Node( args );
 	this.nodes.push( node );
 	return node;
 };
@@ -43,7 +43,7 @@ Contour.prototype.link = function() {
 			this.nodes[i].prev = this.nodes[i - 1];
 		}
 	}
-}
+};
 
 Contour.prototype.update = function( params, contours, anchors ) {
 	this.nodes.forEach(node => node.update( params, contours, anchors, this.nodes ));

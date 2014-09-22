@@ -27,15 +27,15 @@ function Classify( args = {} ) {
 			});
 		},
 		has() {
-			var has = true;
+			var _has = true;
 
 			Array.prototype.slice.call(arguments, 0).forEach(tag => {
 				if ( self._tags.indexOf( tag ) === -1 ) {
-					has = false;
+					_has = false;
 				}
 			});
 
-			return has;
+			return _has;
 		}
 	};
 }

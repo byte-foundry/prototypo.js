@@ -45,7 +45,7 @@ describe('Node structure', function() {
 		var n = new Node({
 			src: {
 				x: {
-					updater: function( contours, anchors, nodes, thickness, contrast ) {
+					updater: function( contours, anchors, nodes, thickness ) {
 						return thickness + nodes[0].x;
 					},
 					parameters: ['thickness', 'contrast']
