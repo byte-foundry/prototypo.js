@@ -11,4 +11,20 @@
 		root.prototypo = factory();
 	}
 }(this, function () {
-	//almond, and your modules will be inlined here
+
+// Object.mixin polyfill for IE9+
+if ( !Object.mixin ) {
+	Object.mixin = function( target, source ) {
+		var props = Object.getOwnPropertyNames(source),
+			p,
+			descriptor,
+			length = props.length;
+
+		for (p = 0; p < length; p++) {
+			descriptor = Object.getOwnPropertyDescriptor(source, props[p]);
+			Object.defineProperty(target, props[p], descriptor);
+		}
+
+		return target;
+	};
+}

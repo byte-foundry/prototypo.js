@@ -10,6 +10,5 @@ fontSrc = JSON.parse( xhr.responseText );
 
 describe('main', function() {
 
-	var font = build( fontSrc );
-	console.log(font);
+	build( fontSrc );
 });
