@@ -3,7 +3,7 @@ import Classify from './Classify.js';
 function Point( x, y ) {
 	Classify.prototype.constructor.call( this );
 
-	if ( x === undefined || x === null ) {
+	if ( !x && x !== 0 ) {
 		this.coords = new Float32Array([x, y]);
 
 	} else if ( x.constructor === Array || x.constructor === Float32Array ) {

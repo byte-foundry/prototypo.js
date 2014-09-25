@@ -2,7 +2,7 @@ import Point from './Point.js';
 
 function Node( args ) {
 	var coords;
-	if ( args.x !== undefined || args.y !== undefined ) {
+	if ( args && ( args.x !== undefined || args.y !== undefined ) ) {
 		coords = {
 			x: args.x,
 			y: args.y
@@ -11,13 +11,13 @@ function Node( args ) {
 
 	Point.prototype.constructor.apply( this, [ coords ] );
 
-	this.lCtrl = new Point( args.lCtrl );
+	this.lCtrl = new Point( args && args.lCtrl );
 	this.lCtrl.tags.add('control');
 
-	this.rCtrl = new Point( args.rCtrl );
+	this.rCtrl = new Point( args && args.rCtrl );
 	this.rCtrl.tags.add('control');
 
-	this.src = args.src;
+	this.src = args && args.src;
 }
 
 Node.prototype = Object.create(Point.prototype);

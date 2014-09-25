@@ -19,6 +19,7 @@ gulp.task('build', ['lint', 'test', 'clean-dist'], function( done ) {
 		include: ['main'],
 		insertRequire: ['main'],
 		out: 'dist/prototypo.js',
+		optimize: 'none',
 		wrap: {
 			startFile: 'src/start.frag',
 			endFile: 'src/end.frag'

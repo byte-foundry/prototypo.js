@@ -25,6 +25,17 @@ function createUpdaters( branch ) {
 	}
 }
 
+function classify( obj, src ) {
+	if ( src.type ) {
+		obj.type = src.type;
+	}
+	if ( src.tags ) {
+		obj._tags = typeof src.tags === 'string' ?
+			src.tags.split(' '):
+			src.tags;
+	}
+}
+
 function builder( src ) {
 	var font = new Font(),
 		name,
@@ -35,23 +46,27 @@ function builder( src ) {
 		glyphSrc = src.glyphs[name];
 
 		glyph = font.addGlyph( name, glyphSrc );
+		classify( glyph, glyphSrc );
 
 		glyphSrc.anchor &&
 		glyphSrc.anchor.forEach(anchorSrc => {
 			createUpdaters( anchorSrc );
 
-			glyph.addAnchor({ src: anchorSrc });
+			var anchor = glyph.addAnchor({ src: anchorSrc });
+			classify( anchor, anchorSrc );
 		});
 
 		glyphSrc.outline &&
 		glyphSrc.outline.contour &&
 		glyphSrc.outline.contour.forEach(contourSrc => {
-			var contour = glyph.addContour( contourSrc );
+			var contour = glyph.addContour({ src: contourSrc });
+			classify( contour, contourSrc );
 
 			contourSrc.point.forEach(pointSrc => {
-				createUpdaters( pointSrc );
+				createUpdaters({ src: pointSrc });
 
-				contour.addNode( pointSrc );
+				var node = contour.addNode({ src: pointSrc });
+				classify( node, pointSrc );
 			});
 
 			// TODO: check if countour is open or closed
@@ -62,6 +77,7 @@ function builder( src ) {
 }
 
 export default {
+	classify: classify,
 	build: builder,
 	updater: createUpdaters
 };
