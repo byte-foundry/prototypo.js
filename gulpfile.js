@@ -3,7 +3,8 @@
 var gulp = require('gulp'),
 	requirejs = require('requirejs');
 
-var $ = require('gulp-load-plugins')();
+var $ = require('gulp-load-plugins')(),
+	src = ['src/*.js', 'src/classes/*.js'];
 
 ['es5', 'dist'].forEach(function(path) {
 	gulp.task('clean-' + path, function() {
@@ -12,7 +13,7 @@ var $ = require('gulp-load-plugins')();
 	});
 });
 
-gulp.task('build', ['lint', 'test', 'clean-dist'], function( done ) {
+gulp.task('require', ['traceur', 'clean-dist'], function( done ) {
 	requirejs.optimize({
 		baseUrl: 'es5',
 		name: '../bower_components/almond/almond',
@@ -54,7 +55,7 @@ gulp.task('lint', function() {
 		.pipe($.jshint.reporter('fail'));
 });
 
-gulp.task('test', ['traceur'], function() {
+gulp.task('test', ['require'], function() {
 	return gulp.src('undefined.js')
 		.pipe($.karma({
 			configFile: 'karma.conf.js',
@@ -64,4 +65,10 @@ gulp.task('test', ['traceur'], function() {
 			// Make sure failed tests cause gulp to exit non-zero
 			throw err;
 		});
+});
+
+gulp.task('build', ['lint', 'test']);
+
+gulp.task('watch', function() {
+	gulp.watch(src, ['require']);
 });

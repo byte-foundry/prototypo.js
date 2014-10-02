@@ -25,51 +25,46 @@ function createUpdaters( branch ) {
 	}
 }
 
-function classify( obj, src ) {
-	if ( src.type ) {
-		obj.type = src.type;
-	}
-	if ( src.tags ) {
-		obj._tags = typeof src.tags === 'string' ?
-			src.tags.split(' '):
-			src.tags;
+function init( obj, src ) {
+	for ( var i in src ) {
+		if ( typeof src[i] !== 'object' ) {
+			obj[i] = src[i];
+		}
 	}
 }
 
-function builder( src ) {
-	var font = new Font(),
+function builder( fontSrc ) {
+	var font = new Font({ src: fontSrc }),
 		name,
 		glyphSrc,
 		glyph;
 
-	for ( name in src.glyphs ) {
-		glyphSrc = src.glyphs[name];
+	for ( name in fontSrc.glyphs ) {
+		glyphSrc = fontSrc.glyphs[name];
 
-		glyph = font.addGlyph( name, glyphSrc );
-		classify( glyph, glyphSrc );
+		glyph = font.addGlyph( name, { src: glyphSrc });
+		init( glyph, glyphSrc );
 
 		glyphSrc.anchor &&
 		glyphSrc.anchor.forEach(anchorSrc => {
 			createUpdaters( anchorSrc );
 
 			var anchor = glyph.addAnchor({ src: anchorSrc });
-			classify( anchor, anchorSrc );
+			init( anchor, anchorSrc );
 		});
 
 		glyphSrc.outline &&
 		glyphSrc.outline.contour &&
 		glyphSrc.outline.contour.forEach(contourSrc => {
 			var contour = glyph.addContour({ src: contourSrc });
-			classify( contour, contourSrc );
+			init( contour, contourSrc );
 
 			contourSrc.point.forEach(pointSrc => {
-				createUpdaters({ src: pointSrc });
+				createUpdaters( pointSrc );
 
 				var node = contour.addNode({ src: pointSrc });
-				classify( node, pointSrc );
+				init( node, pointSrc );
 			});
-
-			// TODO: check if countour is open or closed
 		});
 	}
 
@@ -77,7 +72,7 @@ function builder( src ) {
 }
 
 export default {
-	classify: classify,
+	init: init,
 	build: builder,
 	updater: createUpdaters
 };

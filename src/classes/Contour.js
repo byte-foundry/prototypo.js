@@ -27,7 +27,52 @@ Contour.prototype.transform = function( m ) {
 	return this;
 };
 
-Contour.prototype.link = function() {
+Contour.prototype.toSVG = function() {
+	var path = [],
+		nodes = this.nodes,
+		firstNode = this.nodes[0],
+		lastNode = this.nodes[this.nodes.length - 1];
+
+	do {
+		nodes.forEach(function( node, i ) {
+			// add letter
+			if ( i === 0 ) {
+				path.push('M');
+			} else {
+				path.push('C');
+			}
+
+			// add controls
+			if ( i !== 0 ) {
+				path.push(nodes[i-1].rCtrl.toString());
+
+				path.push(node.lCtrl.toString());
+			}
+
+			// add node coordinates
+			path.push(node.toString());
+
+		});
+
+		// cycle
+		if ( this.type !== 'open' ) {
+			path.push([
+				'C',
+				lastNode.rCtrl.toString(),
+				firstNode.lCtrl.toString(),
+				firstNode.toString(),
+				'Z'
+			].join(' '));
+		}
+
+	} while ( ( nodes = nodes.next ) );
+
+	this.pathData = path.join(' ');
+
+	return this.pathData;
+};
+
+/*Contour.prototype.link = function() {
 	var i = this.nodes.length;
 
 	if ( i > 1 ) {
@@ -43,10 +88,12 @@ Contour.prototype.link = function() {
 			this.nodes[i].prev = this.nodes[i - 1];
 		}
 	}
-};
+};*/
 
 Contour.prototype.update = function( params, contours, anchors ) {
 	this.nodes.forEach(node => node.update( params, contours, anchors, this.nodes ));
+
+	this.toSVG();
 };
 
 export default Contour;

@@ -38,4 +38,18 @@ describe('CLassify structure', function() {
 		expect(c.tags.has('bar')).to.be.true;
 		expect(c.tags.has('baz')).to.be.true;
 	});
+
+	it('is possible to assign tags directly', function() {
+		var c = new Classify();
+
+		c.tags = 'foo bar';
+
+		expect(c.tags.has('foo')).to.be.true;
+		expect(c.tags.has('bar')).to.be.true;
+
+		c.tags = ['foo', 'bar'];
+
+		expect(c.tags.has('foo')).to.be.true;
+		expect(c.tags.has('bar')).to.be.true;
+	});
 });

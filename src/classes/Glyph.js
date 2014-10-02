@@ -28,7 +28,7 @@ Glyph.prototype.addAnchor = function( args ) {
 	return node;
 };
 
-Glyph.prototype.update = function( params ) {
+Glyph.prototype.update = function( font, params ) {
 	// this.src.sortedProps.forEach(id => {
 	// 	id = id.split('.');
 	// 	var contour = this.contours(id[0]);
@@ -42,6 +42,15 @@ Glyph.prototype.update = function( params ) {
 
 	this.anchors.forEach(anchor => anchor.update( params, this.contours, this.anchors ));
 	this.contours.forEach(contour => contour.update( params, this.contours, this.anchors ));
+
+	return this;
+};
+
+Glyph.prototype.gatherNodes = function() {
+	return ( this.nodes = [].concat.apply(
+		this.anchors,
+		this.contours.map( contour => contour.nodes )
+	));
 };
 
 export default Glyph;
