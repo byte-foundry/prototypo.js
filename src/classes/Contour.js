@@ -90,8 +90,8 @@ Contour.prototype.toSVG = function() {
 	}
 };*/
 
-Contour.prototype.update = function( params, contours, anchors ) {
-	this.nodes.forEach(node => node.update( params, contours, anchors, this.nodes ));
+Contour.prototype.update = function( params, glyph ) {
+	this.nodes.forEach(node => node.update( params, glyph, this ));
 
 	this.toSVG();
 };

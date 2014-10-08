@@ -40,8 +40,8 @@ Glyph.prototype.update = function( font, params ) {
 	// 	});
 	// });
 
-	this.anchors.forEach(anchor => anchor.update( params, this.contours, this.anchors ));
-	this.contours.forEach(contour => contour.update( params, this.contours, this.anchors ));
+	this.anchors.forEach(anchor => anchor.update( params, this ));
+	this.contours.forEach(contour => contour.update( params, this ));
 
 	return this;
 };

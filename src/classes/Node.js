@@ -41,22 +41,38 @@ Node.prototype.transform = function( m, withCtrls ) {
 	return this;
 };
 
-Node.prototype.update = function( params, contours, anchors, nodes ) {
+function propFromPath( _path, glyph, contour ) {
+	var context,
+		path = _path.replace( /\[\s*(\d+)\s*\]/g, '.$1' ).split('.');
+
+	path.forEach(name => {
+		// init context on first iteration
+		if ( !context ) {
+			context = name === 'nodes' ? contour : glyph;
+		}
+
+		context = context[ name ];
+	});
+
+	return context;
+}
+
+Node.prototype.update = function( params, glyph, contour ) {
 	for ( var i in this.src ) {
 		var attr = this.src[i];
 
 		if ( typeof attr === 'object' && attr.updater ) {
-			var args = [ contours, anchors, nodes ];
+			var args = [ glyph.contours, glyph.anchors, contour.nodes ];
 			attr.parameters.forEach(name => args.push( params[name] ) );
 			this[i] = attr.updater.apply( {}, args );
 		}
 
 		if ( i === 'onLine' ) {
 			var knownCoord = this.src.x === undefined ? 'y' : 'x',
-				p1 = nodes[ this.src.onLine[0].operation.replace(/[^\d]/g, '') ],
-				p2 = nodes[ this.src.onLine[1].operation.replace(/[^\d]/g, '') ];
+				p0 = propFromPath( this.src.onLine[0].operation, glyph, contour ),
+				p1 = propFromPath( this.src.onLine[1].operation, glyph, contour );
 
-			this.onLine( knownCoord, p1, p2 );
+			this.onLine( knownCoord, p0, p1 );
 		}
 	}
 };

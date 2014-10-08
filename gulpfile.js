@@ -27,9 +27,8 @@ gulp.task('require', ['traceur', 'clean-dist'], function( done ) {
 		}
 
 	}, function(error) {
-		if ( error ) {
-			throw error;
-		}
+		// TODO: for some reason the error isn't one but contains the list of loaded files
+		console.log(error);
 
 		done();
 	});
@@ -55,7 +54,7 @@ gulp.task('lint', function() {
 		.pipe($.jshint.reporter('fail'));
 });
 
-gulp.task('test', ['require'], function() {
+gulp.task('test', ['lint', 'require'], function() {
 	return gulp.src('undefined.js')
 		.pipe($.karma({
 			configFile: 'karma.conf.js',
@@ -67,7 +66,7 @@ gulp.task('test', ['require'], function() {
 		});
 });
 
-gulp.task('build', ['lint', 'test']);
+gulp.task('build', ['test']);
 
 gulp.task('watch', function() {
 	gulp.watch(src, ['require']);
