@@ -1,12 +1,17 @@
+import Font from './classes/Font.js';
 import Point from './classes/Point.js';
 import Node from './classes/Node.js';
 import Glyph from './classes/Glyph.js';
 import Contour from './classes/Contour.js';
-import fb from './font-builder.js';
 
-fb.build.Point = Point;
-fb.build.Node = Node;
-fb.build.Contour = Contour;
-fb.build.Glyph = Glyph;
+function newFont( fontSrc ) {
+	return new Font( fontSrc );
+}
 
-export default fb.build;
+newFont.Font = Font;
+newFont.Point = Point;
+newFont.Node = Node;
+newFont.Contour = Contour;
+newFont.Glyph = Glyph;
+
+export default newFont;

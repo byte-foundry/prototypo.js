@@ -1,20 +1,53 @@
 import Classify from './Classify.js';
 import Contour from './Contour.js';
+import Node from './Node.js';
+import Utils from './Utils.js';
 
-function Glyph() {
+function Glyph( args ) {
 	Classify.prototype.constructor.apply( this );
 
 	this.contours = [];
 	this.anchors = [];
-	// if ( args.contours ) {
-	// 	args.contours.forEach(contour => {
-	// 		this.contours.push( new Contour( contour ) );
-	// 	});
-	// }
+	this.components = [];
+	this.parentAnchors = [];
+
+	if ( args.src ) {
+		this.src = args.src;
+		this.fromSrc( args.src );
+	}
 }
 
 Glyph.prototype = Object.create(Classify.prototype);
 Glyph.prototype.constructor = Glyph;
+
+Glyph.prototypo.fromSrc = function( glyphSrc/*, fontSrc*/ ) {
+	Utils.mergeStatic( this, glyphSrc );
+
+	if( glyphSrc.anchor ) {
+		glyphSrc.anchor.forEach(anchorSrc => {
+			Utils.createUpdaters( anchorSrc );
+
+			this.addAnchor({ src: anchorSrc });
+		});
+	}
+
+	if ( glyphSrc.outline && glyphSrc.outline.contour ) {
+		glyphSrc.outline.contour.forEach(contourSrc => {
+			this.addContour({ src: contourSrc });
+		});
+	}
+
+	// if ( glyphSrc.outline && glyphSrc.outline.components ) {
+	// 	glyphSrc.outline.components.forEach(componentSrc => {
+	// 		var component = this.addComponent({ src: fontSrc[componentSrc.base] });
+	// 		componentSrc.anchors.forEach(anchorSrc => {
+	// 			Utils.createUpdaters( anchorSrc );
+
+	// 			component.addParentAnchor({ src: anchorSrc });
+	// 		});
+	// 	});
+	// }
+};
 
 Glyph.prototype.addContour = function( args ) {
 	var contour = new Contour( args );
@@ -24,24 +57,26 @@ Glyph.prototype.addContour = function( args ) {
 
 Glyph.prototype.addAnchor = function( args ) {
 	var node = new Node( args );
-	this.nodes.push( node );
+	this.anchors.push( node );
 	return node;
 };
 
-Glyph.prototype.update = function( font, params ) {
-	// this.src.sortedProps.forEach(id => {
-	// 	id = id.split('.');
-	// 	var contour = this.contours(id[0]);
+Glyph.prototype.addComponent = function( args ) {
+	var component = new Glyph( args );
+	this.components.push( component );
+	return component;
+};
 
-	// 	contour.nodes[id[1]].update( id[2], {
-	// 		params: params,
-	// 		glyph: this,
-	// 		contour: contour
-	// 	});
-	// });
+Glyph.prototype.addParentAnchor = function( args ) {
+	var node = new Node( args );
+	this.parentAnchors.push( node );
+	return node;
+};
 
+Glyph.prototype.update = function( params ) {
 	this.anchors.forEach(anchor => anchor.update( params, this ));
 	this.contours.forEach(contour => contour.update( params, this ));
+	this.components.forEach(component => component.update( params, this ));
 
 	return this;
 };

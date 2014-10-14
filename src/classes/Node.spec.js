@@ -25,7 +25,7 @@ describe('Node structure', function() {
 		var n = new Node({
 			src: {
 				x: {
-					updater: function( contours, anchors, nodes, thickness, contrast ) {
+					updater: function( contours, anchors, parentAnchors, nodes, Utils, thickness, contrast ) {
 						return thickness * contrast;
 					},
 					parameters: ['thickness', 'contrast']
@@ -36,7 +36,7 @@ describe('Node structure', function() {
 		n.update({
 			thickness: 2,
 			contrast: 3
-		});
+		}, {}, {});
 
 		expect(n.x).to.be.equal(6);
 	});
@@ -45,7 +45,7 @@ describe('Node structure', function() {
 		var n = new Node({
 			src: {
 				x: {
-					updater: function( contours, anchors, nodes, thickness ) {
+					updater: function( contours, anchors, parentAnchors, nodes, Utils, thickness ) {
 						return thickness + nodes[0].x;
 					},
 					parameters: ['thickness', 'contrast']
@@ -55,9 +55,9 @@ describe('Node structure', function() {
 
 		n.update({
 			thickness: 2
-		}, [], [], [
+		}, {}, { nodes: [
 			{ x: 6 }
-		]);
+		]});
 
 		expect(n.x).to.be.equal(8);
 	});
@@ -68,18 +68,18 @@ describe('Node structure', function() {
 			src: {
 				x: {},
 				onLine: [
-					{operation: 'nodes[0]'},
-					{operation: 'nodes[1]'}
+					{dependencies: ['nodes.0']},
+					{dependencies: ['nodes.1']}
 				]
 			}
 		});
 
 		n.update({
 			thickness: 2
-		}, [], [], [
+		}, {}, { nodes: [
 			{ x: 10, y: 10 },
 			{ x: 20, y: 20 }
-		]);
+		]});
 
 		expect(n.y).to.be.equal(15);
 	});

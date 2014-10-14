@@ -1,19 +1,30 @@
 import Classify from './Classify.js';
 import Node from './Node.js';
+import Utils from './Utils.js';
 
-function Contour() {
+function Contour( args ) {
 	Classify.prototype.constructor.apply( this );
 
 	this.nodes = [];
-	// if ( args.nodes ) {
-	// 	args.nodes.forEach(node => {
-	// 		this.nodes.push( new Node( node ) )
-	// 	});
-	// }
+
+	if ( args.src ) {
+		this.src = args.src;
+		this.fromSrc( args.src );
+	}
 }
 
 Contour.prototype = Object.create(Classify.prototype);
 Contour.prototype.constructor = Contour;
+
+Contour.prototype.fromSrc = function( contourSrc ) {
+	Utils.mergeStatic( this, contourSrc );
+
+	contourSrc.point.forEach(pointSrc => {
+		Utils.createUpdaters( pointSrc );
+
+		this.addNode({ src: pointSrc });
+	});
+};
 
 Contour.prototype.addNode = function( args ) {
 	var node = new Node( args );

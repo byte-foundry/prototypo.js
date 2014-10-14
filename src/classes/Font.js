@@ -1,10 +1,23 @@
 import Glyph from './Glyph.js';
+import Utils from './Utils.js';
 
 function Font( args ) {
 	this.glyphs = {};
-	this.src = args && args.src;
 	this.cmap = args && args.src && args.src.info['glyph-order'];
+
+	if ( args.src ) {
+		this.src = args.src;
+		this.fromSrc( args.src );
+	}
 }
+
+Font.prototypo.fromSrc = function( fontSrc ) {
+	Utils.mergeStatic( this, fontSrc );
+
+	for ( var name in fontSrc.glyphs ) {
+		this.addGlyph( name, { src: fontSrc.glyphs[name] });
+	}
+};
 
 Font.prototype.addGlyph = function( name, args ) {
 	return ( this.glyphs[name] = new Glyph( args ) );

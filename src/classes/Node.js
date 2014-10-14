@@ -1,4 +1,5 @@
 import Point from './Point.js';
+import Utils from './Utils.js';
 
 function Node( args ) {
 	var coords;
@@ -41,38 +42,26 @@ Node.prototype.transform = function( m, withCtrls ) {
 	return this;
 };
 
-function propFromPath( _path, glyph, contour ) {
-	var context,
-		path = _path.replace( /\[\s*(\d+)\s*\]/g, '.$1' ).split('.');
-
-	path.forEach(name => {
-		// init context on first iteration
-		if ( !context ) {
-			context = name === 'nodes' ? contour : glyph;
-		}
-
-		context = context[ name ];
-	});
-
-	return context;
-}
-
 Node.prototype.update = function( params, glyph, contour ) {
 	for ( var i in this.src ) {
 		var attr = this.src[i];
 
 		if ( typeof attr === 'object' && attr.updater ) {
-			var args = [ glyph.contours, glyph.anchors, contour.nodes ];
+			var args = [ glyph.contours, glyph.anchors, glyph.parentAnchors, contour && contour.nodes, Utils ];
 			attr.parameters.forEach(name => args.push( params[name] ) );
 			this[i] = attr.updater.apply( {}, args );
 		}
 
 		if ( i === 'onLine' ) {
 			var knownCoord = this.src.x === undefined ? 'y' : 'x',
-				p0 = propFromPath( this.src.onLine[0].operation, glyph, contour ),
-				p1 = propFromPath( this.src.onLine[1].operation, glyph, contour );
+				p0 = Utils.propFromPath( this.src.onLine[0].dependencies[0], glyph, contour ),
+				p1 = Utils.propFromPath( this.src.onLine[1].dependencies[0], glyph, contour );
 
 			this.onLine( knownCoord, p0, p1 );
+		}
+
+		if ( i === 'transform' ) {
+			this.transform( attr, true );
 		}
 	}
 };
