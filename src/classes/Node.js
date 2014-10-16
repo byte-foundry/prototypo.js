@@ -18,7 +18,10 @@ function Node( args ) {
 	this.rCtrl = new Point( args && args.rCtrl );
 	this.rCtrl.tags.add('control');
 
-	this.src = args && args.src;
+	if ( args && args.src ) {
+		this.src = args && args.src;
+		Utils.mergeStatic( this, args.src );
+	}
 }
 
 Node.prototype = Object.create(Point.prototype);

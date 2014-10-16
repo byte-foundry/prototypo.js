@@ -7,9 +7,10 @@ function Contour( args ) {
 
 	this.nodes = [];
 
-	if ( args.src ) {
+	if ( args && args.src ) {
 		this.src = args.src;
 		this.fromSrc( args.src );
+		Utils.mergeStatic( this, args.src );
 	}
 }
 
@@ -17,8 +18,6 @@ Contour.prototype = Object.create(Classify.prototype);
 Contour.prototype.constructor = Contour;
 
 Contour.prototype.fromSrc = function( contourSrc ) {
-	Utils.mergeStatic( this, contourSrc );
-
 	contourSrc.point.forEach(pointSrc => {
 		Utils.createUpdaters( pointSrc );
 

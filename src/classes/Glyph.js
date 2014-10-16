@@ -11,18 +11,17 @@ function Glyph( args ) {
 	this.components = [];
 	this.parentAnchors = [];
 
-	if ( args.src ) {
+	if ( args && args.src ) {
 		this.src = args.src;
-		this.fromSrc( args.src );
+		this.fromSrc( args.src, args.fontSrc );
+		Utils.mergeStatic( this, args.src );
 	}
 }
 
 Glyph.prototype = Object.create(Classify.prototype);
 Glyph.prototype.constructor = Glyph;
 
-Glyph.prototypo.fromSrc = function( glyphSrc/*, fontSrc*/ ) {
-	Utils.mergeStatic( this, glyphSrc );
-
+Glyph.prototype.fromSrc = function( glyphSrc, fontSrc ) {
 	if( glyphSrc.anchor ) {
 		glyphSrc.anchor.forEach(anchorSrc => {
 			Utils.createUpdaters( anchorSrc );
@@ -37,16 +36,16 @@ Glyph.prototypo.fromSrc = function( glyphSrc/*, fontSrc*/ ) {
 		});
 	}
 
-	// if ( glyphSrc.outline && glyphSrc.outline.components ) {
-	// 	glyphSrc.outline.components.forEach(componentSrc => {
-	// 		var component = this.addComponent({ src: fontSrc[componentSrc.base] });
-	// 		componentSrc.anchors.forEach(anchorSrc => {
-	// 			Utils.createUpdaters( anchorSrc );
+	if ( glyphSrc.outline && glyphSrc.outline.components ) {
+		glyphSrc.outline.components.forEach(componentSrc => {
+			var component = this.addComponent({ src: fontSrc[componentSrc.base] });
+			componentSrc.anchors.forEach(anchorSrc => {
+				Utils.createUpdaters( anchorSrc );
 
-	// 			component.addParentAnchor({ src: anchorSrc });
-	// 		});
-	// 	});
-	// }
+				component.addParentAnchor({ src: anchorSrc });
+			});
+		});
+	}
 };
 
 Glyph.prototype.addContour = function( args ) {

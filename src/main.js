@@ -5,7 +5,7 @@ import Glyph from './classes/Glyph.js';
 import Contour from './classes/Contour.js';
 
 function newFont( fontSrc ) {
-	return new Font( fontSrc );
+	return new Font({src: fontSrc });
 }
 
 newFont.Font = Font;

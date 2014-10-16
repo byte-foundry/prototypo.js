@@ -5,17 +5,19 @@ function Font( args ) {
 	this.glyphs = {};
 	this.cmap = args && args.src && args.src.info['glyph-order'];
 
-	if ( args.src ) {
+	if ( args && args.src ) {
 		this.src = args.src;
 		this.fromSrc( args.src );
+		Utils.mergeStatic( this, args.src );
 	}
 }
 
-Font.prototypo.fromSrc = function( fontSrc ) {
-	Utils.mergeStatic( this, fontSrc );
-
+Font.prototype.fromSrc = function( fontSrc ) {
 	for ( var name in fontSrc.glyphs ) {
-		this.addGlyph( name, { src: fontSrc.glyphs[name] });
+		this.addGlyph( name, {
+			src: fontSrc.glyphs[name],
+			fontSrc: fontSrc
+		});
 	}
 };
 
@@ -28,7 +30,7 @@ Font.prototype.update = function( chars, params ) {
 
 	chars.forEach(char => {
 		if ( this.cmap[char] ) {
-			allChars[char] = this.glyphs[ this.cmap[char] ].update( this, params );
+			allChars[char] = this.glyphs[ this.cmap[char] ].update( params, this );
 		}
 	});
 
