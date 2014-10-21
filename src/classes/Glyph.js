@@ -36,14 +36,16 @@ Glyph.prototype.fromSrc = function( glyphSrc, fontSrc ) {
 		});
 	}
 
-	if ( glyphSrc.outline && glyphSrc.outline.components ) {
-		glyphSrc.outline.components.forEach(componentSrc => {
-			var component = this.addComponent({ src: fontSrc[componentSrc.base] });
-			componentSrc.anchors.forEach(anchorSrc => {
+	if ( glyphSrc.outline && glyphSrc.outline.component ) {
+		glyphSrc.outline.component.forEach(componentSrc => {
+			var component = this.addComponent({ src: fontSrc.glyphs[componentSrc.base] });
+			componentSrc.anchor.forEach(anchorSrc => {
 				Utils.createUpdaters( anchorSrc );
 
 				component.addParentAnchor({ src: anchorSrc });
 			});
+
+			component.parentTransform = componentSrc.transform;
 		});
 	}
 };
@@ -77,14 +79,45 @@ Glyph.prototype.update = function( params ) {
 	this.contours.forEach(contour => contour.update( params, this ));
 	this.components.forEach(component => component.update( params, this ));
 
+	this.tranform( null, true );
+
+	this.gatherNodes();
+
 	return this;
 };
 
 Glyph.prototype.gatherNodes = function() {
-	return ( this.nodes = [].concat.apply(
+	return ( this.allNodes = [].concat.apply(
 		this.anchors,
-		this.contours.map( contour => contour.nodes )
+		this.gatherContours().map( contour => contour.nodes )
 	));
+};
+
+Glyph.prototype.gatherContours = function() {
+	return ( this.allContours = [].concat.apply(
+		this.contours,
+		this.components.map( component => component.contours )
+	));
+};
+
+Glyph.prototype.transform = function( matrix, withControls ) {
+
+	// transform from sources if no matrix is provided
+	if ( !matrix ) {
+		matrix = this.parentTransform;
+
+		if ( this.src && this.src.transform ) {
+			matrix = matrix ?
+				Utils.matrixProduct( matrix, this.src.transform ):
+				this.src.transform;
+		}
+	}
+
+	if ( matrix ) {
+		this.anchors.forEach(anchor => anchor.transform( matrix, withControls ));
+		this.contours.forEach(contour => contour.transform( matrix, withControls ));
+		this.components.forEach(component => component.transform( matrix, withControls ));
+	}
 };
 
 export default Glyph;

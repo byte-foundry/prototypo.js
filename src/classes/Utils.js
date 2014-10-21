@@ -48,4 +48,20 @@ Utils.mergeStatic = function( obj, src ) {
 	}
 };
 
+Utils.matrixProduct = function( m1, m2, tmp ) {
+	if ( !tmp ) {
+		tmp = new Float32Array(6);
+	}
+
+	// Matrix product (array in column-major order)
+	tmp[0] = m1[0] * m2[0] + m1[2] * m2[1];
+	tmp[1] = m1[1] * m2[0] + m1[3] * m2[1];
+	tmp[2] = m1[0] * m2[2] + m1[2] * m2[3];
+	tmp[3] = m1[1] * m2[2] + m1[3] * m2[3];
+	tmp[4] = m1[0] * m2[4] + m1[2] * m2[5] + m1[4];
+	tmp[5] = m1[1] * m2[4] + m1[3] * m2[5] + m1[5];
+
+	return tmp;
+};
+
 export default Utils;

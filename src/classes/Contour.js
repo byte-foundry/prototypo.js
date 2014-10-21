@@ -31,8 +31,8 @@ Contour.prototype.addNode = function( args ) {
 	return node;
 };
 
-Contour.prototype.transform = function( m ) {
-	this.nodes.forEach(node => node.transform(m));
+Contour.prototype.transform = function( m, withControls ) {
+	this.nodes.forEach(node => node.transform(m, withControls));
 
 	return this;
 };
@@ -102,6 +102,10 @@ Contour.prototype.toSVG = function() {
 
 Contour.prototype.update = function( params, glyph ) {
 	this.nodes.forEach(node => node.update( params, glyph, this ));
+
+	if ( this.src && this.src.transform ) {
+		this.transform( this.src.transform, true );
+	}
 
 	this.toSVG();
 };
