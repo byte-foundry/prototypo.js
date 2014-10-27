@@ -48,39 +48,36 @@ Contour.prototype.toSVG = function() {
 		firstNode = this.nodes[0],
 		lastNode = this.nodes[this.nodes.length - 1];
 
-	//do {
-		nodes.forEach(function( node, i ) {
-			// add letter
-			if ( i === 0 ) {
-				path.push('M');
-			} else {
-				path.push('C');
-			}
-
-			// add controls
-			if ( i !== 0 ) {
-				path.push(nodes[i-1].lCtrl);
-
-				path.push(node.rCtrl);
-			}
-
-			// add node coordinates
-			path.push(node);
-
-		});
-
-		// cycle
-		if ( this.type !== 'open' ) {
-			path.concat([
-				'C',
-				lastNode.lCtrl,
-				firstNode.rCtrl,
-				firstNode,
-				'Z'
-			]);
+	nodes.forEach(function( node, i ) {
+		// add letter
+		if ( i === 0 ) {
+			path.push('M');
+		} else {
+			path.push('C');
 		}
 
-	//} while ( ( nodes = nodes.next ) );
+		// add controls
+		if ( i !== 0 ) {
+			path.push(nodes[i-1].lCtrl);
+
+			path.push(node.rCtrl);
+		}
+
+		// add node coordinates
+		path.push(node);
+
+	});
+
+	// cycle
+	if ( this.type !== 'open' ) {
+		path.push(
+			'C',
+			lastNode.lCtrl,
+			firstNode.rCtrl,
+			firstNode,
+			'Z'
+		);
+	}
 
 	this.pathData = path.join(' ');
 
