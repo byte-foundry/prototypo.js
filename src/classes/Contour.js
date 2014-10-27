@@ -1,5 +1,6 @@
 import Classify from './Classify.js';
 import Node from './Node.js';
+import Segment from './Segment.js';
 import Utils from './Utils.js';
 
 function Contour( args ) {
@@ -26,8 +27,12 @@ Contour.prototype.fromSrc = function( contourSrc ) {
 };
 
 Contour.prototype.addNode = function( args ) {
-	var node = new Node( args );
+	var node = args.constructor === Node ?
+			args:
+			new Node( args );
+
 	this.nodes.push( node );
+
 	return node;
 };
 
@@ -43,7 +48,7 @@ Contour.prototype.toSVG = function() {
 		firstNode = this.nodes[0],
 		lastNode = this.nodes[this.nodes.length - 1];
 
-	do {
+	//do {
 		nodes.forEach(function( node, i ) {
 			// add letter
 			if ( i === 0 ) {
@@ -54,28 +59,28 @@ Contour.prototype.toSVG = function() {
 
 			// add controls
 			if ( i !== 0 ) {
-				path.push(nodes[i-1].rCtrl.toString());
+				path.push(nodes[i-1].lCtrl);
 
-				path.push(node.lCtrl.toString());
+				path.push(node.rCtrl);
 			}
 
 			// add node coordinates
-			path.push(node.toString());
+			path.push(node);
 
 		});
 
 		// cycle
 		if ( this.type !== 'open' ) {
-			path.push([
+			path.concat([
 				'C',
-				lastNode.rCtrl.toString(),
-				firstNode.lCtrl.toString(),
-				firstNode.toString(),
+				lastNode.lCtrl,
+				firstNode.rCtrl,
+				firstNode,
 				'Z'
-			].join(' '));
+			]);
 		}
 
-	} while ( ( nodes = nodes.next ) );
+	//} while ( ( nodes = nodes.next ) );
 
 	this.pathData = path.join(' ');
 
@@ -109,5 +114,24 @@ Contour.prototype.update = function( params, glyph ) {
 
 	this.toSVG();
 };
+
+// For now we're just going to rebuild the segments array on each use
+Object.defineProperty(Contour.prototype, 'segments', {
+	get: function() {
+		var segments = [],
+			length = this.nodes.length,
+			i = -1;
+
+		while ( ++i < length - 1 ) {
+			segments.push( new Segment(this.nodes[i], this.nodes[i+1]) );
+		}
+
+		if ( this.type === 'closed' ) {
+			segments.push( new Segment(this.nodes[length -1], this.nodes[0]) );
+		}
+
+		return segments;
+	}
+});
 
 export default Contour;

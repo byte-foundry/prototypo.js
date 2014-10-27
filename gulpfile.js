@@ -13,7 +13,22 @@ var $ = require('gulp-load-plugins')(),
 	});
 });
 
-gulp.task('require', ['traceur', 'clean-dist'], function( done ) {
+gulp.task('traceur', ['copy-bezier'], function() {
+	return gulp.src(['src/**/*.js', '!src/bower_components/*'])
+		.pipe($.sourcemaps.init())
+		.pipe($.traceur({
+			modules: 'amd'
+		}))
+		.pipe($.sourcemaps.write())
+		.pipe(gulp.dest('es5'));
+});
+
+gulp.task('copy-bezier', ['clean-es5', 'clean-dist'], function() {
+	return gulp.src(['bower_components/bezierjs/*.js', 'bower_components/bezierjs/beziertest.js'])
+		.pipe(gulp.dest('es5/classes'));
+});
+
+gulp.task('require', ['traceur'], function( done ) {
 	requirejs.optimize({
 		baseUrl: 'es5',
 		name: '../bower_components/almond/almond',
@@ -34,17 +49,7 @@ gulp.task('require', ['traceur', 'clean-dist'], function( done ) {
 	});
 });
 
-// var wiredep = require('wiredep');
 
-gulp.task('traceur', ['clean-es5'], function() {
-	return gulp.src(['src/**/*.js', '!src/bower_components/*'])
-		.pipe($.sourcemaps.init())
-		.pipe($.traceur({
-			modules: 'amd'
-		}))
-		.pipe($.sourcemaps.write())
-		.pipe(gulp.dest('es5'));
-});
 
 gulp.task('lint', function() {
 	return gulp.src(['src/*.js', 'src/classes/*.js'])

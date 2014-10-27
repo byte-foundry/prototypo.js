@@ -1,3 +1,4 @@
+//import BezierUtils from './bezierutils.js';
 var Utils = {};
 
 Utils.propFromPath = function( _path, glyph, contour ) {
@@ -63,5 +64,28 @@ Utils.matrixProduct = function( m1, m2, tmp ) {
 
 	return tmp;
 };
+
+Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
+	var x1 = p1.x,
+		y1 = p1.y,
+		x2 = p2.x,
+		y2 = p2.y,
+		x3 = p3.x,
+		y3 = p3.y,
+		x4 = p4.x,
+		y4 = p4.y,
+		d = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+
+	if ( d === 0 ) {
+		return null;
+	}
+
+	return new Float32Array([
+		( (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4) ) / d,
+		( (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4) ) / d
+	]);
+};
+
+//Object.mixin( Utils, BezierUtils );
 
 export default Utils;

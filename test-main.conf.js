@@ -14,12 +14,16 @@ requirejs.config({
 	baseUrl: '/base/es5',
 
 	paths: {
-		'lodash': 'bower_components/lodash/dist/lodash'
+		'lodash': 'bower_components/lodash/dist/lodash',
+		'bezierjs': 'bower_components/bezierjs/bezier'
 	},
 
 	shim: {
 		'lodash': {
 			exports: '_'
+		},
+		'bezierjs': {
+			exports: 'Bezier'
 		}
 	},
 
