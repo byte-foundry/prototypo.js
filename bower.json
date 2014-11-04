@@ -1,11 +1,14 @@
 {
-  "name": "prototypo-core",
+  "name": "prototypojs",
   "version": "0.0.1",
+  "license": "GPLv3",
+  "main": "./dist/prototypo.js",
   "dependencies": {
     "requirejs": "~2.1.14",
     "almond": "~0.3.0",
     "lodash": "~2.4.1",
-    "traceur-runtime": "~0.0.58"
+    "traceur-runtime": "~0.0.58",
+    "opentype.js": "0.3.0"
   },
   "devDependencies": {}
 }

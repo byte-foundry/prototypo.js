@@ -13,8 +13,8 @@ var $ = require('gulp-load-plugins')(),
 	});
 });
 
-gulp.task('traceur', ['copy-bezier'], function() {
-	return gulp.src(['src/**/*.js', '!src/bower_components/*'])
+gulp.task('traceur', ['copy-components'], function() {
+	return gulp.src(['src/**/*.js', '!src/bower_components/**'])
 		.pipe($.sourcemaps.init())
 		.pipe($.traceur({
 			modules: 'amd'
@@ -23,9 +23,9 @@ gulp.task('traceur', ['copy-bezier'], function() {
 		.pipe(gulp.dest('es5'));
 });
 
-gulp.task('copy-bezier', ['clean-es5', 'clean-dist'], function() {
-	return gulp.src(['bower_components/bezierjs/*.js', 'bower_components/bezierjs/beziertest.js'])
-		.pipe(gulp.dest('es5/classes'));
+gulp.task('copy-components', ['clean-es5', 'clean-dist'], function() {
+	return gulp.src(['src/bower_components/**/*.js'])
+		.pipe(gulp.dest('es5/bower_components'));
 });
 
 gulp.task('require', ['traceur'], function( done ) {

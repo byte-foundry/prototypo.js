@@ -2,6 +2,7 @@ import Classify from './Classify.js';
 import Contour from './Contour.js';
 import Node from './Node.js';
 import Utils from './Utils.js';
+import opentype from '../bower_components/opentype.js/opentype.js';
 
 function Glyph( args ) {
 	Classify.prototype.constructor.apply( this );
@@ -118,6 +119,21 @@ Glyph.prototype.transform = function( matrix, withControls ) {
 		this.contours.forEach(contour => contour.transform( matrix, withControls ));
 		this.components.forEach(component => component.transform( matrix, withControls ));
 	}
+};
+
+Glyph.prototype.toOT = function() {
+	var path = new opentype.Path();
+
+	this.allContours.forEach(function( contour ) {
+		contour.toOT( path );
+	});
+
+	return new opentype.Glyph({
+        name: this.name,
+        unicode: this.unicode,
+        path: path,
+        advanceWidth: this.advanceWidth || 512
+    });
 };
 
 export default Glyph;

@@ -13,19 +13,23 @@ requirejs.config({
 	// Karma serves files from '/base'
 	baseUrl: '/base/es5',
 
-	paths: {
-		'lodash': 'bower_components/lodash/dist/lodash',
-		'bezierjs': 'bower_components/bezierjs/bezier'
-	},
+	// paths: {
+	// 	'lodash': 'src/bower_components/lodash/dist/lodash',
+	// 	'bezierjs': 'src/bower_components/bezierjs/bezier',
+	// 	'opentype': 'src/bower_components/opentype.js/opentype.js',
+	// },
 
-	shim: {
-		'lodash': {
-			exports: '_'
-		},
-		'bezierjs': {
-			exports: 'Bezier'
-		}
-	},
+	// shim: {
+	// 	'lodash': {
+	// 		exports: '_'
+	// 	},
+	// 	'bezierjs': {
+	// 		exports: 'Bezier'
+	// 	},
+	// 	'opentype': {
+	// 		exports: 'opentype'
+	// 	}
+	// },
 
 	// ask Require.js to load these files (all our tests)
 	deps: tests,

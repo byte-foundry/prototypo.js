@@ -19,8 +19,8 @@
   "trailing": true,
   "smarttabs": true,
   "globals": {
-    "requirejs": false,
     "require": false,
+    "FontFace": false,
     "define": false,
     "describe": false,
     "beforeEach": false,

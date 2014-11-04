@@ -53,14 +53,11 @@ Contour.prototype.toSVG = function() {
 		if ( i === 0 ) {
 			path.push('M');
 		} else {
-			path.push('C');
-		}
-
-		// add controls
-		if ( i !== 0 ) {
-			path.push(nodes[i-1].lCtrl);
-
-			path.push(node.rCtrl);
+			path.push(
+				'C',
+				nodes[i-1].lCtrl,
+				node.rCtrl
+			);
 		}
 
 		// add node coordinates
@@ -84,23 +81,36 @@ Contour.prototype.toSVG = function() {
 	return this.pathData;
 };
 
-/*Contour.prototype.link = function() {
-	var i = this.nodes.length;
+Contour.prototype.toOT = function(path) {
+	var nodes = this.nodes,
+		firstNode = this.nodes[0],
+		lastNode = this.nodes[this.nodes.length - 1];
 
-	if ( i > 1 ) {
-		this.nodes[0].prev = this.nodes[i - 1];
-		this.nodes[i - 1].next = this.nodes[0];
+	nodes.forEach(function( node, i ) {
+		// add letter
+		if ( i === 0 ) {
+			path.moveTo(
+				Math.round( node.x ), Math.round( node.y ) );
+		} else {
+			path.curveTo(
+				Math.round( nodes[i-1].lCtrl.x ), Math.round( nodes[i-1].lCtrl.y ),
+				Math.round( node.rCtrl.x ), Math.round( node.rCtrl.y ),
+				Math.round( node.x ), Math.round( node.y )
+			);
+		}
+	});
+
+	// cycle
+	if ( this.type !== 'open' ) {
+		path.curveTo(
+			lastNode.lCtrl.x, lastNode.lCtrl.y,
+			firstNode.rCtrl.x, firstNode.rCtrl.y,
+			firstNode.x, firstNode.y
+		);
 	}
 
-	while ( i-- ) {
-		if ( this.nodes[i + 1] ) {
-			this.nodes[i].next = this.nodes[i + 1];
-		}
-		if ( this.nodes[i - 1] ) {
-			this.nodes[i].prev = this.nodes[i - 1];
-		}
-	}
-};*/
+	return path;
+};
 
 Contour.prototype.update = function( params, glyph ) {
 	this.nodes.forEach(node => node.update( params, glyph, this ));

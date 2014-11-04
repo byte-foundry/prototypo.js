@@ -1,7 +1,7 @@
-import Bezier from './bezier.js';
+//import Bezier from '../bower_components/bezierjs/bezier.js';
 
 function Segment( start, end ) {
-	Bezier.prototype.constructor.apply( this, [ start, start.lCtrl, end.rCtrl, end ] );
+	//Bezier.prototype.constructor.apply( this, [ start, start.lCtrl, end.rCtrl, end ] );
 
 	this.start = start;
 	this.end = end;
@@ -9,8 +9,8 @@ function Segment( start, end ) {
 	this.rCtrl = this.end.rCtrl;
 }
 
-Segment.prototype = Object.create(Bezier.prototype);
-Segment.prototype.constructor = Segment;
+// Segment.prototype = Object.create(Bezier.prototype);
+// Segment.prototype.constructor = Segment;
 
 Segment.prototype.toString = function() {
 	return [
