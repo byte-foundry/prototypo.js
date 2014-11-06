@@ -88,12 +88,12 @@ Contour.prototype.toOT = function(path) {
 		// add letter
 		if ( i === 0 ) {
 			path.moveTo(
-				Math.round( node.x ), Math.round( node.y ) );
+				Math.round( node.x ) || 0, Math.round( node.y ) || 0 );
 		} else {
 			path.curveTo(
-				Math.round( nodes[i-1].lCtrl.x ), Math.round( nodes[i-1].lCtrl.y ),
-				Math.round( node.rCtrl.x ), Math.round( node.rCtrl.y ),
-				Math.round( node.x ), Math.round( node.y )
+				Math.round( nodes[i-1].lCtrl.x ) || 0, Math.round( nodes[i-1].lCtrl.y ) || 0,
+				Math.round( node.rCtrl.x ) || 0, Math.round( node.rCtrl.y ) || 0,
+				Math.round( node.x ) || 0, Math.round( node.y ) || 0
 			);
 		}
 	});
@@ -101,9 +101,9 @@ Contour.prototype.toOT = function(path) {
 	// cycle
 	if ( this.type !== 'open' ) {
 		path.curveTo(
-			lastNode.lCtrl.x, lastNode.lCtrl.y,
-			firstNode.rCtrl.x, firstNode.rCtrl.y,
-			firstNode.x, firstNode.y
+			Math.round( lastNode.lCtrl.x ) || 0, Math.round( lastNode.lCtrl.y ) || 0,
+			Math.round( firstNode.rCtrl.x ) || 0, Math.round( firstNode.rCtrl.y ) || 0,
+			Math.round( firstNode.x ) || 0, Math.round( firstNode.y ) || 0
 		);
 	}
 

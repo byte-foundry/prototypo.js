@@ -54,7 +54,7 @@ Font.prototype.toOT = function( chars, args ) {
 			})
 		];
 
-	chars.forEach(char => {
+	chars.sort().forEach(char => {
 		if ( this.cmap[char] ) {
 			allChars.push( this.glyphs[ this.cmap[char] ].toOT() );
 		}

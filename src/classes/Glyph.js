@@ -124,8 +124,6 @@ Glyph.prototype.toOT = function() {
 		contour.toOT( path );
 	});
 
-	console.log( this.advanceWidth );
-
 	return new opentype.Glyph({
         name: this.name,
         unicode: this.unicode,
