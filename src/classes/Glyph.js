@@ -23,10 +23,10 @@ Glyph.prototype = Object.create(Classify.prototype);
 Glyph.prototype.constructor = Glyph;
 
 Glyph.prototype.fromSrc = function( glyphSrc, fontSrc ) {
+	Utils.createUpdaters( glyphSrc );
+
 	if( glyphSrc.anchor ) {
 		glyphSrc.anchor.forEach(anchorSrc => {
-			Utils.createUpdaters( anchorSrc );
-
 			this.addAnchor({ src: anchorSrc });
 		});
 	}
@@ -41,8 +41,6 @@ Glyph.prototype.fromSrc = function( glyphSrc, fontSrc ) {
 		glyphSrc.outline.component.forEach(componentSrc => {
 			var component = this.addComponent({ src: fontSrc.glyphs[componentSrc.base] });
 			componentSrc.anchor.forEach(anchorSrc => {
-				Utils.createUpdaters( anchorSrc );
-
 				component.addParentAnchor({ src: anchorSrc });
 			});
 
@@ -79,8 +77,6 @@ Glyph.prototype.update = function( params ) {
 	this.anchors.forEach(anchor => anchor.update( params, this ));
 	this.contours.forEach(contour => contour.update( params, this ));
 	this.components.forEach(component => component.update( params, this ));
-
-	this.tranform( null, true );
 
 	this.gatherNodes();
 
@@ -127,6 +123,8 @@ Glyph.prototype.toOT = function() {
 	this.allContours.forEach(function( contour ) {
 		contour.toOT( path );
 	});
+
+	console.log( this.advanceWidth );
 
 	return new opentype.Glyph({
         name: this.name,

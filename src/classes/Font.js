@@ -61,7 +61,7 @@ Font.prototype.toOT = function( chars, args ) {
 	});
 
 	font.glyphs = allChars;
-console.log(font);
+
 	return font;
 };
 

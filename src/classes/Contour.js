@@ -20,8 +20,6 @@ Contour.prototype.constructor = Contour;
 
 Contour.prototype.fromSrc = function( contourSrc ) {
 	contourSrc.point.forEach(pointSrc => {
-		Utils.createUpdaters( pointSrc );
-
 		this.addNode({ src: pointSrc });
 	});
 };
