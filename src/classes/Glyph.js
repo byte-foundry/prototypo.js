@@ -125,11 +125,11 @@ Glyph.prototype.toOT = function() {
 	});
 
 	return new opentype.Glyph({
-        name: this.name,
-        unicode: this.unicode,
-        path: path,
-        advanceWidth: this.advanceWidth || 512
-    });
+		name: this.name,
+		unicode: this.unicode,
+		path: path,
+		advanceWidth: this.advanceWidth || 512
+	});
 };
 
 export default Glyph;

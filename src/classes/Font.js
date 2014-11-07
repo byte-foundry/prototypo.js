@@ -31,6 +31,10 @@ Font.prototype.addGlyph = function( name, args ) {
 Font.prototype.update = function( chars, params ) {
 	var allChars = {};
 
+	if ( chars === true ) {
+		chars = Object.keys( this.cmap );
+	}
+
 	chars.forEach(char => {
 		if ( this.cmap[char] ) {
 			allChars[char] = this.glyphs[ this.cmap[char] ].update( params, this );
@@ -40,10 +44,26 @@ Font.prototype.update = function( chars, params ) {
 	return allChars;
 };
 
+Font.prototype.toSVG = function( chars ) {
+	var allChars = [];
+
+	if ( chars === true ) {
+		chars = Object.keys( this.cmap );
+	}
+
+	chars.sort().forEach(char => {
+		if ( this.cmap[char] ) {
+			allChars.push( this.glyphs[ this.cmap[char] ].toSVG() );
+		}
+	});
+
+	return allChars;
+};
+
 Font.prototype.toOT = function( chars, args ) {
 	var font = new opentype.Font({
-			familyName: args.familyName || this.familyName,
-			styleName: args.styleName || 'Regular',
+			familyName: ( args && args.familyName ) || this.familyName,
+			styleName: ( args && args.styleName ) || 'Regular',
 			unitsPerEm: 1024
 		}),
 		allChars = [
@@ -53,6 +73,10 @@ Font.prototype.toOT = function( chars, args ) {
 				path: new opentype.Path()
 			})
 		];
+
+	if ( chars === true ) {
+		chars = Object.keys( this.cmap );
+	}
 
 	chars.sort().forEach(char => {
 		if ( this.cmap[char] ) {
