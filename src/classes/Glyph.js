@@ -117,6 +117,16 @@ Glyph.prototype.transform = function( matrix, withControls ) {
 	}
 };
 
+Glyph.prototype.toSVG = function() {
+	var path = [];
+
+	this.contours.forEach(function( contour ) {
+		path.push( contour.toSVG() );
+	});
+
+	return ( this.pathData = path.join(' ') );
+};
+
 Glyph.prototype.toOT = function() {
 	var path = new opentype.Path();
 
