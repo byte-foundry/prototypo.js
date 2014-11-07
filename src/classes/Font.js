@@ -89,13 +89,34 @@ Font.prototype.toOT = function( chars, args ) {
 	return font;
 };
 
-Font.prototype.addToFonts = function( chars, args ) {
-	document.fonts.add(
-		new FontFace(
-			'preview',
-			this.toOT( chars, args ).toBuffer()
-		)
-	);
-};
+var _URL = window.URL || window.webkitURL,
+	ruleIndex;
+Font.prototype.addToFonts = false && document.fonts ?
+	// CSS font loading, lightning fast
+	function( chars, args ) {
+		document.fonts.add(
+			new FontFace(
+				'preview',
+				this.toOT( chars, args ).toBuffer()
+			)
+		);
+	}:
+	function( chars, args ) {
+		var url = _URL.createObjectURL(
+			new Blob(
+				[ new DataView( this.toOT( chars, args ).toBuffer() ) ],
+				{type: 'font/opentype'}
+			)
+		);
+
+		if ( ruleIndex ) {
+			document.styleSheets[0].deleteRule( ruleIndex );
+		}
+
+		ruleIndex = document.styleSheets[0].insertRule(
+			'@font-face { font-family: "preview"; src: url(' + url + '); }',
+			ruleIndex || document.styleSheets[0].cssRules.length
+		);
+	};
 
 export default Font;
