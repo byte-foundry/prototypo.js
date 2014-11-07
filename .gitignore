@@ -1,5 +1,6 @@
 node_modules
 bower_components
+src/bower_components
 mock_font
 .tmp
 npm-debug.log
