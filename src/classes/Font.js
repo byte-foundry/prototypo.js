@@ -91,7 +91,7 @@ Font.prototype.toOT = function( chars, args ) {
 
 var _URL = window.URL || window.webkitURL,
 	ruleIndex;
-Font.prototype.addToFonts = false && document.fonts ?
+Font.prototype.addToFonts = document.fonts ?
 	// CSS font loading, lightning fast
 	function( chars, args ) {
 		document.fonts.add(
