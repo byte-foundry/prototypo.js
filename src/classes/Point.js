@@ -58,8 +58,6 @@ Object.mixin(Point.prototype, {
 		return this.toString();
 	},
 
-
-
 	// The following methods are deprecated
 
 	// a setter for x/y coordinates that behaves exactly like the constructor

@@ -87,24 +87,36 @@ Contour.prototype.toOT = function(path) {
 	nodes.forEach(function( node, i ) {
 		// add letter
 		if ( i === 0 ) {
-			path.moveTo(
-				Math.round( node.x ) || 0, Math.round( node.y ) || 0 );
+			path.commands.push({
+				type: 'M',
+				x: Math.round( node.x ) || 0,
+				y: Math.round( node.y ) || 0
+			});
+
 		} else {
-			path.curveTo(
-				Math.round( nodes[i-1].lCtrl.x ) || 0, Math.round( nodes[i-1].lCtrl.y ) || 0,
-				Math.round( node.rCtrl.x ) || 0, Math.round( node.rCtrl.y ) || 0,
-				Math.round( node.x ) || 0, Math.round( node.y ) || 0
-			);
+			path.commands.push({
+				type: 'C',
+				x1: Math.round( nodes[i-1].lCtrl.x ) || 0,
+				y1: Math.round( nodes[i-1].lCtrl.y ) || 0,
+				x2: Math.round( node.rCtrl.x ) || 0,
+				y2: Math.round( node.rCtrl.y ) || 0,
+				x: Math.round( node.x ) || 0,
+				y: Math.round( node.y ) || 0
+			});
 		}
 	});
 
 	// cycle
 	if ( this.type !== 'open' ) {
-		path.curveTo(
-			Math.round( lastNode.lCtrl.x ) || 0, Math.round( lastNode.lCtrl.y ) || 0,
-			Math.round( firstNode.rCtrl.x ) || 0, Math.round( firstNode.rCtrl.y ) || 0,
-			Math.round( firstNode.x ) || 0, Math.round( firstNode.y ) || 0
-		);
+		path.commands.push({
+			type: 'C',
+			x1: Math.round( lastNode.lCtrl.x ) || 0,
+			y1: Math.round( lastNode.lCtrl.y ) || 0,
+			x2: Math.round( firstNode.rCtrl.x ) || 0,
+			y2: Math.round( firstNode.rCtrl.y ) || 0,
+			x: Math.round( firstNode.x ) || 0,
+			y: Math.round( firstNode.y ) || 0
+		});
 	}
 
 	return path;
