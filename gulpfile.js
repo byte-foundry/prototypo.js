@@ -31,7 +31,7 @@ gulp.task('copy-components', ['clean-es5', 'clean-dist'], function() {
 gulp.task('require', ['traceur'], function( done ) {
 	requirejs.optimize({
 		baseUrl: 'es5',
-		name: '../bower_components/almond/almond',
+		name: 'bower_components/almond/almond',
 		include: ['main'],
 		insertRequire: ['main'],
 		out: 'dist/prototypo.js',

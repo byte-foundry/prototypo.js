@@ -25,8 +25,8 @@ module.exports = function(config) {
 		// list of files / patterns to load in the browser
 		files: [
 			'test-main.conf.js',
-			'bower_components/traceur-runtime/traceur-runtime.js',
-			{pattern: 'bower_components/**/*.js', included: false},
+			'src/bower_components/traceur-runtime/traceur-runtime.js',
+			{pattern: 'src/bower_components/**/*.js', included: false},
 			{pattern: 'es5/**/*.js', included: false},
 			{pattern: 'mock_font/*.json', included: false}
 		],
