@@ -53,7 +53,7 @@ Font.prototype.toSVG = function( chars ) {
 
 	chars.sort().forEach(char => {
 		if ( this.cmap[char] ) {
-			this.glyphs[ this.cmap[char] ].toSVG()
+			this.glyphs[ this.cmap[char] ].toSVG();
 			allChars.push( this.glyphs[ this.cmap[char] ] );
 		}
 	});
