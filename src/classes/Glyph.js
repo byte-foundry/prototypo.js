@@ -2,7 +2,7 @@ import Classify from './Classify.js';
 import Contour from './Contour.js';
 import Node from './Node.js';
 import Utils from './Utils.js';
-import opentype from '../bower_components/opentype.js/opentype.js';
+import opentype from '../bower_components/opentype.js/dist/opentype.js';
 
 function Glyph( args ) {
 	Classify.prototype.constructor.apply( this );

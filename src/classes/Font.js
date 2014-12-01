@@ -1,6 +1,6 @@
 import Glyph from './Glyph.js';
 import Utils from './Utils.js';
-import opentype from '../bower_components/opentype.js/opentype.js';
+import opentype from '../bower_components/opentype.js/dist/opentype.js';
 
 function Font( args ) {
 	this.glyphs = {};

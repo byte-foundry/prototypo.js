@@ -5,7 +5,7 @@ import Segment from './classes/Segment.js';
 import Glyph from './classes/Glyph.js';
 import Contour from './classes/Contour.js';
 import Utils from './classes/Utils.js';
-import opentype from './bower_components/opentype.js/opentype.js';
+import opentype from './bower_components/opentype.js/dist/opentype.js';
 
 function newFont( fontSrc ) {
 	return new Font({src: fontSrc });
