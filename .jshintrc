@@ -20,13 +20,13 @@
   "smarttabs": true,
   "globals": {
     "require": false,
-    "FontFace": false,
     "define": false,
     "describe": false,
+    "before": false,
+    "after": false,
     "beforeEach": false,
+    "afterEach": false,
     "it": false,
-    "expect": false,
-    "inject": false,
     "module": false,
     "_": false
   }

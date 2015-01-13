@@ -1,8 +1,14 @@
 var expect = require('../node_modules/chai').expect,
-	//	prototypo = require('../dist/prototypo'),
+	prototypo = require('../src/prototypo'),
 	Utils = require('../src/Utils.js');
 
 describe('Utils', function() {
+	before(function() {
+		prototypo.setup({
+			width: 1024,
+			height: 1024
+		});
+	});
 
 	describe('#solveDependencyTree', function() {
 

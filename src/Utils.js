@@ -1,15 +1,58 @@
-var DepTree = require('../node_modules/deptree/index.js');
+var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
+	paper = plumin.paper,
+	DepTree = require('../node_modules/deptree/index.js');
 
 var Utils = {};
 
-Utils.propFromPath = function( _path, glyph, contour ) {
+// create Glyph instance and all its child items: anchors, contours and components
+Utils.glyphFromSrc = function( glyphSrc ) {
+	var glyph = new paper.Glyph({
+		name: glyphSrc.name,
+		unicode: glyphSrc.unicode
+	});
+	glyph.src = glyphSrc;
+	Utils.mergeStatic( glyph, glyphSrc );
+
+	if ( glyphSrc.anhors ) {
+		glyphSrc.anchors.forEach(function(anchorSrc) {
+			var anchor = new paper.Node();
+			anchor.src = anchorSrc;
+			Utils.mergeStatic( anchor, anchorSrc );
+
+			glyph.addAnchor( anchor );
+		});
+	}
+
+	if ( glyphSrc.contours ) {
+		glyphSrc.contours.forEach(function(contourSrc) {
+			var contour = new paper.Path();
+			contour.src = contourSrc;
+			Utils.mergeStatic( contour, contourSrc );
+
+			glyph.addContour( contour );
+
+			// TODO: handle oncurve/offcurve points
+			contourSrc.nodes.forEach(function(nodeSrc) {
+				var node = new paper.Node();
+				node.src = nodeSrc;
+				Utils.mergeStatic( node, nodeSrc );
+
+				contour.add( node );
+			});
+		});
+	}
+
+	return glyph;
+};
+
+Utils.propFromPath = function( _path, glyph ) {
 	var context,
 		path = _path.split('.');
 
 	path.forEach(function(name) {
 		// init context on first iteration
 		if ( !context ) {
-			context = name === 'nodes' ? contour : glyph;
+			context = glyph;
 		}
 
 		context = context[ name ];
@@ -26,24 +69,30 @@ Utils.mergeStatic = function( obj, src ) {
 	}
 };
 
-Utils.createUpdaters = function( branch ) {
-	if ( branch.constructor === Object && typeof branch._operation === 'string' ) {
-		var args = ['contours', 'anchors', 'parentAnchors', 'Utils']
-				.concat( branch._parameters )
-				.concat( 'return ' + branch._operation );
+Utils.createUpdaters = function( leaf ) {
+	if ( leaf.constructor === Object &&
+			( typeof leaf._operation === 'string' || typeof leaf._operation === 'function' ) ) {
 
-		return ( branch._updater = Function.apply( null, args ) );
+		var args = ['contours', 'anchors', 'parentAnchors', 'Utils']
+				.concat( leaf._parameters || [] )
+				.concat( typeof leaf._operation === 'string' ?
+					'return ' + leaf._operation:
+					leaf._operation.toString()
+						.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
+				);
+
+		return ( leaf._updater = Function.apply( null, args ) );
 	}
 
-	if ( branch.constructor === Object ) {
-		for ( var i in branch ) {
-			Utils.createUpdaters( branch[i] );
+	if ( leaf.constructor === Object ) {
+		for ( var i in leaf ) {
+			Utils.createUpdaters( leaf[i] );
 		}
 	}
 
-	if ( branch.constructor === Array ) {
-		branch.forEach(function(subBranch) {
-			Utils.createUpdaters( subBranch );
+	if ( leaf.constructor === Array ) {
+		leaf.forEach(function(child) {
+			Utils.createUpdaters( child );
 		});
 	}
 };
@@ -51,49 +100,42 @@ Utils.createUpdaters = function( branch ) {
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
 Utils.ufoToPaper = function( src ) {
-	src.anchors = src.anchor;
-	delete src.anchor;
+	if ( src.anchor ) {
+		src.anchors = src.anchor;
+		delete src.anchor;
+	}
 
-	src.contours = src.outline.contour;
-	delete src.outline.contour;
+	if ( src.outline && src.outline.contour ) {
+		src.contours = src.outline.contour;
+		delete src.outline.contour;
+	}
 
 	src.contours.forEach(function(contour) {
-		contour.nodes = contour.point;
-		delete contour.point;
+		if ( contour.point ) {
+			contour.nodes = contour.point;
+			delete contour.point;
+		}
 	});
 
-	src.components = src.outline.component;
-	delete src.outline.contour;
+	if ( src.outline && src.outline.component ) {
+		src.components = src.outline.component;
+		delete src.outline.contour;
+	}
 
-	src.transformList = src.lib.transformList;
-	delete src.lib.transformList;
+	if ( src.lib && src.lib.transformList ) {
+		src.transformList = src.lib.transformList;
+		delete src.lib.transformList;
+	}
 };
 
+// Useless right now, we do it in Glyph.prototype.update in prototypo.js
 Utils.updateAttr = function( attr, params, glyph ) {
 	var args = [ glyph.contours, glyph.anchors, glyph.parentAnchors, Utils ];
-	attr._parameters.forEach(function(name) {
+	( attr._parameters || [] ).forEach(function(name) {
 		args.push( params[name] );
 	});
 	return attr._updater.apply( {}, args );
 };
-
-// Utils.updateSelf = function( item, excludeList, params, glyph ) {
-// 	var iattr;
-
-// 	for ( i in item.src ) {
-// 		attr = item.src[i];
-
-// 		if ( typeof attr === 'object' && attr.updater ) {
-
-// 		}
-// 	}
-
-// 	for ( i in toUpdate ) {
-// 		item[i] = toUpdate[i];
-// 	}
-// };
-
-Utils.expandSkeleton = function() {};
 
 Utils.solveDependencyTree = function( leafSrc, path, excludeList ) {
 	if ( !excludeList ) {
@@ -119,7 +161,7 @@ Utils.excludeList = function( leafSrc, path, excludeList ) {
 			excludeList.push( currPath );
 
 		// recurse
-		} else if ( !attr._dependencies ) {
+		} else if ( !attr._dependencies && !attr._operation ) {
 			Utils.excludeList( attr, currPath, excludeList );
 		}
 	}
@@ -138,9 +180,9 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 				});
 				deps = Utils.expandDependencies( deps );
 				depTree.add(currPath, deps);
+			}
 
-			// recurse
-			} else {
+			if ( !attr._dependencies && !attr._operation ) {
 				Utils.dependencyTree( attr, currPath, excludeList, depTree );
 			}
 		}
@@ -149,18 +191,18 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 	return depTree;
 };
 
-var rPoint = /\.point$/,
-	rNode = /\.nodes\.\d+$/;
+var rpoint = /\.point$/,
+	rnode = /\.nodes\.\d+$/;
 Utils.expandDependencies = function( deps ) {
 	deps = deps.map(function(dep) {
-		if ( rPoint.test(dep) ) {
+		if ( rpoint.test(dep) ) {
 			return [
-				dep.replace(rPoint, '.x'),
-				dep.replace(rPoint, '.y')
+				dep.replace(rpoint, '.x'),
+				dep.replace(rpoint, '.y')
 			];
 		}
 
-		if ( rNode.test(dep) ) {
+		if ( rnode.test(dep) ) {
 			return [
 				dep + '.x',
 				dep + '.y',
@@ -175,6 +217,28 @@ Utils.expandDependencies = function( deps ) {
 	return [].concat.apply([], deps);
 };
 
+// The following function should be useless, thanks to paper
+Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
+	var x1 = p1.x,
+		y1 = p1.y,
+		x2 = p2.x,
+		y2 = p2.y,
+		x3 = p3.x,
+		y3 = p3.y,
+		x4 = p4.x,
+		y4 = p4.y,
+		d = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+
+	if ( d === 0 ) {
+		return null;
+	}
+
+	return new Float32Array([
+		( (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4) ) / d,
+		( (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4) ) / d
+	]);
+};
+
 // Object.mixin polyfill for IE9+
 if ( !global.Object.mixin ) {
 	global.Object.mixin = function( target, source ) {
@@ -185,7 +249,11 @@ if ( !global.Object.mixin ) {
 
 		for (p = 0; p < length; p++) {
 			descriptor = Object.getOwnPropertyDescriptor(source, props[p]);
-			Object.defineProperty(target, props[p], descriptor);
+			try {
+				Object.defineProperty(target, props[p], descriptor);
+			} catch (e) {
+				// in node, some properties cannot be redefiend and we're ok with it
+			}
 		}
 
 		return target;
