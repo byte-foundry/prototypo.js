@@ -34,7 +34,9 @@ function ParametricFont( src ) {
 
 		naive.expandSkeletons( glyph );
 
-		glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc );
+		glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+			return path.split('.');
+		});
 	}
 
 	return font;
@@ -52,17 +54,31 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 
 paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	this.solvingOrder.forEach(function(path) {
-		Utils.propFromPath( path, this )
-			._updater.apply( path,
-				[ this.contours, this.anchors, this.parentAnchors, Utils ].concat(
-					this._parameters.map(function(name) {
+		var propName = path[path.length -1],
+			src = Utils.propFromPath( path, path.length, this.src ),
+			obj = Utils.propFromPath( path, path.length -1, this ),
+			result = src._updater.apply( obj,
+				[ propName, this.contours, this.anchors, this.parentAnchors, Utils ].concat(
+					src._parameters.map(function(name) {
 						return params[name];
 					})
 				)
 			);
+
+		// this assignement could be placed right inside the _updater,
+		// but it would make it harder to debug
+		if ( result !== undefined ) {
+			obj[propName] = result;
+		}
 	}, this);
 
 	this.contours.forEach(function(contour) {
+		// prepare skeletons and outlines, but not expanded contours
+		if ( contour.expandedFrom === undefined ) {
+			naive.prepareContour( contour );
+		}
+
+		// update outlines and expanded contours, but not skeletons
 		if ( contour.skeleton !== true ) {
 			naive.updateContour( contour, params );
 		}

@@ -17710,6 +17710,11 @@ function Glyph( args ) {
 	this.anchors = ( args && args.anchors ) || [];
 	this.components = ( args && args.components ) || [];
 	this.parentAnchors = ( args && args.parentAnchors ) || [];
+
+	// default fill color needed to display the glyph in a canvas
+	this.fillColor = new paper.Color(0,0,0);
+	// but each individual glyph must be explicitely made visible
+	this.visible = false;
 }
 
 Glyph.prototype = Object.create(paper.CompoundPath.prototype);
@@ -17928,7 +17933,7 @@ Utils.glyphFromSrc = function( glyphSrc ) {
 	glyph.src = glyphSrc;
 	Utils.mergeStatic( glyph, glyphSrc );
 
-	if ( glyphSrc.anhors ) {
+	if ( glyphSrc.anchors ) {
 		glyphSrc.anchors.forEach(function(anchorSrc) {
 			var anchor = new paper.Node();
 			anchor.src = anchorSrc;
@@ -17960,18 +17965,10 @@ Utils.glyphFromSrc = function( glyphSrc ) {
 	return glyph;
 };
 
-Utils.propFromPath = function( _path, glyph ) {
-	var context,
-		path = _path.split('.');
-
-	path.forEach(function(name) {
-		// init context on first iteration
-		if ( !context ) {
-			context = glyph;
-		}
-
-		context = context[ name ];
-	});
+Utils.propFromPath = function( path, length, context ) {
+	for ( var i = -1; ++i < length; ) {
+		context = context[ path[i] ];
+	}
 
 	return context;
 };
@@ -17988,7 +17985,7 @@ Utils.createUpdaters = function( leaf ) {
 	if ( leaf.constructor === Object &&
 			( typeof leaf._operation === 'string' || typeof leaf._operation === 'function' ) ) {
 
-		var args = ['contours', 'anchors', 'parentAnchors', 'Utils']
+		var args = ['propName', 'contours', 'anchors', 'parentAnchors', 'Utils']
 				.concat( leaf._parameters || [] )
 				.concat( typeof leaf._operation === 'string' ?
 					'return ' + leaf._operation:
@@ -18093,7 +18090,7 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 				var deps = attr._dependencies.filter(function(dep) {
 					return excludeList.indexOf( dep ) === -1;
 				});
-				deps = Utils.expandDependencies( deps );
+				deps = Utils.expandDependencies( deps, excludeList );
 				depTree.add(currPath, deps);
 			}
 
@@ -18108,24 +18105,32 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 
 var rpoint = /\.point$/,
 	rnode = /\.nodes\.\d+$/;
-Utils.expandDependencies = function( deps ) {
+Utils.expandDependencies = function( deps, excludeList ) {
 	deps = deps.map(function(dep) {
-		if ( rpoint.test(dep) ) {
-			return [
-				dep.replace(rpoint, '.x'),
-				dep.replace(rpoint, '.y')
-			];
-		}
+		var deps;
 
-		if ( rnode.test(dep) ) {
-			return [
+		if ( rpoint.test(dep) ) {
+			dep = dep.replace(rpoint, '');
+
+			deps = [
+				dep + '.x',
+				dep + '.y'
+			];
+
+		} else if ( rnode.test(dep) ) {
+			deps = [
 				dep + '.x',
 				dep + '.y',
 				dep + '.expand'
 			];
+
+		} else {
+			return dep;
 		}
 
-		return dep;
+		return deps.filter(function(dep) {
+			return excludeList.indexOf( dep ) === -1;
+		});
 	});
 
 	// flatten deps array
@@ -18206,46 +18211,47 @@ naive.expandSkeletons = function( glyph ) {
 
 			leftNodes.push(left);
 			rightNodes.unshift(right);
-			node.expanded = [left, right];
-			left.skeleton = right.skeleton = node;
+			node.expandedTo = [left, right];
+			left.expandedFrom = right.expandedFrom = node;
 
 			left.src = {
 				_dependencies: ['contours.' + i + '.nodes.' + j],
 				_parameters: ['width'],
 				_updater: naive.expandedNodeUpdater('left')
 			};
-			// clone left.src
 			right.src = {
 				_dependencies: ['contours.' + i + '.nodes.' + j],
 				_parameters: ['width'],
 				_updater: naive.expandedNodeUpdater('right')
 			};
+			node.src.expandedTo = [left.src, right.src];
+
 		});
 
 		// TODO: handle closed skeleton
-		if ( !contour.expanded && !contour.closed ) {
+		if ( !contour.expandedTo && !contour.closed ) {
 			leftContour = new paper.Path({
 				closed: true,
 				segments: leftNodes.concat(rightNodes)
 			});
-			contour.expanded = [leftContour];
-			leftContour.skeleton = contour;
+			contour.expandedTo = [leftContour];
+			leftContour.expandedFrom = contour;
 			glyph.addContour(leftContour);
 
 			firstNode = contour.firstNode;
 			lastNode = contour.lastNode;
 
-			firstNode.expanded[0].type = 'corner';
-			firstNode.expanded[1].type = 'corner';
-			lastNode.expanded[0].type = 'corner';
-			lastNode.expanded[1].type = 'corner';
+			firstNode.expandedTo[0].type = 'corner';
+			firstNode.expandedTo[1].type = 'corner';
+			lastNode.expandedTo[0].type = 'corner';
+			lastNode.expandedTo[1].type = 'corner';
 
-			firstNode.expanded[0].typeOut = 'line';
-			firstNode.expanded[1].typeIn = 'line';
-			lastNode.expanded[0].typeOut = 'line';
-			lastNode.expanded[1].typeIn = 'line';
+			firstNode.expandedTo[0].typeOut = 'line';
+			firstNode.expandedTo[1].typeIn = 'line';
+			lastNode.expandedTo[0].typeOut = 'line';
+			lastNode.expandedTo[1].typeIn = 'line';
 
-		} else if ( !contour.expanded && contour.closed ) {
+		} else if ( !contour.expandedTo && contour.closed ) {
 			leftContour = new paper.Path({
 				closed: true,
 				segments: leftNodes
@@ -18254,11 +18260,11 @@ naive.expandSkeletons = function( glyph ) {
 				closed: true,
 				segments: rightNodes
 			});
-			contour.expanded = [
+			contour.expandedTo = [
 				leftContour,
 				rightContour
 			];
-			leftContour.skeleton = rightContour.skeleton = contour;
+			leftContour.expandedFrom = rightContour.expandedFrom = contour;
 			glyph.addContours([
 				leftContour,
 				rightContour
@@ -18268,23 +18274,23 @@ naive.expandSkeletons = function( glyph ) {
 };
 
 naive.expandedNodeUpdater = function( side ) {
-	return function( contours, anchors, parentAnchors, Utils, _width ) {
-		var skeleton = this.skeleton,
-			expand = this.skeleton.expand,
+	return function( propName, contours, anchors, parentAnchors, Utils, _width ) {
+		var origin = this[propName].expandedFrom,
+			expand = this[propName].expandedFrom.expand,
 			width = expand.width !== undefined ? expand.width : _width,
 			coef = expand.distr !== undefined ?
 				( side === 'left' ? expand.distr : 1 - expand.distr ):
 				0.5,
 			angle = ( side === 'left' ? Math.PI : 0 ) + ( expand.angle !== undefined ?
 				expand.angle:
-				( skeleton._dirOut !== undefined ?
-					skeleton._dirOut - Math.PI / 2:
-					skeleton._dirIn + Math.PI / 2
+				( origin._dirOut !== undefined ?
+					origin._dirOut - Math.PI / 2:
+					origin._dirIn + Math.PI / 2
 				)
 			);
 
-		this.point.x = skeleton.point.x + ( width * coef * Math.cos( angle ) );
-		this.point.y = skeleton.point.y + ( width * coef * Math.sin( angle ) );
+		this[propName].point.x = origin.point.x + ( width * coef * Math.cos( angle ) );
+		this[propName].point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
 	};
 };
 
@@ -18320,8 +18326,12 @@ naive.updateContour = function( path, params ) {
 			end,
 			startCtrl,
 			endCtrl,
+			startType,
+			endType,
 			startTension,
 			endTension,
+			startDir,
+			endDir,
 			lli;
 
 		if ( !node.next ) {
@@ -18331,9 +18341,12 @@ naive.updateContour = function( path, params ) {
 			end = node.next;
 			startCtrl = start.handleOut;
 			endCtrl = end.handleIn;
+
+			startType = start.typeOut || ( start.expandedFrom && start.expandedFrom.typeOut );
+			endType = end.typeIn || ( end.expandedFrom && end.expandedFrom.typeIn );
 		}
 
-		if ( start.typeOut === 'line' || end.typeIn === 'line' ) {
+		if ( startType === 'line' || endType === 'line' ) {
 			startCtrl.x = 0;
 			startCtrl.y = 0;
 			endCtrl.x = 0;
@@ -18342,21 +18355,44 @@ naive.updateContour = function( path, params ) {
 			return;
 		}
 
-		startTension = start.tensionOut !== undefined ? start.tensionOut : 1;
-		endTension = end.tensionIn !== undefined ? end.tensionIn : 1;
+		startTension = start.tensionOut !== undefined ?
+			start.tensionOut:
+			( start.expandedFrom && start.expandedFrom.tensionOut !== undefined ?
+				start.expandedFrom.tensionOut :
+				1
+			);
+		endTension = end.tensionIn !== undefined ?
+			end.tensionIn:
+			( end.expandedFrom && end.expandedFrom.tensionIn !== undefined ?
+				end.expandedFrom.tensionIn :
+				1
+			);
+
+		startDir = start._dirOut !== undefined ?
+			start._dirOut:
+			( start.expandedFrom && start.expandedFrom._dirOut !== undefined ?
+				start.expandedFrom._dirOut :
+				1
+			);
+		endDir = end._dirIn !== undefined ?
+			end._dirIn:
+			( end.expandedFrom && end.expandedFrom._dirIn !== undefined ?
+				end.expandedFrom._dirIn :
+				1
+			);
 
 		if ( start.point.x === 0 ) {
-			lli = [ 0, end.point.y - Math.tan( end.dirIn ) * end.point.x ];
+			lli = [ 0, end.point.y - Math.tan( endDir ) * end.point.x ];
 
 		} else if ( end.point.x === 0 ) {
-			lli = [ 0, start.point.y - Math.tan( start.dirOut ) * start.point.x ];
+			lli = [ 0, start.point.y - Math.tan( startDir ) * start.point.x ];
 
 		} else {
 			lli = Utils.lineLineIntersection(
 				start.point,
-				{ x: 0, y: start.point.y - Math.tan( start.dirOut ) * start.point.x },
+				{ x: 0, y: start.point.y - Math.tan( startDir ) * start.point.x },
 				end.point,
-				{ x: 0, y: end.point.y - Math.tan( end.dirIn ) * end.point.x }
+				{ x: 0, y: end.point.y - Math.tan( endDir ) * end.point.x }
 			);
 		}
 
@@ -18445,7 +18481,9 @@ function ParametricFont( src ) {
 
 		naive.expandSkeletons( glyph );
 
-		glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc );
+		glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+			return path.split('.');
+		});
 	}
 
 	return font;
@@ -18463,17 +18501,31 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 
 paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	this.solvingOrder.forEach(function(path) {
-		Utils.propFromPath( path, this )
-			._updater.apply( path,
-				[ this.contours, this.anchors, this.parentAnchors, Utils ].concat(
-					this._parameters.map(function(name) {
+		var propName = path[path.length -1],
+			src = Utils.propFromPath( path, path.length, this.src ),
+			obj = Utils.propFromPath( path, path.length -1, this ),
+			result = src._updater.apply( obj,
+				[ propName, this.contours, this.anchors, this.parentAnchors, Utils ].concat(
+					src._parameters.map(function(name) {
 						return params[name];
 					})
 				)
 			);
+
+		// this assignement could be placed right inside the _updater,
+		// but it would make it harder to debug
+		if ( result !== undefined ) {
+			obj[propName] = result;
+		}
 	}, this);
 
 	this.contours.forEach(function(contour) {
+		// prepare skeletons and outlines, but not expanded contours
+		if ( contour.expandedFrom === undefined ) {
+			naive.prepareContour( contour );
+		}
+
+		// update outlines and expanded contours, but not skeletons
 		if ( contour.skeleton !== true ) {
 			naive.updateContour( contour, params );
 		}

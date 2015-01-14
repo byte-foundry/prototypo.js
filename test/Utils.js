@@ -35,7 +35,7 @@ describe('Utils', function() {
 			var expanded = Utils.expandDependencies([
 				'contours.0.nodes.1.point',
 				'contours.1.nodes.23'
-			]);
+			], []);
 
 			expect(expanded).to.deep.equal([
 				'contours.0.nodes.1.x',

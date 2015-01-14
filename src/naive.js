@@ -26,46 +26,47 @@ naive.expandSkeletons = function( glyph ) {
 
 			leftNodes.push(left);
 			rightNodes.unshift(right);
-			node.expanded = [left, right];
-			left.skeleton = right.skeleton = node;
+			node.expandedTo = [left, right];
+			left.expandedFrom = right.expandedFrom = node;
 
 			left.src = {
 				_dependencies: ['contours.' + i + '.nodes.' + j],
 				_parameters: ['width'],
 				_updater: naive.expandedNodeUpdater('left')
 			};
-			// clone left.src
 			right.src = {
 				_dependencies: ['contours.' + i + '.nodes.' + j],
 				_parameters: ['width'],
 				_updater: naive.expandedNodeUpdater('right')
 			};
+			node.src.expandedTo = [left.src, right.src];
+
 		});
 
 		// TODO: handle closed skeleton
-		if ( !contour.expanded && !contour.closed ) {
+		if ( !contour.expandedTo && !contour.closed ) {
 			leftContour = new paper.Path({
 				closed: true,
 				segments: leftNodes.concat(rightNodes)
 			});
-			contour.expanded = [leftContour];
-			leftContour.skeleton = contour;
+			contour.expandedTo = [leftContour];
+			leftContour.expandedFrom = contour;
 			glyph.addContour(leftContour);
 
 			firstNode = contour.firstNode;
 			lastNode = contour.lastNode;
 
-			firstNode.expanded[0].type = 'corner';
-			firstNode.expanded[1].type = 'corner';
-			lastNode.expanded[0].type = 'corner';
-			lastNode.expanded[1].type = 'corner';
+			firstNode.expandedTo[0].type = 'corner';
+			firstNode.expandedTo[1].type = 'corner';
+			lastNode.expandedTo[0].type = 'corner';
+			lastNode.expandedTo[1].type = 'corner';
 
-			firstNode.expanded[0].typeOut = 'line';
-			firstNode.expanded[1].typeIn = 'line';
-			lastNode.expanded[0].typeOut = 'line';
-			lastNode.expanded[1].typeIn = 'line';
+			firstNode.expandedTo[0].typeOut = 'line';
+			firstNode.expandedTo[1].typeIn = 'line';
+			lastNode.expandedTo[0].typeOut = 'line';
+			lastNode.expandedTo[1].typeIn = 'line';
 
-		} else if ( !contour.expanded && contour.closed ) {
+		} else if ( !contour.expandedTo && contour.closed ) {
 			leftContour = new paper.Path({
 				closed: true,
 				segments: leftNodes
@@ -74,11 +75,11 @@ naive.expandSkeletons = function( glyph ) {
 				closed: true,
 				segments: rightNodes
 			});
-			contour.expanded = [
+			contour.expandedTo = [
 				leftContour,
 				rightContour
 			];
-			leftContour.skeleton = rightContour.skeleton = contour;
+			leftContour.expandedFrom = rightContour.expandedFrom = contour;
 			glyph.addContours([
 				leftContour,
 				rightContour
@@ -88,23 +89,23 @@ naive.expandSkeletons = function( glyph ) {
 };
 
 naive.expandedNodeUpdater = function( side ) {
-	return function( contours, anchors, parentAnchors, Utils, _width ) {
-		var skeleton = this.skeleton,
-			expand = this.skeleton.expand,
+	return function( propName, contours, anchors, parentAnchors, Utils, _width ) {
+		var origin = this[propName].expandedFrom,
+			expand = this[propName].expandedFrom.expand,
 			width = expand.width !== undefined ? expand.width : _width,
 			coef = expand.distr !== undefined ?
 				( side === 'left' ? expand.distr : 1 - expand.distr ):
 				0.5,
 			angle = ( side === 'left' ? Math.PI : 0 ) + ( expand.angle !== undefined ?
 				expand.angle:
-				( skeleton._dirOut !== undefined ?
-					skeleton._dirOut - Math.PI / 2:
-					skeleton._dirIn + Math.PI / 2
+				( origin._dirOut !== undefined ?
+					origin._dirOut - Math.PI / 2:
+					origin._dirIn + Math.PI / 2
 				)
 			);
 
-		this.point.x = skeleton.point.x + ( width * coef * Math.cos( angle ) );
-		this.point.y = skeleton.point.y + ( width * coef * Math.sin( angle ) );
+		this[propName].point.x = origin.point.x + ( width * coef * Math.cos( angle ) );
+		this[propName].point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
 	};
 };
 
@@ -140,8 +141,12 @@ naive.updateContour = function( path, params ) {
 			end,
 			startCtrl,
 			endCtrl,
+			startType,
+			endType,
 			startTension,
 			endTension,
+			startDir,
+			endDir,
 			lli;
 
 		if ( !node.next ) {
@@ -151,9 +156,12 @@ naive.updateContour = function( path, params ) {
 			end = node.next;
 			startCtrl = start.handleOut;
 			endCtrl = end.handleIn;
+
+			startType = start.typeOut || ( start.expandedFrom && start.expandedFrom.typeOut );
+			endType = end.typeIn || ( end.expandedFrom && end.expandedFrom.typeIn );
 		}
 
-		if ( start.typeOut === 'line' || end.typeIn === 'line' ) {
+		if ( startType === 'line' || endType === 'line' ) {
 			startCtrl.x = 0;
 			startCtrl.y = 0;
 			endCtrl.x = 0;
@@ -162,21 +170,44 @@ naive.updateContour = function( path, params ) {
 			return;
 		}
 
-		startTension = start.tensionOut !== undefined ? start.tensionOut : 1;
-		endTension = end.tensionIn !== undefined ? end.tensionIn : 1;
+		startTension = start.tensionOut !== undefined ?
+			start.tensionOut:
+			( start.expandedFrom && start.expandedFrom.tensionOut !== undefined ?
+				start.expandedFrom.tensionOut :
+				1
+			);
+		endTension = end.tensionIn !== undefined ?
+			end.tensionIn:
+			( end.expandedFrom && end.expandedFrom.tensionIn !== undefined ?
+				end.expandedFrom.tensionIn :
+				1
+			);
+
+		startDir = start._dirOut !== undefined ?
+			start._dirOut:
+			( start.expandedFrom && start.expandedFrom._dirOut !== undefined ?
+				start.expandedFrom._dirOut :
+				1
+			);
+		endDir = end._dirIn !== undefined ?
+			end._dirIn:
+			( end.expandedFrom && end.expandedFrom._dirIn !== undefined ?
+				end.expandedFrom._dirIn :
+				1
+			);
 
 		if ( start.point.x === 0 ) {
-			lli = [ 0, end.point.y - Math.tan( end.dirIn ) * end.point.x ];
+			lli = [ 0, end.point.y - Math.tan( endDir ) * end.point.x ];
 
 		} else if ( end.point.x === 0 ) {
-			lli = [ 0, start.point.y - Math.tan( start.dirOut ) * start.point.x ];
+			lli = [ 0, start.point.y - Math.tan( startDir ) * start.point.x ];
 
 		} else {
 			lli = Utils.lineLineIntersection(
 				start.point,
-				{ x: 0, y: start.point.y - Math.tan( start.dirOut ) * start.point.x },
+				{ x: 0, y: start.point.y - Math.tan( startDir ) * start.point.x },
 				end.point,
-				{ x: 0, y: end.point.y - Math.tan( end.dirIn ) * end.point.x }
+				{ x: 0, y: end.point.y - Math.tan( endDir ) * end.point.x }
 			);
 		}
 

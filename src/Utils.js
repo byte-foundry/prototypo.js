@@ -13,7 +13,7 @@ Utils.glyphFromSrc = function( glyphSrc ) {
 	glyph.src = glyphSrc;
 	Utils.mergeStatic( glyph, glyphSrc );
 
-	if ( glyphSrc.anhors ) {
+	if ( glyphSrc.anchors ) {
 		glyphSrc.anchors.forEach(function(anchorSrc) {
 			var anchor = new paper.Node();
 			anchor.src = anchorSrc;
@@ -45,18 +45,10 @@ Utils.glyphFromSrc = function( glyphSrc ) {
 	return glyph;
 };
 
-Utils.propFromPath = function( _path, glyph ) {
-	var context,
-		path = _path.split('.');
-
-	path.forEach(function(name) {
-		// init context on first iteration
-		if ( !context ) {
-			context = glyph;
-		}
-
-		context = context[ name ];
-	});
+Utils.propFromPath = function( path, length, context ) {
+	for ( var i = -1; ++i < length; ) {
+		context = context[ path[i] ];
+	}
 
 	return context;
 };
@@ -73,7 +65,7 @@ Utils.createUpdaters = function( leaf ) {
 	if ( leaf.constructor === Object &&
 			( typeof leaf._operation === 'string' || typeof leaf._operation === 'function' ) ) {
 
-		var args = ['contours', 'anchors', 'parentAnchors', 'Utils']
+		var args = ['propName', 'contours', 'anchors', 'parentAnchors', 'Utils']
 				.concat( leaf._parameters || [] )
 				.concat( typeof leaf._operation === 'string' ?
 					'return ' + leaf._operation:
@@ -178,7 +170,7 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 				var deps = attr._dependencies.filter(function(dep) {
 					return excludeList.indexOf( dep ) === -1;
 				});
-				deps = Utils.expandDependencies( deps );
+				deps = Utils.expandDependencies( deps, excludeList );
 				depTree.add(currPath, deps);
 			}
 
@@ -193,24 +185,32 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 
 var rpoint = /\.point$/,
 	rnode = /\.nodes\.\d+$/;
-Utils.expandDependencies = function( deps ) {
+Utils.expandDependencies = function( deps, excludeList ) {
 	deps = deps.map(function(dep) {
-		if ( rpoint.test(dep) ) {
-			return [
-				dep.replace(rpoint, '.x'),
-				dep.replace(rpoint, '.y')
-			];
-		}
+		var deps;
 
-		if ( rnode.test(dep) ) {
-			return [
+		if ( rpoint.test(dep) ) {
+			dep = dep.replace(rpoint, '');
+
+			deps = [
+				dep + '.x',
+				dep + '.y'
+			];
+
+		} else if ( rnode.test(dep) ) {
+			deps = [
 				dep + '.x',
 				dep + '.y',
 				dep + '.expand'
 			];
+
+		} else {
+			return dep;
 		}
 
-		return dep;
+		return deps.filter(function(dep) {
+			return excludeList.indexOf( dep ) === -1;
+		});
 	});
 
 	// flatten deps array
