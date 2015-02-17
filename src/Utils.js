@@ -230,7 +230,8 @@ Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
 		d = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
 
 	if ( d === 0 ) {
-		return null;
+		// fail silently
+		return [0, 0];
 	}
 
 	return new Float32Array([

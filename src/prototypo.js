@@ -57,7 +57,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 		var propName = path[path.length -1],
 			src = Utils.propFromPath( path, path.length, this.src ),
 			obj = Utils.propFromPath( path, path.length -1, this ),
-			result = src._updater.apply( obj,
+			result = src && src._updater.apply( obj,
 				[ propName, this.contours, this.anchors, this.parentAnchors, Utils ].concat(
 					src._parameters.map(function(name) {
 						return params[name];

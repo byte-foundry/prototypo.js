@@ -31,9 +31,9 @@ describe('naive', function() {
 			naive.expandSkeletons( glyph );
 
 			expect(glyph.contours.length).to.equal(2);
-			expect(glyph.contours[0].expanded[0]).to.equal(glyph.contours[1]);
-			expect(glyph.contours[0].nodes[0].expanded[0]).to.equal(glyph.contours[1].nodes[0]);
-			expect(glyph.contours[0].nodes[0].expanded[1]).to.equal(glyph.contours[1].nodes[3]);
+			expect(glyph.contours[0].expandedTo[0]).to.equal(glyph.contours[1]);
+			expect(glyph.contours[0].nodes[0].expandedTo[0]).to.equal(glyph.contours[1].nodes[0]);
+			expect(glyph.contours[0].nodes[0].expandedTo[1]).to.equal(glyph.contours[1].nodes[3]);
 			expect(glyph.contours[1].nodes[0].src._dependencies[0]).to.equal('contours.0.nodes.0');
 			expect(glyph.contours[1].nodes[1].src._dependencies[0]).to.equal('contours.0.nodes.1');
 			expect(glyph.contours[1].nodes[2].src._dependencies[0]).to.equal('contours.0.nodes.1');
@@ -59,16 +59,57 @@ describe('naive', function() {
 			naive.expandSkeletons( glyph );
 
 			expect(glyph.contours.length).to.equal(3);
-			expect(glyph.contours[0].expanded[0]).to.equal(glyph.contours[1]);
-			expect(glyph.contours[0].expanded[1]).to.equal(glyph.contours[2]);
-			expect(glyph.contours[0].nodes[0].expanded[0]).to.equal(glyph.contours[1].nodes[0]);
-			expect(glyph.contours[0].nodes[0].expanded[1]).to.equal(glyph.contours[2].nodes[1]);
+			expect(glyph.contours[0].expandedTo[0]).to.equal(glyph.contours[1]);
+			expect(glyph.contours[0].expandedTo[1]).to.equal(glyph.contours[2]);
+			expect(glyph.contours[0].nodes[0].expandedTo[0]).to.equal(glyph.contours[1].nodes[0]);
+			expect(glyph.contours[0].nodes[0].expandedTo[1]).to.equal(glyph.contours[2].nodes[1]);
 
 			expect(glyph.contours[1].nodes[0].src._dependencies[0]).to.equal('contours.0.nodes.0');
 			expect(glyph.contours[1].nodes[1].src._dependencies[0]).to.equal('contours.0.nodes.1');
 
 			expect(glyph.contours[2].nodes[0].src._dependencies[0]).to.equal('contours.0.nodes.1');
 			expect(glyph.contours[2].nodes[1].src._dependencies[0]).to.equal('contours.0.nodes.0');
+		});
+	});
+
+	describe('#expandedNodeUpdater', function() {
+		it('should copy node type from skeleton to contours', function() {
+			var glyphSrc = {
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: true,
+						nodes: [{
+							x: 10,
+							y: 10,
+							type: 'a'
+						}, {
+							x: 200,
+							y: 400
+						}]
+					}]
+				},
+				glyph;
+
+			Utils.createUpdaters( glyphSrc );
+			glyph = Utils.glyphFromSrc( glyphSrc );
+			naive.expandSkeletons( glyph );
+			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+				return path.split('.');
+			});
+
+			glyph.update({ width: 10 });
+
+			expect(glyph.contours[0].nodes[0].expandedTo[0].type)
+				.to.equal(glyph.contours[0].nodes[0].type);
+			expect(glyph.contours[0].nodes[0].expandedTo[1].type)
+				.to.equal(glyph.contours[0].nodes[0].type);
+			expect(glyph.contours[0].nodes[1].expandedTo[0].type)
+				.to.equal(glyph.contours[0].nodes[1].type);
+			expect(glyph.contours[0].nodes[1].expandedTo[0].type)
+				.to.equal(undefined);
+			expect(glyph.contours[0].nodes[1].expandedTo[1].type)
+				.to.equal(undefined);
 		});
 	});
 });

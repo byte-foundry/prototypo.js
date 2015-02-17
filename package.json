@@ -29,7 +29,7 @@
     "watchify": "watchify src/prototypo.js --igv global --debug --standalone prototypo -o dist/prototypo.js -v",
     "uglify": "uglifyjs dist/prototypo.js > dist/prototypo.min.js",
     "test": "mocha test/*.js",
-    "debug": "node-inspector --no-preload & mocha --debug-brk -w test/*.js"
+    "debug": "node-inspector --no-preload --web-port=8081 & mocha --debug-brk -w test/*.js"
   },
   "repository": {
     "type": "git",

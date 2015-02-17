@@ -43,7 +43,6 @@ naive.expandSkeletons = function( glyph ) {
 
 		});
 
-		// TODO: handle closed skeleton
 		if ( !contour.expandedTo && !contour.closed ) {
 			leftContour = new paper.Path({
 				closed: true,
@@ -88,29 +87,83 @@ naive.expandSkeletons = function( glyph ) {
 	});
 };
 
+// Calculate expanded node position
+// and copy properties from skeleton, according to the side
 naive.expandedNodeUpdater = function( side ) {
 	return function( propName, contours, anchors, parentAnchors, Utils, _width ) {
-		var origin = this[propName].expandedFrom,
-			expand = this[propName].expandedFrom.expand,
-			width = expand.width !== undefined ? expand.width : _width,
-			coef = expand.distr !== undefined ?
+		var node = this[propName],
+			origin = node.expandedFrom,
+			expand = origin.expand,
+			width = expand && expand.width !== undefined ?
+				expand.width: _width,
+			coef = expand && expand.distr !== undefined ?
 				( side === 'left' ? expand.distr : 1 - expand.distr ):
 				0.5,
-			angle = ( side === 'left' ? Math.PI : 0 ) + ( expand.angle !== undefined ?
-				expand.angle:
-				( origin._dirOut !== undefined ?
-					origin._dirOut - Math.PI / 2:
-					origin._dirIn + Math.PI / 2
-				)
-			);
+			angle = ( side === 'left' ? Math.PI : 0 ) +
+				( expand && expand.angle !== undefined ?
+					expand.angle:
+					( origin._dirOut !== undefined ?
+						origin._dirOut - Math.PI / 2:
+						origin._dirIn + Math.PI / 2
+					)
+				);
 
-		this[propName].point.x = origin.point.x + ( width * coef * Math.cos( angle ) );
-		this[propName].point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
+		// position
+		node.point.x = origin.point.x + ( width * coef * Math.cos( angle ) );
+		node.point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
+
+		// node type
+		if ( origin.type !== undefined ) {
+			node.type = origin.type;
+		}
+
+		// direction type
+		if ( origin.typeIn !== undefined ) {
+			node[ side === 'left' ? 'typeIn' : 'typeOut' ] = origin.typeIn;
+		}
+		if ( origin.typeOut !== undefined ) {
+			node[ side === 'left' ? 'typeOut' : 'typeIn' ] = origin.typeOut;
+		}
+
+		// direction
+		if ( origin._dirIn !== undefined ) {
+			node[ side === 'left' ? '_dirIn' : '_dirOut' ] = origin._dirIn;
+
+			if ( node.type === 'smooth' ) {
+				node[ side === 'left' ? '_dirOut' : '_dirIn' ] = origin._dirIn + Math.PI;
+			}
+		}
+		if ( origin._dirOut !== undefined ) {
+			node[ side === 'left' ? '_dirOut' : '_dirIn' ] = origin._dirOut;
+
+			if ( node.type === 'smooth' ) {
+				node[ side === 'left' ? '_dirIn' : '_dirOut' ] = origin._dirOut + Math.PI;
+			}
+		}
+		// use angle if direction isn't already defined
+		if ( node._dirIn === undefined ) {
+			node._dirIn = ( origin.angle || 0 ) +
+				( side === 'left' ? 0 : Math.PI ) - Math.PI / 2;
+		}
+		if ( node._dirOut === undefined ) {
+			node._dirOut = ( origin.angle || 0 ) +
+				( side === 'left' ? 0 : Math.PI ) + Math.PI / 2;
+		}
+
+		// tension
+		node.tensionIn = origin[ 'tension' + side === 'left' ? 'In' : 'Out' ] !== undefined ?
+			origin[ 'tension' + side === 'left' ? 'In' : 'Out' ]:
+			origin.tension !== undefined ? origin.tension : 1;
+		node.tensionOut = origin[ 'tension' + side === 'left' ? 'Out' : 'In' ] !== undefined ?
+			origin[ 'tension' + side === 'left' ? 'Out' : 'In' ]:
+			origin.tension !== undefined ? origin.tension : 1;
 	};
 };
 
-// make sure lines are set on both endpoints of a segment
-// make sure types of endpoints are correctly set
+// Make sure 'line' types are set on both side of segments
+// and if a smooth node is used in a straight segment, update the directions appropriately
+// this can only be done once the types of all nodes have been updated
+// can be renamed #prepareLines if no other operation is added
 naive.prepareContour = function( path ) {
 	path.nodes.forEach(function(node) {
 		if ( node.typeIn === 'line' && node.previous ) {
@@ -122,7 +175,7 @@ naive.prepareContour = function( path ) {
 			}
 		}
 
-		if ( node.typeOut === 'line' && node.previous ) {
+		if ( node.typeOut === 'line' && node.next ) {
 			node.next.typeIn = 'line';
 
 			if ( node.type === 'smooth' ) {
@@ -133,6 +186,8 @@ naive.prepareContour = function( path ) {
 	});
 };
 
+// sets the position of control points
+// can be renamed #updateControls if no other operation is added
 naive.updateContour = function( path, params ) {
 	var curviness = params.curviness || 2/3;
 
@@ -157,8 +212,8 @@ naive.updateContour = function( path, params ) {
 			startCtrl = start.handleOut;
 			endCtrl = end.handleIn;
 
-			startType = start.typeOut || ( start.expandedFrom && start.expandedFrom.typeOut );
-			endType = end.typeIn || ( end.expandedFrom && end.expandedFrom.typeIn );
+			startType = start.typeOut;
+			endType = end.typeIn;
 		}
 
 		if ( startType === 'line' || endType === 'line' ) {
@@ -172,29 +227,17 @@ naive.updateContour = function( path, params ) {
 
 		startTension = start.tensionOut !== undefined ?
 			start.tensionOut:
-			( start.expandedFrom && start.expandedFrom.tensionOut !== undefined ?
-				start.expandedFrom.tensionOut :
-				1
-			);
+			start.tension !== undefined ? start.tension : 1;
 		endTension = end.tensionIn !== undefined ?
 			end.tensionIn:
-			( end.expandedFrom && end.expandedFrom.tensionIn !== undefined ?
-				end.expandedFrom.tensionIn :
-				1
-			);
+			end.tension !== undefined ? end.tension : 1;
 
 		startDir = start._dirOut !== undefined ?
 			start._dirOut:
-			( start.expandedFrom && start.expandedFrom._dirOut !== undefined ?
-				start.expandedFrom._dirOut :
-				1
-			);
+			start.type === 'smooth' ? start._dirIn + Math.PI : 0;
 		endDir = end._dirIn !== undefined ?
 			end._dirIn:
-			( end.expandedFrom && end.expandedFrom._dirIn !== undefined ?
-				end.expandedFrom._dirIn :
-				1
-			);
+			end.type === 'smooth' ? end._dirOut - Math.PI : 0;
 
 		if ( start.point.x === 0 ) {
 			lli = [ 0, end.point.y - Math.tan( endDir ) * end.point.x ];

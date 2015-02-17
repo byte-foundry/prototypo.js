@@ -46,13 +46,15 @@
 			xhr.send();
 
 			font = prototypo.ParametricFont( fontSrc );
-			font.glyphMap.B.update({ width: 10 });
+			font.glyphMap.D.update({ width: 10 });
 
-			font.glyphMap.B.visible = true;
-			font.glyphMap.B
+			font.glyphMap.D.visible = true;
+			font.glyphMap.D
 				.contours[0].visible = false;
 
 			prototypo.paper.view.update();
+
+			console.log(font.glyphMap.D.contours[0].exportSVG());
 
 		</script>
 
