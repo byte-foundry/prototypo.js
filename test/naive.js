@@ -111,5 +111,190 @@ describe('naive', function() {
 			expect(glyph.contours[0].nodes[1].expandedTo[1].type)
 				.to.equal(undefined);
 		});
+
+		it('should copy direction type from skeleton to contours', function() {
+			var glyphSrc = {
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: true,
+						nodes: [{
+							x: 10,
+							y: 10,
+							typeIn: 'a'
+						}, {
+							x: 200,
+							y: 400,
+							typeOut: 'b'
+						}]
+					}]
+				},
+				glyph;
+
+			Utils.createUpdaters( glyphSrc );
+			glyph = Utils.glyphFromSrc( glyphSrc );
+			naive.expandSkeletons( glyph );
+			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+				return path.split('.');
+			});
+
+			glyph.update({ width: 10 });
+
+			expect(glyph.contours[0].nodes[0].expandedTo[0].typeIn)
+				.to.equal('a');
+			expect(glyph.contours[0].nodes[0].expandedTo[0].typeOut)
+				.to.equal(undefined);
+			expect(glyph.contours[0].nodes[0].expandedTo[1].typeIn)
+				.to.equal(undefined);
+			expect(glyph.contours[0].nodes[0].expandedTo[1].typeOut)
+				.to.equal('a');
+			expect(glyph.contours[0].nodes[1].expandedTo[0].typeIn)
+				.to.equal(undefined);
+			expect(glyph.contours[0].nodes[1].expandedTo[0].typeOut)
+				.to.equal('b');
+			expect(glyph.contours[0].nodes[1].expandedTo[1].typeIn)
+				.to.equal('b');
+			expect(glyph.contours[0].nodes[1].expandedTo[1].typeOut)
+				.to.equal(undefined);
+		});
+
+		it.only('should copy direction from skeleton to contours', function() {
+			var glyphSrc = {
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: true,
+						nodes: [{
+							x: 10,
+							y: 10,
+							dirIn: Math.PI / 4,
+							dirOut: Math.PI / 3
+						}, {
+							x: 200,
+							y: 400,
+							dirIn: Math.PI / 2,
+							type: 'smooth'
+						}, {
+							x: 200,
+							y: 400,
+							dirOut: Math.PI / 5,
+							type: 'smooth'
+						},{
+							x: 10,
+							y: 10,
+							dirIn: Math.PI / 6,
+							dirOut: Math.PI / 7,
+							type: 'smooth'
+						},{
+							x: 10,
+							y: 10,
+							angle: -Math.PI / 8
+						}]
+					}]
+				},
+				glyph;
+
+			Utils.createUpdaters( glyphSrc );
+			glyph = Utils.glyphFromSrc( glyphSrc );
+			naive.expandSkeletons( glyph );
+			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+				return path.split('.');
+			});
+
+			glyph.update({ width: 10 });
+
+			expect(glyph.contours[0].nodes[0].expandedTo[0].dirIn)
+				.to.equal(Math.PI / 4);
+			expect(glyph.contours[0].nodes[0].expandedTo[0].dirOut)
+				.to.equal(Math.PI / 3);
+			expect(glyph.contours[0].nodes[0].expandedTo[1].dirIn)
+				.to.equal(Math.PI / 3);
+			expect(glyph.contours[0].nodes[0].expandedTo[1].dirOut)
+				.to.equal(Math.PI / 4);
+
+			expect(glyph.contours[0].nodes[1].expandedTo[0].dirIn)
+				.to.equal(Math.PI / 2);
+			expect(glyph.contours[0].nodes[1].expandedTo[0].dirOut)
+				.to.equal(Math.PI / 2 + Math.PI);
+			expect(glyph.contours[0].nodes[1].expandedTo[1].dirIn)
+				.to.equal(Math.PI / 2 + Math.PI);
+			expect(glyph.contours[0].nodes[1].expandedTo[1].dirOut)
+				.to.equal(Math.PI / 2);
+
+			expect(glyph.contours[0].nodes[2].expandedTo[0].dirIn)
+				.to.equal(Math.PI / 5 + Math.PI);
+			expect(glyph.contours[0].nodes[2].expandedTo[0].dirOut)
+				.to.equal(Math.PI / 5);
+			expect(glyph.contours[0].nodes[2].expandedTo[1].dirIn)
+				.to.equal(Math.PI / 5);
+			expect(glyph.contours[0].nodes[2].expandedTo[1].dirOut)
+				.to.equal(Math.PI / 5 + Math.PI);
+
+			expect(glyph.contours[0].nodes[3].expandedTo[0].dirIn)
+				.to.equal(Math.PI / 6);
+			expect(glyph.contours[0].nodes[3].expandedTo[0].dirOut)
+				.to.equal(Math.PI / 7);
+			expect(glyph.contours[0].nodes[3].expandedTo[1].dirIn)
+				.to.equal(Math.PI / 7);
+			expect(glyph.contours[0].nodes[3].expandedTo[1].dirOut)
+				.to.equal(Math.PI / 6);
+
+			expect(glyph.contours[0].nodes[4].expandedTo[0].dirIn)
+				.to.equal(-Math.PI / 8 - Math.PI / 2);
+			expect(glyph.contours[0].nodes[4].expandedTo[0].dirOut)
+				.to.equal(-Math.PI / 8 + Math.PI / 2);
+			expect(glyph.contours[0].nodes[4].expandedTo[1].dirIn)
+				.to.equal(-Math.PI / 8 - Math.PI / 2 + Math.PI);
+			expect(glyph.contours[0].nodes[4].expandedTo[1].dirOut)
+				.to.equal(-Math.PI / 8 + Math.PI / 2 + Math.PI);
+		});
+
+		it('should copy tensions from skeleton to contours', function() {
+			var glyphSrc = {
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: true,
+						nodes: [{
+							x: 10,
+							y: 10,
+							tensionIn: 2,
+							tension: 3
+						}, {
+							x: 200,
+							y: 400,
+							tensionOut: 4,
+							tension: 5
+						}]
+					}]
+				},
+				glyph;
+
+			Utils.createUpdaters( glyphSrc );
+			glyph = Utils.glyphFromSrc( glyphSrc );
+			naive.expandSkeletons( glyph );
+			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+				return path.split('.');
+			});
+
+			glyph.update({ width: 10 });
+
+			expect(glyph.contours[0].nodes[0].expandedTo[0].tensionIn)
+				.to.equal(2);
+			expect(glyph.contours[0].nodes[0].expandedTo[0].tensionOut)
+				.to.equal(3);
+			expect(glyph.contours[0].nodes[0].expandedTo[1].tensionIn)
+				.to.equal(3);
+			expect(glyph.contours[0].nodes[0].expandedTo[1].tensionOut)
+				.to.equal(2);
+			expect(glyph.contours[0].nodes[1].expandedTo[0].tensionIn)
+				.to.equal(5);
+			expect(glyph.contours[0].nodes[1].expandedTo[0].tensionOut)
+				.to.equal(4);
+			expect(glyph.contours[0].nodes[1].expandedTo[1].tensionIn)
+				.to.equal(4);
+			expect(glyph.contours[0].nodes[1].expandedTo[1].tensionOut)
+				.to.equal(5);
+		});
 	});
 });

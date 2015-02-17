@@ -129,14 +129,14 @@ naive.expandedNodeUpdater = function( side ) {
 		if ( origin._dirIn !== undefined ) {
 			node[ side === 'left' ? '_dirIn' : '_dirOut' ] = origin._dirIn;
 
-			if ( node.type === 'smooth' ) {
+			if ( node.type === 'smooth' && origin._dirOut === undefined  ) {
 				node[ side === 'left' ? '_dirOut' : '_dirIn' ] = origin._dirIn + Math.PI;
 			}
 		}
 		if ( origin._dirOut !== undefined ) {
 			node[ side === 'left' ? '_dirOut' : '_dirIn' ] = origin._dirOut;
 
-			if ( node.type === 'smooth' ) {
+			if ( node.type === 'smooth' && origin._dirIn === undefined ) {
 				node[ side === 'left' ? '_dirIn' : '_dirOut' ] = origin._dirOut + Math.PI;
 			}
 		}
