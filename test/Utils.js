@@ -48,4 +48,39 @@ describe('Utils', function() {
 
 	});
 
+	describe('#rayRayIntersection', function() {
+		it('should return an array with the coordinates of the intersection', function() {
+			var rri = Utils.rayRayIntersection(
+					{x: 0, y: 0},
+					Math.PI / 2,
+					{x: 100, y: 100},
+					Math.PI
+				);
+
+			expect(Math.round(rri[0])).to.equal(0);
+			expect(rri[1]).to.equal(100);
+
+			rri = Utils.rayRayIntersection(
+					{x: 10, y: 10},
+					Math.PI / 2,
+					{x: 110, y: 110},
+					Math.PI
+				);
+
+			expect(Math.round(rri[0])).to.equal(10);
+			expect(rri[1]).to.equal(110);
+		});
+
+		// it('should return null when rays don\'t intersect', function() {
+		// 	var rri = Utils.rayRayIntersection(
+		// 			{x: 0, y: 0},
+		// 			0,
+		// 			{x: 0, y: 100},
+		// 			Math.PI
+		// 		);
+
+		// 	expect(rri).to.equal(null);
+		// });
+	});
+
 });

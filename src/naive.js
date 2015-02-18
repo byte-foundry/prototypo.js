@@ -151,12 +151,12 @@ naive.expandedNodeUpdater = function( side ) {
 		}
 
 		// tension
-		node.tensionIn = origin[ 'tension' + side === 'left' ? 'In' : 'Out' ] !== undefined ?
-			origin[ 'tension' + side === 'left' ? 'In' : 'Out' ]:
-			origin.tension !== undefined ? origin.tension : 1;
-		node.tensionOut = origin[ 'tension' + side === 'left' ? 'Out' : 'In' ] !== undefined ?
-			origin[ 'tension' + side === 'left' ? 'Out' : 'In' ]:
-			origin.tension !== undefined ? origin.tension : 1;
+		node.tensionIn = origin[ 'tension' + ( side === 'left' ? 'In' : 'Out' ) ] !== undefined ?
+			origin[ 'tension' + ( side === 'left' ? 'In' : 'Out' ) ]:
+			( origin.tension !== undefined ? origin.tension : 1 );
+		node.tensionOut = origin[ 'tension' + ( side === 'left' ? 'Out' : 'In' ) ] !== undefined ?
+			origin[ 'tension' + ( side === 'left' ? 'Out' : 'In' ) ]:
+			( origin.tension !== undefined ? origin.tension : 1 );
 	};
 };
 
@@ -189,7 +189,7 @@ naive.prepareContour = function( path ) {
 // sets the position of control points
 // can be renamed #updateControls if no other operation is added
 naive.updateContour = function( path, params ) {
-	var curviness = params.curviness || 2/3;
+	var curviness = params.curviness !== undefined ? params.curviness : 2/3;
 
 	path.nodes.forEach(function(node) {
 		var start = node,
@@ -202,7 +202,7 @@ naive.updateContour = function( path, params ) {
 			endTension,
 			startDir,
 			endDir,
-			lli;
+			rri;
 
 		if ( !node.next ) {
 			return;
@@ -227,10 +227,10 @@ naive.updateContour = function( path, params ) {
 
 		startTension = start.tensionOut !== undefined ?
 			start.tensionOut:
-			start.tension !== undefined ? start.tension : 1;
+			( start.tension !== undefined ? start.tension : 1 );
 		endTension = end.tensionIn !== undefined ?
 			end.tensionIn:
-			end.tension !== undefined ? end.tension : 1;
+			( end.tension !== undefined ? end.tension : 1 );
 
 		startDir = start._dirOut !== undefined ?
 			start._dirOut:
@@ -239,25 +239,25 @@ naive.updateContour = function( path, params ) {
 			end._dirIn:
 			end.type === 'smooth' ? end._dirOut - Math.PI : 0;
 
-		if ( start.point.x === 0 ) {
-			lli = [ 0, end.point.y - Math.tan( endDir ) * end.point.x ];
+		rri = Utils.rayRayIntersection(
+			start._point,
+			startDir,
+			end._point,
+			endDir
+		);
 
-		} else if ( end.point.x === 0 ) {
-			lli = [ 0, start.point.y - Math.tan( startDir ) * start.point.x ];
-
-		} else {
-			lli = Utils.lineLineIntersection(
-				start.point,
-				{ x: 0, y: start.point.y - Math.tan( startDir ) * start.point.x },
-				end.point,
-				{ x: 0, y: end.point.y - Math.tan( endDir ) * end.point.x }
-			);
+		// direction of handles is parallel
+		if ( rri === null ) {
+			startCtrl.x = 0;
+			startCtrl.y = 0;
+			endCtrl.x = 0;
+			endCtrl.y = 0;
 		}
 
-		startCtrl.x = start.point.x + ( lli[0] - start.point.x ) * curviness * startTension;
-		startCtrl.y = start.point.y + ( lli[1] - start.point.y ) * curviness * startTension;
-		endCtrl.x = end.point.x + ( lli[0] - end.point.x ) * curviness * endTension;
-		endCtrl.y = end.point.y + ( lli[1] - end.point.y ) * curviness * endTension;
+		startCtrl.x = ( Math.round(rri[0]) - start.point.x ) * curviness * startTension;
+		startCtrl.y = ( Math.round(rri[1]) - start.point.y ) * curviness * startTension;
+		endCtrl.x = ( Math.round(rri[0]) - end.point.x ) * curviness * endTension;
+		endCtrl.y = ( Math.round(rri[1]) - end.point.y ) * curviness * endTension;
 	});
 };
 

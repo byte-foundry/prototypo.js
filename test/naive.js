@@ -158,7 +158,7 @@ describe('naive', function() {
 				.to.equal(undefined);
 		});
 
-		it.only('should copy direction from skeleton to contours', function() {
+		it('should copy direction from skeleton to contours', function() {
 			var glyphSrc = {
 					name: 'A',
 					contours: [{
@@ -295,6 +295,33 @@ describe('naive', function() {
 				.to.equal(4);
 			expect(glyph.contours[0].nodes[1].expandedTo[1].tensionOut)
 				.to.equal(5);
+		});
+	});
+
+	describe('#updateContour', function() {
+		it('should calculate the position of control points according to node directions', function() {
+			var glyph = Utils.glyphFromSrc({
+					name: 'A',
+					contours: [{
+						closed: false,
+						nodes: [{
+							x: 10,
+							y: 10,
+							dirOut: Math.PI / 2
+						}, {
+							x: 110,
+							y: 110,
+							dirIn: Math.PI
+						}]
+					}]
+				});
+
+			naive.updateContour( glyph.contours[0], { curviness: 1 } );
+
+			expect(glyph.contours[0].nodes[0].handleOut.x).to.equal(0);
+			expect(glyph.contours[0].nodes[0].handleOut.y).to.equal(100);
+			expect(glyph.contours[0].nodes[1].handleIn.x).to.equal(-100);
+			expect(glyph.contours[0].nodes[1].handleIn.y).to.equal(0);
 		});
 	});
 });

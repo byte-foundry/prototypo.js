@@ -231,12 +231,37 @@ Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
 
 	if ( d === 0 ) {
 		// fail silently
-		return [0, 0];
+		return null;
 	}
 
 	return new Float32Array([
 		( (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4) ) / d,
 		( (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4) ) / d
+	]);
+};
+
+// Find the intersection of two rays.
+// A ray is defined by a point and an angle.
+Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
+	// todo: fix this test of non-intersection and uncomment corresponding unit test
+	// if ( ( a1 % ( Math.PI * 2 ) - a2 % ( Math.PI * 2 ) ) % ( Math.PI * 2 ) === 0 ) {
+	// 	return null;
+	// }
+
+	// line equations
+	// algo: http://stackoverflow.com/questions/1571294/line-equation-with-angle
+	var a = Math.tan(a1),
+		b = Math.tan(a2),
+		c = p1.y - a * p1.x,
+		d = p2.y - b * p2.x,
+		x;
+
+	// intersection from two line equations
+	// algo: http://en.wikipedia.org/wiki/Line–line_intersection#Given_the_equations_of_the_lines
+	return new Float32Array([
+		x = (d - c) / (a - b),
+		// this shuld work with a * x + c as well but it doesn't :(
+		b * x + d
 	]);
 };
 
