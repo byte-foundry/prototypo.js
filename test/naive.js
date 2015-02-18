@@ -323,5 +323,79 @@ describe('naive', function() {
 			expect(glyph.contours[0].nodes[1].handleIn.x).to.equal(-100);
 			expect(glyph.contours[0].nodes[1].handleIn.y).to.equal(0);
 		});
+
+		it('should have a default curviness of 2/3', function() {
+			var glyph = Utils.glyphFromSrc({
+					name: 'A',
+					contours: [{
+						closed: false,
+						nodes: [{
+							x: 0,
+							y: 0,
+							dirOut: Math.PI / 2
+						}, {
+							x: 30,
+							y: 30,
+							dirIn: Math.PI
+						}]
+					}]
+				});
+
+			naive.updateContour( glyph.contours[0], {} );
+
+			expect(glyph.contours[0].nodes[0].handleOut.x).to.equal(0);
+			expect(glyph.contours[0].nodes[0].handleOut.y).to.equal(20);
+			expect(glyph.contours[0].nodes[1].handleIn.x).to.equal(-20);
+			expect(glyph.contours[0].nodes[1].handleIn.y).to.equal(0);
+		});
+
+		it('should be possible to draw a circle', function() {
+			var glyph = Utils.glyphFromSrc({
+					name: 'A',
+					contours: [{
+						closed: true,
+						nodes: [{
+							x: 0,
+							y: 50,
+							dirIn: -Math.PI / 2,
+							dirOut: Math.PI / 2
+						}, {
+							x: 50,
+							y: 100,
+							dirIn: Math.PI,
+							dirOut: 0
+						},{
+							x: 100,
+							y: 50,
+							dirIn: Math.PI / 2,
+							dirOut: -Math.PI / 2
+						},{
+							x: 50,
+							y: 0,
+							dirIn: 0,
+							dirOut: -Math.PI
+						}]
+					}]
+				});
+
+			naive.updateContour( glyph.contours[0], {curviness: 1} );
+
+			expect(glyph.contours[0].nodes[0].handleIn.x).to.equal(0);
+			expect(glyph.contours[0].nodes[0].handleIn.y).to.equal(-50);
+			expect(glyph.contours[0].nodes[0].handleOut.x).to.equal(0);
+			expect(glyph.contours[0].nodes[0].handleOut.y).to.equal(50);
+			expect(glyph.contours[0].nodes[1].handleIn.x).to.equal(-50);
+			expect(glyph.contours[0].nodes[1].handleIn.y).to.equal(0);
+			expect(glyph.contours[0].nodes[1].handleOut.x).to.equal(50);
+			expect(glyph.contours[0].nodes[1].handleOut.y).to.equal(0);
+			expect(glyph.contours[0].nodes[2].handleIn.x).to.equal(0);
+			expect(glyph.contours[0].nodes[2].handleIn.y).to.equal(50);
+			expect(glyph.contours[0].nodes[2].handleOut.x).to.equal(0);
+			expect(glyph.contours[0].nodes[2].handleOut.y).to.equal(-50);
+			expect(glyph.contours[0].nodes[3].handleIn.x).to.equal(50);
+			expect(glyph.contours[0].nodes[3].handleIn.y).to.equal(0);
+			expect(glyph.contours[0].nodes[3].handleOut.x).to.equal(-50);
+			expect(glyph.contours[0].nodes[3].handleOut.y).to.equal(0);
+		});
 	});
 });

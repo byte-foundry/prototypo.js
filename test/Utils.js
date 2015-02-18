@@ -50,25 +50,51 @@ describe('Utils', function() {
 
 	describe('#rayRayIntersection', function() {
 		it('should return an array with the coordinates of the intersection', function() {
-			var rri = Utils.rayRayIntersection(
-					{x: 0, y: 0},
-					Math.PI / 2,
-					{x: 100, y: 100},
-					Math.PI
-				);
-
-			expect(Math.round(rri[0])).to.equal(0);
-			expect(rri[1]).to.equal(100);
+			// first quadrant
+			var rri;
 
 			rri = Utils.rayRayIntersection(
-					{x: 10, y: 10},
+					{x: 110, y: 10},
 					Math.PI / 2,
+					{x: 10, y: 110},
+					0
+				);
+
+			expect(Math.round(rri[0])).to.equal(110);
+			expect(rri[1]).to.equal(110);
+
+			// second quadrant
+			rri = Utils.rayRayIntersection(
 					{x: 110, y: 110},
-					Math.PI
+					-Math.PI,
+					{x: 10, y: 10},
+					Math.PI / 2
 				);
 
 			expect(Math.round(rri[0])).to.equal(10);
 			expect(rri[1]).to.equal(110);
+
+			// third quadrant
+			rri = Utils.rayRayIntersection(
+					{x: 10, y: 110},
+					-Math.PI / 2,
+					{x: 110, y: 10},
+					-Math.PI
+				);
+
+			expect(Math.round(rri[0])).to.equal(10);
+			expect(Math.round(rri[1])).to.equal(10);
+
+			// fourth quadrant
+			rri = Utils.rayRayIntersection(
+					{x: 10, y: 10},
+					0,
+					{x: 110, y: 110},
+					-Math.PI / 2
+				);
+
+			expect(Math.round(rri[0])).to.equal(110);
+			expect(rri[1]).to.equal(10);
 		});
 
 		// it('should return null when rays don\'t intersect', function() {

@@ -230,7 +230,6 @@ Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
 		d = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
 
 	if ( d === 0 ) {
-		// fail silently
 		return null;
 	}
 
@@ -249,7 +248,6 @@ Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
 	// }
 
 	// line equations
-	// algo: http://stackoverflow.com/questions/1571294/line-equation-with-angle
 	var a = Math.tan(a1),
 		b = Math.tan(a2),
 		c = p1.y - a * p1.x,
@@ -260,8 +258,8 @@ Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
 	// algo: http://en.wikipedia.org/wiki/Line–line_intersection#Given_the_equations_of_the_lines
 	return new Float32Array([
 		x = (d - c) / (a - b),
-		// this shuld work with a * x + c as well but it doesn't :(
-		b * x + d
+		// this should work equally well with ax+c or bx+d but it turns out only one works, depending on the quadrant
+		a * x + c
 	]);
 };
 

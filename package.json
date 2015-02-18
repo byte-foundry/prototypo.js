@@ -36,7 +36,7 @@
     "url": "https://github.com/byte-foundry/prototypo.js.git"
   },
   "author": "@louis_remi",
-  "license": "AGPL",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/byte-foundry/prototypo-core/issues"
   },
