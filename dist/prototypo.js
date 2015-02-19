@@ -18345,38 +18345,43 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 	return depTree;
 };
 
-var rpoint = /\.point$/,
-	rnode = /\.nodes\.\d+$/;
+var rpoint = /\.point$/;
+// patterns that should be searched for in dependencies and expanded
+// This list is expandable by plugins, 'naive' uses this possibility
+// hashtag #expandableception
+Utils.expandables = [
+	[/\.nodes\.\d+\.point$/, function( dep ) {
+		dep = dep.replace(rpoint, '');
+
+		return [
+			dep + '.x',
+			dep + '.y'
+		];
+	}],
+	[/\.nodes\.\d+$/, function( dep ) {
+		return [
+			dep + '.x',
+			dep + '.y',
+			dep + '.expand'
+		];
+	}]
+];
 Utils.expandDependencies = function( deps, excludeList ) {
 	deps = deps.map(function(dep) {
-		var deps;
-
-		if ( rpoint.test(dep) ) {
-			dep = dep.replace(rpoint, '');
-
-			deps = [
-				dep + '.x',
-				dep + '.y'
-			];
-
-		} else if ( rnode.test(dep) ) {
-			deps = [
-				dep + '.x',
-				dep + '.y',
-				dep + '.expand'
-			];
-
-		} else {
-			return dep;
+		// search for an expandable pattern and... expand the dependency
+		for ( var i = -1, l = Utils.expandables.length; ++i < l; ) {
+			if ( Utils.expandables[i][0].test( dep ) ) {
+				return Utils.expandables[i][1]( dep );
+			}
 		}
 
-		return deps.filter(function(dep) {
-			return excludeList.indexOf( dep ) === -1;
-		});
+		return dep;
 	});
 
-	// flatten deps array
-	return [].concat.apply([], deps);
+	// flatten deps array and remove items from excludeList
+	return [].concat.apply([], deps).filter(function(dep) {
+		return excludeList.indexOf( dep ) === -1;
+	});
 };
 
 // The following function should be useless, thanks to paper
@@ -18466,8 +18471,20 @@ Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
 	return new Float32Array([
 		x = (d - c) / (a - b),
 		// this should work equally well with ax+c or bx+d
-		y = a * x + c
+		a * x + c
 	]);
+};
+
+Utils.onLine = function( params ) {
+	var origin = params.on[0],
+		vector = [
+			params.on[1].x - params.on[0].x,
+			params.on[1].y - params.on[0].y
+		];
+
+	return 'x' in params ?
+		( params.x - origin.x ) / vector[0] * vector[1] + origin.y:
+		( params.y - origin.y ) / vector[1] * vector[0] + origin.x;
 };
 
 // Object.mixin polyfill for IE9+
@@ -18797,6 +18814,19 @@ Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
 		}
 	}
 });
+
+var rexpandedTo = /\.expandedTo\.\d+(?:\.point)?$/;
+Utils.expandables.push([
+	rexpandedTo, function( dep ) {
+		dep = dep.replace(rexpandedTo, '');
+
+		return [
+			dep + '.x',
+			dep + '.y',
+			dep + '.expand'
+		];
+	}
+]);
 
 module.exports = naive;
 },{"../node_modules/plumin.js/dist/plumin.js":3,"./Utils.js":4}],6:[function(_dereq_,module,exports){

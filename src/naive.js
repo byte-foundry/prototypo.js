@@ -302,4 +302,17 @@ Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
 	}
 });
 
+var rexpandedTo = /\.expandedTo\.\d+(?:\.point)?$/;
+Utils.expandables.push([
+	rexpandedTo, function( dep ) {
+		dep = dep.replace(rexpandedTo, '');
+
+		return [
+			dep + '.x',
+			dep + '.y',
+			dep + '.expand'
+		];
+	}
+]);
+
 module.exports = naive;

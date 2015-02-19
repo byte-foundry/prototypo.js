@@ -14,19 +14,19 @@ describe('naive', function() {
 	describe('#expandSkeletons', function() {
 		it('should expand an open skeleton into an additional contour', function() {
 			var glyph = Utils.glyphFromSrc({
-				name: 'A',
-				contours: [{
-					skeleton: true,
-					closed: false,
-					nodes: [{
-						x: 10,
-						y: 10
-					}, {
-						x: 200,
-						y: 400
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: false,
+						nodes: [{
+							x: 10,
+							y: 10
+						}, {
+							x: 200,
+							y: 400
+						}]
 					}]
-				}]
-			});
+				});
 
 			naive.expandSkeletons( glyph );
 
@@ -42,19 +42,19 @@ describe('naive', function() {
 
 		it('should expand a closed skeleton into two additional contours', function() {
 			var glyph = Utils.glyphFromSrc({
-				name: 'A',
-				contours: [{
-					skeleton: true,
-					closed: true,
-					nodes: [{
-						x: 10,
-						y: 10
-					}, {
-						x: 200,
-						y: 400
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: true,
+						nodes: [{
+							x: 10,
+							y: 10
+						}, {
+							x: 200,
+							y: 400
+						}]
 					}]
-				}]
-			});
+				});
 
 			naive.expandSkeletons( glyph );
 

@@ -109,4 +109,23 @@ describe('Utils', function() {
 		});
 	});
 
+	describe('#onLine', function() {
+		it('should find y, given x and two points', function() {
+			var y = Utils.onLine({
+				x: 20,
+				on: [ {x: 0, y: 0}, {x: 100, y: 50} ]
+			});
+
+			expect(y).to.equal(10);
+		});
+
+		it('should find x, given y and two points', function() {
+			var x = Utils.onLine({
+				y: 20,
+				on: [ {x: 0, y: 0}, {x: 100, y: 50} ]
+			});
+
+			expect(x).to.equal(40);
+		});
+	});
 });
