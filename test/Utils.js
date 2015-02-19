@@ -50,9 +50,9 @@ describe('Utils', function() {
 
 	describe('#rayRayIntersection', function() {
 		it('should return an array with the coordinates of the intersection', function() {
-			// first quadrant
 			var rri;
 
+			// first quadrant
 			rri = Utils.rayRayIntersection(
 					{x: 110, y: 10},
 					Math.PI / 2,
@@ -97,16 +97,16 @@ describe('Utils', function() {
 			expect(rri[1]).to.equal(10);
 		});
 
-		// it('should return null when rays don\'t intersect', function() {
-		// 	var rri = Utils.rayRayIntersection(
-		// 			{x: 0, y: 0},
-		// 			0,
-		// 			{x: 0, y: 100},
-		// 			Math.PI
-		// 		);
+		it('should return null when rays don\'t intersect', function() {
+			var rri = Utils.rayRayIntersection(
+					{x: 0, y: 0},
+					0,
+					{x: 0, y: 100},
+					Math.PI
+				);
 
-		// 	expect(rri).to.equal(null);
-		// });
+			expect(rri).to.equal(null);
+		});
 	});
 
 });

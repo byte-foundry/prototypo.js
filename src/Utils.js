@@ -242,24 +242,69 @@ Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
 // Find the intersection of two rays.
 // A ray is defined by a point and an angle.
 Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
-	// todo: fix this test of non-intersection and uncomment corresponding unit test
-	// if ( ( a1 % ( Math.PI * 2 ) - a2 % ( Math.PI * 2 ) ) % ( Math.PI * 2 ) === 0 ) {
-	// 	return null;
-	// }
-
 	// line equations
 	var a = Math.tan(a1),
 		b = Math.tan(a2),
 		c = p1.y - a * p1.x,
 		d = p2.y - b * p2.x,
-		x;
+		x,
+		y;
+
+	// When searching for lines intersection,
+	// angles can be normalized to 0 < a < PI
+	// This will be helpful in detecting special cases below.
+	a1 = a1 % Math.PI;
+	if ( a1 < 0 ) {
+		a1 += Math.PI;
+	}
+	a2 = a2 % Math.PI;
+	if ( a2 < 0 ) {
+		a2 += Math.PI;
+	}
+
+	// no intersection
+	if ( a1 === a2 ) {
+		return null;
+	}
+
+	// Optimize frequent and easy special cases.
+	// Without optimization, results would be incorrect when cos(a) === 0
+	if ( a1 === 0 ) {
+		y = p1.y;
+	} else if ( a1 === Math.PI / 2 ) {
+		x = p1.x;
+	}
+	if ( a2 === 0 ) {
+		y = p2.y;
+	} else if ( a2 === Math.PI / 2 ) {
+		x = p2.x;
+	}
+
+	// easiest case
+	if ( x !== undefined && y !== undefined ) {
+		return new Float32Array([ x, y ]);
+	}
+
+	// other cases that can be optimized
+	if ( a1 === 0 ) {
+		return new Float32Array([ ( y - d ) / b, y ]);
+	}
+	if ( a1 === Math.PI / 2 ) {
+		return new Float32Array([ x, b * x + d ]);
+	}
+	if ( a2 === 0 ) {
+		return new Float32Array([ ( y - c ) / a, y ]);
+	}
+	if ( a2 === Math.PI / 2 ) {
+		return new Float32Array([ x, a * x + c ]);
+	}
 
 	// intersection from two line equations
 	// algo: http://en.wikipedia.org/wiki/Line–line_intersection#Given_the_equations_of_the_lines
 	return new Float32Array([
 		x = (d - c) / (a - b),
-		// this should work equally well with ax+c or bx+d but it turns out only one works, depending on the quadrant
-		a * x + c
+		// this should work equally well with ax+c or bx+d
+		y = a * x + c
 	]);
 };
 
