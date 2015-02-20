@@ -61,16 +61,20 @@ Utils.mergeStatic = function( obj, src ) {
 	}
 };
 
-Utils.createUpdaters = function( leaf ) {
+Utils.createUpdaters = function( leaf, path ) {
 	if ( leaf.constructor === Object &&
 			( typeof leaf._operation === 'string' || typeof leaf._operation === 'function' ) ) {
 
 		var args = ['propName', 'contours', 'anchors', 'parentAnchors', 'Utils']
 				.concat( leaf._parameters || [] )
-				.concat( typeof leaf._operation === 'string' ?
-					'return ' + leaf._operation:
-					leaf._operation.toString()
-						.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
+				.concat(
+					( typeof leaf._operation === 'string' ?
+						'return ' + leaf._operation:
+						// In which case is the operation a function?
+						// I can't remember, maybe I thought it could be useful someday...
+						leaf._operation.toString()
+							.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
+					) + '\n\n//# sourceURL=' + path
 				);
 
 		return ( leaf._updater = Function.apply( null, args ) );
@@ -78,13 +82,13 @@ Utils.createUpdaters = function( leaf ) {
 
 	if ( leaf.constructor === Object ) {
 		for ( var i in leaf ) {
-			Utils.createUpdaters( leaf[i] );
+			Utils.createUpdaters( leaf[i], path + '.' + i );
 		}
 	}
 
 	if ( leaf.constructor === Array ) {
-		leaf.forEach(function(child) {
-			Utils.createUpdaters( child );
+		leaf.forEach(function(child, i) {
+			Utils.createUpdaters( child, path + '.' + i );
 		});
 	}
 };

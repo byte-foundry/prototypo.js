@@ -7,6 +7,8 @@ var naive = {};
 // default method to expand skeletons:
 // derives two additional node from every node with an .expand object
 naive.expandSkeletons = function( glyph ) {
+	var additionalContours = [];
+
 	glyph.contours.forEach(function( contour, i ) {
 		if ( contour.skeleton !== true ) {
 			return;
@@ -50,7 +52,7 @@ naive.expandSkeletons = function( glyph ) {
 			});
 			contour.expandedTo = [leftContour];
 			leftContour.expandedFrom = contour;
-			glyph.addContour(leftContour);
+			additionalContours.push( leftContour );
 
 			firstNode = contour.firstNode;
 			lastNode = contour.lastNode;
@@ -70,21 +72,22 @@ naive.expandSkeletons = function( glyph ) {
 				closed: true,
 				segments: leftNodes
 			});
+			additionalContours.push( leftContour );
 			rightContour = new paper.Path({
 				closed: true,
 				segments: rightNodes
 			});
+			additionalContours.push( rightContour );
+
 			contour.expandedTo = [
 				leftContour,
 				rightContour
 			];
 			leftContour.expandedFrom = rightContour.expandedFrom = contour;
-			glyph.addContours([
-				leftContour,
-				rightContour
-			]);
 		}
 	});
+
+	glyph.addContours( additionalContours );
 };
 
 // Calculate expanded node position
@@ -303,16 +306,16 @@ Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
 });
 
 var rexpandedTo = /\.expandedTo\.\d+(?:\.point)?$/;
-Utils.expandables.push([
-	rexpandedTo, function( dep ) {
-		dep = dep.replace(rexpandedTo, '');
+Utils.expandables.push([rexpandedTo, function( dep ) {
+	dep = dep.replace(rexpandedTo, '');
 
-		return [
-			dep + '.x',
-			dep + '.y',
-			dep + '.expand'
-		];
-	}
-]);
+	return [
+		dep + '.x',
+		dep + '.y',
+		dep + '.expand',
+		dep + '.expandedTo.0',
+		dep + '.expandedTo.1'
+	];
+}]);
 
 module.exports = naive;

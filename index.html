@@ -49,11 +49,15 @@
 			font.glyphMap.G.update({ width: 10, xHeight: 20 });
 
 			font.glyphMap.G.visible = true;
-			font.glyphMap.G
-				.contours[0].visible = false;
+			font.glyphMap.G.contours.forEach(function(contour) {
+					if ( contour.skeleton ) {
+						contour.visible = false;
+					}
+				});
 
 			prototypo.paper.view.update();
 
+			//console.log(font.glyphMap.G.solvingOrder.map(path => path.join('.')));
 			console.log(font.glyphMap.G.contours);
 		</script>
 

@@ -31,10 +31,11 @@ describe('Utils', function() {
 
 	describe('#expandDependencies', function() {
 
-		it('should expand point and nodes into their properties', function() {
+		it('should expand point, nodes ad expandedTo into their properties', function() {
 			var expanded = Utils.expandDependencies([
 				'contours.0.nodes.1.point',
-				'contours.1.nodes.23'
+				'contours.1.nodes.23',
+				'contours.2.nodes.7.expandedTo.0.point'
 			], []);
 
 			expect(expanded).to.deep.equal([
@@ -43,9 +44,13 @@ describe('Utils', function() {
 				'contours.1.nodes.23.x',
 				'contours.1.nodes.23.y',
 				'contours.1.nodes.23.expand',
+				'contours.2.nodes.7.x',
+				'contours.2.nodes.7.y',
+				'contours.2.nodes.7.expand',
+				'contours.2.nodes.7.expandedTo.0',
+				'contours.2.nodes.7.expandedTo.1'
 			]);
 		});
-
 	});
 
 	describe('#rayRayIntersection', function() {

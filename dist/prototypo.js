@@ -18223,16 +18223,20 @@ Utils.mergeStatic = function( obj, src ) {
 	}
 };
 
-Utils.createUpdaters = function( leaf ) {
+Utils.createUpdaters = function( leaf, path ) {
 	if ( leaf.constructor === Object &&
 			( typeof leaf._operation === 'string' || typeof leaf._operation === 'function' ) ) {
 
 		var args = ['propName', 'contours', 'anchors', 'parentAnchors', 'Utils']
 				.concat( leaf._parameters || [] )
-				.concat( typeof leaf._operation === 'string' ?
-					'return ' + leaf._operation:
-					leaf._operation.toString()
-						.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
+				.concat(
+					( typeof leaf._operation === 'string' ?
+						'return ' + leaf._operation:
+						// In which case is the operation a function?
+						// I can't remember, maybe I thought it could be useful someday...
+						leaf._operation.toString()
+							.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
+					) + '\n\n//# sourceURL=' + path
 				);
 
 		return ( leaf._updater = Function.apply( null, args ) );
@@ -18240,13 +18244,13 @@ Utils.createUpdaters = function( leaf ) {
 
 	if ( leaf.constructor === Object ) {
 		for ( var i in leaf ) {
-			Utils.createUpdaters( leaf[i] );
+			Utils.createUpdaters( leaf[i], path + '.' + i );
 		}
 	}
 
 	if ( leaf.constructor === Array ) {
-		leaf.forEach(function(child) {
-			Utils.createUpdaters( child );
+		leaf.forEach(function(child, i) {
+			Utils.createUpdaters( child, path + '.' + i );
 		});
 	}
 };
@@ -18520,6 +18524,8 @@ var naive = {};
 // default method to expand skeletons:
 // derives two additional node from every node with an .expand object
 naive.expandSkeletons = function( glyph ) {
+	var additionalContours = [];
+
 	glyph.contours.forEach(function( contour, i ) {
 		if ( contour.skeleton !== true ) {
 			return;
@@ -18563,7 +18569,7 @@ naive.expandSkeletons = function( glyph ) {
 			});
 			contour.expandedTo = [leftContour];
 			leftContour.expandedFrom = contour;
-			glyph.addContour(leftContour);
+			additionalContours.push( leftContour );
 
 			firstNode = contour.firstNode;
 			lastNode = contour.lastNode;
@@ -18583,21 +18589,22 @@ naive.expandSkeletons = function( glyph ) {
 				closed: true,
 				segments: leftNodes
 			});
+			additionalContours.push( leftContour );
 			rightContour = new paper.Path({
 				closed: true,
 				segments: rightNodes
 			});
+			additionalContours.push( rightContour );
+
 			contour.expandedTo = [
 				leftContour,
 				rightContour
 			];
 			leftContour.expandedFrom = rightContour.expandedFrom = contour;
-			glyph.addContours([
-				leftContour,
-				rightContour
-			]);
 		}
 	});
+
+	glyph.addContours( additionalContours );
 };
 
 // Calculate expanded node position
@@ -18816,17 +18823,17 @@ Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
 });
 
 var rexpandedTo = /\.expandedTo\.\d+(?:\.point)?$/;
-Utils.expandables.push([
-	rexpandedTo, function( dep ) {
-		dep = dep.replace(rexpandedTo, '');
+Utils.expandables.push([rexpandedTo, function( dep ) {
+	dep = dep.replace(rexpandedTo, '');
 
-		return [
-			dep + '.x',
-			dep + '.y',
-			dep + '.expand'
-		];
-	}
-]);
+	return [
+		dep + '.x',
+		dep + '.y',
+		dep + '.expand',
+		dep + '.expandedTo.0',
+		dep + '.expandedTo.1'
+	];
+}]);
 
 module.exports = naive;
 },{"../node_modules/plumin.js/dist/plumin.js":3,"./Utils.js":4}],6:[function(_dereq_,module,exports){
@@ -18858,7 +18865,7 @@ function ParametricFont( src ) {
 
 		Utils.ufoToPaper( glyphSrc );
 
-		Utils.createUpdaters( glyphSrc );
+		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
 
 		glyph = Utils.glyphFromSrc( glyphSrc );
 
@@ -18905,16 +18912,23 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	}, this);
 
 	this.contours.forEach(function(contour) {
-		// prepare skeletons and outlines, but not expanded contours
-		if ( contour.expandedFrom === undefined ) {
-			naive.prepareContour( contour );
-		}
-
-		// update outlines and expanded contours, but not skeletons
+		// prepare and update outlines and expanded contours, but not skeletons
 		if ( contour.skeleton !== true ) {
+			// Previously prepareContour was only executed on outlines and skeletons
+			// but not on expanded contours.
+			// I have no idea why but I might rediscover it later.
+			naive.prepareContour( contour );
 			naive.updateContour( contour, params );
 		}
 	});
+
+	// transformation should be the very last step
+	// this.contours.forEach(function(contour) {
+	// 	// prepare and update outlines and expanded contours, but not skeletons
+	// 	if ( contour.transforms ) {
+	// 		contour.transform( Utils );
+	// 	}
+	// });
 };
 
 module.exports = plumin;

@@ -26,7 +26,7 @@ function ParametricFont( src ) {
 
 		Utils.ufoToPaper( glyphSrc );
 
-		Utils.createUpdaters( glyphSrc );
+		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
 
 		glyph = Utils.glyphFromSrc( glyphSrc );
 
@@ -73,16 +73,23 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	}, this);
 
 	this.contours.forEach(function(contour) {
-		// prepare skeletons and outlines, but not expanded contours
-		if ( contour.expandedFrom === undefined ) {
-			naive.prepareContour( contour );
-		}
-
-		// update outlines and expanded contours, but not skeletons
+		// prepare and update outlines and expanded contours, but not skeletons
 		if ( contour.skeleton !== true ) {
+			// Previously prepareContour was only executed on outlines and skeletons
+			// but not on expanded contours.
+			// I have no idea why but I might rediscover it later.
+			naive.prepareContour( contour );
 			naive.updateContour( contour, params );
 		}
 	});
+
+	// transformation should be the very last step
+	// this.contours.forEach(function(contour) {
+	// 	// prepare and update outlines and expanded contours, but not skeletons
+	// 	if ( contour.transforms ) {
+	// 		contour.transform( Utils );
+	// 	}
+	// });
 };
 
 module.exports = plumin;
