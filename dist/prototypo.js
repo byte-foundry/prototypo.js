@@ -18491,6 +18491,115 @@ Utils.onLine = function( params ) {
 		( params.y - origin.y ) / vector[1] * vector[0] + origin.x;
 };
 
+var rdeg = /deg$/;
+Utils.transformsToMatrix = function( transforms, origin ) {
+	var prev = new Float32Array(6),
+		curr = new Float32Array(6),
+		rslt = new Float32Array([1, 0, 0, 1, 0, 0]);
+
+	if ( origin ) {
+		transforms.unshift(['translate', origin[0], origin[1]]);
+		transforms.push(['translate', -origin[0], -origin[1]]);
+	}
+
+	transforms.forEach(function( transform ) {
+		curr[0] = curr[3] = 1;
+		curr[1] = curr[2] = curr[4] = curr[5] = 0;
+
+		// convert degrees to radian
+		for ( var i = 1; i < transform.length; i++ ) {
+			if ( transform[i] && typeof transform[i] === 'string' && rdeg.test(transform[i]) ) {
+				transform[i] = parseFloat(transform[i]) * ( Math.PI * 2 / 360 );
+			}
+		}
+
+		switch ( transform[0] ) {
+		case 'translateX':
+			curr[4] = transform[1];
+			break;
+
+		case 'translateY':
+			curr[5] = transform[1];
+			break;
+
+		case 'translate':
+			curr[4] = transform[1];
+			curr[5] = transform[2] || 0;
+			break;
+
+		case 'rotate':
+			curr[0] = Math.cos( transform[1] );
+			curr[1] = Math.sin( transform[1] );
+			curr[2] = -curr[1];
+			curr[3] = curr[0];
+			break;
+
+		case 'scaleX':
+			curr[0] = transform[1];
+			break;
+
+		case 'scaleY':
+			curr[3] = transform[1];
+			break;
+
+		case 'scale':
+			curr[0] = transform[1];
+			curr[3] = transform.length > 2 ? transform[2] : transform[1];
+			break;
+
+		case 'skewX':
+			// stop parsing transform when encountering skewX(90)
+			// see http://stackoverflow.com/questions/21094958/how-to-deal-with-infinity-in-a-2d-matrix
+			transform[1] = transform[1] % ( 2 * Math.PI );
+			if ( transform[1] === Math.PI / 2 || transform[1] === -Math.PI /2 ) {
+				return rslt;
+			}
+			curr[2] = Math.tan( transform[1] );
+			break;
+
+		case 'skewY':
+			transform[1] = transform[1] % ( 2 * Math.PI );
+			if ( transform[1] === Math.PI / 2 || transform[1] === -Math.PI /2 ) {
+				return rslt;
+			}
+			curr[1] = Math.tan( transform[1] );
+			break;
+
+		case 'matrix':
+			curr[0] = transform[1];
+			curr[1] = transform[2];
+			curr[2] = transform[3];
+			curr[3] = transform[4];
+			curr[4] = transform[5];
+			curr[5] = transform[6];
+			break;
+		}
+
+		prev[0] = rslt[0];
+		prev[1] = rslt[1];
+		prev[2] = rslt[2];
+		prev[3] = rslt[3];
+		prev[4] = rslt[4];
+		prev[5] = rslt[5];
+
+		rslt[0] = prev[0] * curr[0] + prev[2] * curr[1];
+		rslt[1] = prev[1] * curr[0] + prev[3] * curr[1];
+		rslt[2] = ( prev[0] * curr[2] || 0 ) + prev[2] * curr[3];
+		rslt[3] = ( prev[1] * curr[2] || 0 ) + prev[3] * curr[3];
+		rslt[4] = prev[0] * curr[4] + prev[2] * curr[5] + prev[4];
+		rslt[5] = prev[1] * curr[4] + prev[3] * curr[5] + prev[5];
+	});
+
+	return new paper.Matrix(
+		rslt[0],
+		rslt[1],
+		rslt[2],
+		rslt[3],
+		rslt[4],
+		rslt[5]
+	);
+};
+
 // Object.mixin polyfill for IE9+
 if ( !global.Object.mixin ) {
 	global.Object.mixin = function( target, source ) {
@@ -18504,7 +18613,7 @@ if ( !global.Object.mixin ) {
 			try {
 				Object.defineProperty(target, props[p], descriptor);
 			} catch (e) {
-				// in node, some properties cannot be redefiend and we're ok with it
+				// in node, some properties cannot be redefiend and we're ok with that
 			}
 		}
 
@@ -18923,12 +19032,42 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	});
 
 	// transformation should be the very last step
-	// this.contours.forEach(function(contour) {
-	// 	// prepare and update outlines and expanded contours, but not skeletons
-	// 	if ( contour.transforms ) {
-	// 		contour.transform( Utils );
-	// 	}
-	// });
+	this.contours.forEach(function(contour) {
+		// 1. transform the contour
+		// prepare and update outlines and expanded contours, but not skeletons
+		if ( contour.transforms ) {
+			var matrix = Utils.transformsToMatrix( contour.transforms, contour.transformOrigin );
+
+			if ( contour.skeleton !== true ) {
+				contour.transform( matrix );
+
+			// when dealing with a skeleton, apply transforms only to expanded items
+			} else {
+				contour.expandedTo.forEach(function( contour ) {
+					contour.transform( matrix );
+				});
+			}
+		}
+
+		// 2. transform the nodes
+		contour.nodes.forEach(function(node) {
+			if ( node.transforms ) {
+				matrix = Utils.transformsToMatrix( node.transforms, node.transformOrigin );
+
+				if ( contour.skeleton !== true ) {
+					node.transform( matrix );
+
+				// when dealing with a skeleton, apply transforms only to expanded items
+				} else {
+					node.expandedTo.forEach(function( node ) {
+						node.transform( matrix );
+					});
+				}
+			}
+		});
+
+		// 3. Todo: transform the components
+	});
 };
 
 module.exports = plumin;

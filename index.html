@@ -46,10 +46,10 @@
 			xhr.send();
 
 			font = prototypo.ParametricFont( fontSrc );
-			font.glyphMap.G.update({ width: 10, xHeight: 20 });
+			font.glyphMap.H.update({ width: 10, xHeight: 20 });
 
-			font.glyphMap.G.visible = true;
-			font.glyphMap.G.contours.forEach(function(contour) {
+			font.glyphMap.H.visible = true;
+			font.glyphMap.H.contours.forEach(function(contour) {
 					if ( contour.skeleton ) {
 						contour.visible = false;
 					}
@@ -57,8 +57,8 @@
 
 			prototypo.paper.view.update();
 
-			//console.log(font.glyphMap.G.solvingOrder.map(path => path.join('.')));
-			console.log(font.glyphMap.G.contours);
+			console.log(font.glyphMap.H.solvingOrder.map(path => path.join('.')));
+			console.log(font.glyphMap.H.contours);
 		</script>
 
 		<script>

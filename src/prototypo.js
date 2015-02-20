@@ -84,12 +84,42 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	});
 
 	// transformation should be the very last step
-	// this.contours.forEach(function(contour) {
-	// 	// prepare and update outlines and expanded contours, but not skeletons
-	// 	if ( contour.transforms ) {
-	// 		contour.transform( Utils );
-	// 	}
-	// });
+	this.contours.forEach(function(contour) {
+		// 1. transform the contour
+		// prepare and update outlines and expanded contours, but not skeletons
+		if ( contour.transforms ) {
+			var matrix = Utils.transformsToMatrix( contour.transforms, contour.transformOrigin );
+
+			if ( contour.skeleton !== true ) {
+				contour.transform( matrix );
+
+			// when dealing with a skeleton, apply transforms only to expanded items
+			} else {
+				contour.expandedTo.forEach(function( contour ) {
+					contour.transform( matrix );
+				});
+			}
+		}
+
+		// 2. transform the nodes
+		contour.nodes.forEach(function(node) {
+			if ( node.transforms ) {
+				matrix = Utils.transformsToMatrix( node.transforms, node.transformOrigin );
+
+				if ( contour.skeleton !== true ) {
+					node.transform( matrix );
+
+				// when dealing with a skeleton, apply transforms only to expanded items
+				} else {
+					node.expandedTo.forEach(function( node ) {
+						node.transform( matrix );
+					});
+				}
+			}
+		});
+
+		// 3. Todo: transform the components
+	});
 };
 
 module.exports = plumin;
