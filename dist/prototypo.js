@@ -18673,10 +18673,15 @@ naive.expandSkeletons = function( glyph ) {
 					_updater: naive.expandedNodeUpdater
 				};
 				node.src.expandedTo = [left.src, right.src];
+
+			} else {
+				node.src.expandedTo.forEach(function( src, i ) {
+					Utils.mergeStatic( node.expandedTo[i], src );
+				});
 			}
 
 			// This will copy properties such as types, directions and tensions
-			// to the expended node.
+			// to the expanded node.
 			// This should be the last updated property of this node.
 			// We rely on the fact that javascript interpreters currently enumerate
 			// properties in insertion order, but this behavior isn't in the specs.
@@ -18969,6 +18974,7 @@ Utils.expandables.push([rexpandedTo, function( dep ) {
 		dep + '.x',
 		dep + '.y',
 		dep + '.expand',
+		// let's assume both expanded to will always be calculated toegether
 		dep + '.expandedTo.0',
 		dep + '.expandedTo.1'
 	];
