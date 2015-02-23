@@ -430,12 +430,16 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 	return new paper.Matrix(
 		rslt[0],
-		rslt[1],
 		rslt[2],
+		rslt[1],
 		rslt[3],
 		rslt[4],
 		rslt[5]
 	);
+};
+
+Utils.normalizeAngle = function( angle ) {
+	return angle % ( 2 * Math.PI ) + ( angle < 0 ? 2 * Math.PI : 0 );
 };
 
 // Object.mixin polyfill for IE9+

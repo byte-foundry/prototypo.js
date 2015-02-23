@@ -18592,12 +18592,16 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 	return new paper.Matrix(
 		rslt[0],
-		rslt[1],
 		rslt[2],
+		rslt[1],
 		rslt[3],
 		rslt[4],
 		rslt[5]
 	);
+};
+
+Utils.normalizeAngle = function( angle ) {
+	return angle % ( 2 * Math.PI ) + ( angle < 0 ? 2 * Math.PI : 0 );
 };
 
 // Object.mixin polyfill for IE9+
@@ -18657,17 +18661,33 @@ naive.expandSkeletons = function( glyph ) {
 			node.expandedTo = [left, right];
 			left.expandedFrom = right.expandedFrom = node;
 
-			left.src = {
-				_dependencies: ['contours.' + i + '.nodes.' + j],
-				_parameters: ['width'],
-				_updater: naive.expandedNodeUpdater('left')
+			if ( !node.src.expandedTo ) {
+				left.src = {
+					_dependencies: ['contours.' + i + '.nodes.' + j],
+					_parameters: ['width'],
+					_updater: naive.expandedNodeUpdater
+				};
+				right.src = {
+					_dependencies: ['contours.' + i + '.nodes.' + j],
+					_parameters: ['width'],
+					_updater: naive.expandedNodeUpdater
+				};
+				node.src.expandedTo = [left.src, right.src];
+			}
+
+			// This will copy properties such as types, directions and tensions
+			// to the expended node.
+			// This should be the last updated property of this node.
+			// We rely on the fact that javascript interpreters currently enumerate
+			// properties in insertion order, but this behavior isn't in the specs.
+			node.src.copier = {
+				// We depend on .expand.angle, but we don't specify it, otherwise
+				// copier would be executed right after .expand, but before the other
+				// properties.
+				_dependencies: [],
+				_parameters: [],
+				_updater: naive.skeletonCopier
 			};
-			right.src = {
-				_dependencies: ['contours.' + i + '.nodes.' + j],
-				_parameters: ['width'],
-				_updater: naive.expandedNodeUpdater('right')
-			};
-			node.src.expandedTo = [left.src, right.src];
 
 		});
 
@@ -18717,82 +18737,93 @@ naive.expandSkeletons = function( glyph ) {
 };
 
 // Calculate expanded node position
-// and copy properties from skeleton, according to the side
-naive.expandedNodeUpdater = function( side ) {
-	return function( propName, contours, anchors, parentAnchors, Utils, _width ) {
-		var node = this[propName],
-			origin = node.expandedFrom,
-			expand = origin.expand,
-			width = expand && expand.width !== undefined ?
-				expand.width: _width,
-			coef = expand && expand.distr !== undefined ?
-				( side === 'left' ? expand.distr : 1 - expand.distr ):
-				0.5,
-			angle = ( side === 'left' ? Math.PI : 0 ) +
-				( expand && expand.angle !== undefined ?
-					expand.angle:
-					( origin._dirOut !== undefined ?
-						origin._dirOut - Math.PI / 2:
-						origin._dirIn + Math.PI / 2
-					)
-				);
+naive.expandedNodeUpdater = function( propName, contours, anchors, parentAnchors, Utils, _width ) {
+	var node = this[propName],
+		isLeft = +propName === 0,
+		origin = node.expandedFrom,
+		expand = origin.expand,
+		width = expand && expand.width !== undefined ?
+			expand.width: _width,
+		coef = expand && expand.distr !== undefined ?
+			( isLeft ? expand.distr : 1 - expand.distr ):
+			0.5,
+		angle = ( isLeft ? Math.PI : 0 ) +
+			( expand && expand.angle !== undefined ?
+				expand.angle:
+				// TWe resort to using directions.
+				// This is wrong, directions are not included in the
+				// dependencies of the updater and might not be ready yet.
+				// TODO: Fix this (always require angle to be specified?)
+				( origin._dirOut !== undefined ?
+					origin._dirOut - Math.PI / 2:
+					origin._dirIn + Math.PI / 2
+				)
+			);
 
-		// position
-		node.point.x = origin.point.x + ( width * coef * Math.cos( angle ) );
-		node.point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
+	// position
+	node.point.x = origin.point.x + ( width * coef * Math.cos( angle ) );
+	node.point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
+};
 
-		// node type
-		if ( origin.type !== undefined ) {
-			node.type = origin.type;
-		}
+// copy skeleton properties such as types, directions and tensions to expanded nodes
+naive.skeletonCopier = function() {
+	var node = this,
+		angle = node.expand && node.expand.angle || 0,
+		left = node.expandedTo[0],
+		right = node.expandedTo[1];
 
-		// direction type
-		if ( origin.typeIn !== undefined ) {
-			node[ side === 'left' ? 'typeIn' : 'typeOut' ] = origin.typeIn;
-		}
-		if ( origin.typeOut !== undefined ) {
-			node[ side === 'left' ? 'typeOut' : 'typeIn' ] = origin.typeOut;
-		}
+	// node type
+	if ( node.type !== undefined ) {
+		left.type = right.type = node.type;
+	}
 
-		// direction
-		if ( origin._dirIn !== undefined ) {
-			node[ side === 'left' ? '_dirIn' : '_dirOut' ] = origin._dirIn;
+	// direction type
+	if ( node.typeIn !== undefined ) {
+		left.typeIn = right.typeOut = node.typeIn;
+	}
+	if ( node.typeOut !== undefined ) {
+		left.typeOut = right.typeIn = node.typeOut;
+	}
 
-			if ( node.type === 'smooth' && origin._dirOut === undefined  ) {
-				node[ side === 'left' ? '_dirOut' : '_dirIn' ] = origin._dirIn + Math.PI;
-			}
-		}
-		if ( origin._dirOut !== undefined ) {
-			node[ side === 'left' ? '_dirOut' : '_dirIn' ] = origin._dirOut;
+	// direction
+	if ( node._dirIn !== undefined ) {
+		left._dirIn = right._dirOut = node._dirIn;
 
-			if ( node.type === 'smooth' && origin._dirIn === undefined ) {
-				node[ side === 'left' ? '_dirIn' : '_dirOut' ] = origin._dirOut + Math.PI;
-			}
+		if ( node.type === 'smooth' && node._dirOut === undefined  ) {
+			left._dirOut = right._dirIn = node._dirIn + Math.PI;
 		}
-		// use angle if direction isn't already defined
-		if ( node._dirIn === undefined ) {
-			node._dirIn = ( origin.angle || 0 ) +
-				( side === 'left' ? 0 : Math.PI ) - Math.PI / 2;
-		}
-		if ( node._dirOut === undefined ) {
-			node._dirOut = ( origin.angle || 0 ) +
-				( side === 'left' ? 0 : Math.PI ) + Math.PI / 2;
-		}
+	}
+	if ( node._dirOut !== undefined ) {
+		left._dirOut = right._dirIn = node._dirOut;
 
-		// tension
-		node.tensionIn = origin[ 'tension' + ( side === 'left' ? 'In' : 'Out' ) ] !== undefined ?
-			origin[ 'tension' + ( side === 'left' ? 'In' : 'Out' ) ]:
-			( origin.tension !== undefined ? origin.tension : 1 );
-		node.tensionOut = origin[ 'tension' + ( side === 'left' ? 'Out' : 'In' ) ] !== undefined ?
-			origin[ 'tension' + ( side === 'left' ? 'Out' : 'In' ) ]:
-			( origin.tension !== undefined ? origin.tension : 1 );
-	};
+		if ( node.type === 'smooth' && node._dirIn === undefined ) {
+			left._dirIn = right._dirOut = node._dirOut + Math.PI;
+		}
+	}
+	// use angle if direction isn't already defined
+	if ( left._dirIn === undefined ) { // implies right._dirOut === undefined
+		left._dirIn = angle - Math.PI / 2;
+		right._dirOut = angle + Math.PI / 2;
+	}
+	if ( left._dirOut === undefined ) { // implies right._dirIn === undefined
+		left._dirOut = angle + Math.PI / 2;
+		right._dirIn = angle - Math.PI / 2;
+	}
+
+	// tension
+	left.tensionIn = right.tensionOut = node.tensionIn !== undefined ?
+		node.tensionIn:
+		( node.tension !== undefined ? node.tension : 1 );
+	left.tensionOut = right.tensionIn = node.tensionOut !== undefined ?
+		node.tensionOut:
+		( node.tension !== undefined ? node.tension : 1 );
 };
 
 // Make sure 'line' types are set on both side of segments
 // and if a smooth node is used in a straight segment, update the directions appropriately
-// this can only be done once the types of all nodes have been updated
+// this can only be done once the types, directions and position of all nodes have been updated
 // can be renamed #prepareLines if no other operation is added
+// TODO: try doing it at the same time as updateContour (once we have more complex glyphs)
 naive.prepareContour = function( path ) {
 	path.nodes.forEach(function(node) {
 		if ( node.typeIn === 'line' && node.previous ) {
@@ -18835,15 +18866,14 @@ naive.updateContour = function( path, params ) {
 
 		if ( !node.next ) {
 			return;
-
-		} else {
-			end = node.next;
-			startCtrl = start.handleOut;
-			endCtrl = end.handleIn;
-
-			startType = start.typeOut;
-			endType = end.typeIn;
 		}
+
+		end = node.next;
+		startCtrl = start.handleOut;
+		endCtrl = end.handleIn;
+
+		startType = start.typeOut;
+		endType = end.typeIn;
 
 		if ( startType === 'line' || endType === 'line' ) {
 			startCtrl.x = 0;
@@ -19000,6 +19030,7 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 	}, this);
 };
 
+
 paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	this.solvingOrder.forEach(function(path) {
 		var propName = path[path.length -1],
@@ -19013,8 +19044,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 				)
 			);
 
-		// this assignement could be placed right inside the _updater,
-		// but it would make it harder to debug
+		// Assume that updaters returning undefined have their own assignment logic
 		if ( result !== undefined ) {
 			obj[propName] = result;
 		}
@@ -19065,9 +19095,9 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 				}
 			}
 		});
-
-		// 3. Todo: transform the components
 	});
+
+	// TODO: handle components and components transforms
 };
 
 module.exports = plumin;

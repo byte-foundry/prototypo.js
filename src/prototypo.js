@@ -52,6 +52,7 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 	}, this);
 };
 
+
 paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 	this.solvingOrder.forEach(function(path) {
 		var propName = path[path.length -1],
@@ -65,8 +66,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 				)
 			);
 
-		// this assignement could be placed right inside the _updater,
-		// but it would make it harder to debug
+		// Assume that updaters returning undefined have their own assignment logic
 		if ( result !== undefined ) {
 			obj[propName] = result;
 		}
@@ -117,9 +117,9 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 				}
 			}
 		});
-
-		// 3. Todo: transform the components
 	});
+
+	// TODO: handle components and components transforms
 };
 
 module.exports = plumin;

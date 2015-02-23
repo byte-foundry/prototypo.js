@@ -30,10 +30,10 @@ describe('prototypo.js', function() {
 						nodes: [{
 							x: 20,
 							y: {
-			                  _operation: 'Utils.onLine({x: contours[1].nodes[0].x, on: [contours[0].nodes[0].point, contours[0].nodes[1].point]});',
-			                  _parameters: [],
-			                  _dependencies: ['contours.1.nodes.0.x', 'contours.0.nodes.0.point', 'contours.1.nodes.1.point']
-			                }
+								_operation: 'Utils.onLine({x: contours[1].nodes[0].x, on: [contours[0].nodes[0].point, contours[0].nodes[1].point]});',
+								_parameters: [],
+								_dependencies: ['contours.1.nodes.0.x', 'contours.0.nodes.0.point', 'contours.1.nodes.1.point']
+							}
 						}, {
 							x: 0,
 							y: 100

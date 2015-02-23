@@ -72,7 +72,7 @@ describe('naive', function() {
 		});
 	});
 
-	describe('#expandedNodeUpdater', function() {
+	describe('#skeletonCopier', function() {
 		it('should copy node type from skeleton to contours', function() {
 			var glyphSrc = {
 					name: 'A',
@@ -89,12 +89,14 @@ describe('naive', function() {
 						}]
 					}]
 				},
-				glyph;
+				glyph,
+				solvingOrder;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.expandSkeletons( glyph );
-			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+			solvingOrder = Utils.solveDependencyTree( glyphSrc );
+			glyph.solvingOrder = solvingOrder.map(function(path) {
 				return path.split('.');
 			});
 
@@ -129,12 +131,14 @@ describe('naive', function() {
 						}]
 					}]
 				},
-				glyph;
+				glyph,
+				solvingOrder;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.expandSkeletons( glyph );
-			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+			solvingOrder = Utils.solveDependencyTree( glyphSrc );
+			glyph.solvingOrder = solvingOrder.map(function(path) {
 				return path.split('.');
 			});
 
@@ -188,16 +192,22 @@ describe('naive', function() {
 						},{
 							x: 10,
 							y: 10,
-							angle: -Math.PI / 8
+							expand: {
+								_operation: '{ angle: -Math.PI / 8 }',
+								_parameters: [],
+								_dependencies: []
+							}
 						}]
 					}]
 				},
-				glyph;
+				glyph,
+				solvingOrder;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.expandSkeletons( glyph );
-			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+			solvingOrder = Utils.solveDependencyTree( glyphSrc );
+			glyph.solvingOrder = solvingOrder.map(function(path) {
 				return path.split('.');
 			});
 
@@ -243,10 +253,10 @@ describe('naive', function() {
 				.to.equal(-Math.PI / 8 - Math.PI / 2);
 			expect(glyph.contours[0].nodes[4].expandedTo[0].dirOut)
 				.to.equal(-Math.PI / 8 + Math.PI / 2);
-			expect(glyph.contours[0].nodes[4].expandedTo[1].dirIn)
-				.to.equal(-Math.PI / 8 - Math.PI / 2 + Math.PI);
-			expect(glyph.contours[0].nodes[4].expandedTo[1].dirOut)
+			expect(Utils.normalizeAngle(glyph.contours[0].nodes[4].expandedTo[1].dirIn))
 				.to.equal(-Math.PI / 8 + Math.PI / 2 + Math.PI);
+			expect(glyph.contours[0].nodes[4].expandedTo[1].dirOut)
+				.to.equal(-Math.PI / 8 - Math.PI / 2 + Math.PI);
 		});
 
 		it('should copy tensions from skeleton to contours', function() {
@@ -268,12 +278,14 @@ describe('naive', function() {
 						}]
 					}]
 				},
-				glyph;
+				glyph,
+				solvingOrder;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.expandSkeletons( glyph );
-			glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
+			solvingOrder = Utils.solveDependencyTree( glyphSrc );
+			glyph.solvingOrder = solvingOrder.map(function(path) {
 				return path.split('.');
 			});
 
