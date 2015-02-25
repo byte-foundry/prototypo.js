@@ -9,9 +9,10 @@ function ParametricFont( src ) {
 		font,
 		name,
 		glyphSrc,
-		glyph;
+		glyph,
+		a;
 
-	// TODO: this block is only here for backward compat
+	// TODO: this, block is only here for backward compat
 	// and should be removed at some point in the future
 	if ( !src.fontinfo ) {
 		src.fontinfo = src.info;
@@ -28,7 +29,7 @@ function ParametricFont( src ) {
 
 		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
 
-		glyph = Utils.glyphFromSrc( glyphSrc );
+		glyph = Utils.glyphFromSrc( glyphSrc, src );
 
 		font.addGlyph( glyph );
 
@@ -52,9 +53,20 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 	}, this);
 };
 
-
-paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
-	this.solvingOrder.forEach(function(path) {
+/* Update the shape of the glyph, according to formula and parameters
+ * 0. before running, nodes have already been created by ParametricFont
+ *   (including expanded ones thanks to naive.expandSkeletons). And static
+ *   properties have been copied over to those nodes
+ * 1. We use the solving order to calculate all node properties except handle positions
+ * 2. We make sure 'line' types are set on both node of bezier curve, when present.
+ *    And we make smooth nodes... smooth.
+ * 3. Calculate the position of handles.
+ * 4. transform contours
+ * 5. Update components and transform them
+ */
+paper.PaperScope.prototype.Glyph.prototype.update = function( params, font, solvingOrder ) {
+	// 1. calculate node properties
+	( solvingOrder || this.solvingOrder ).forEach(function(path) {
 		var propName = path[path.length -1],
 			src = Utils.propFromPath( path, path.length, this.src ),
 			obj = Utils.propFromPath( path, path.length -1, this ),
@@ -78,14 +90,18 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 			// Previously prepareContour was only executed on outlines and skeletons
 			// but not on expanded contours.
 			// I have no idea why but I might rediscover it later.
+			// TODO: it might be possible to do 2. and 3. at the same time
+
+			// 2. check 'line' curves and smooth nodes
 			naive.prepareContour( contour );
+			// 3. calculate the position of handles
 			naive.updateContour( contour, params );
 		}
 	});
 
-	// transformation should be the very last step
+	// 4. transform contours
 	this.contours.forEach(function(contour) {
-		// 1. transform the contour
+		// a. transform the contour
 		// prepare and update outlines and expanded contours, but not skeletons
 		if ( contour.transforms ) {
 			var matrix = Utils.transformsToMatrix( contour.transforms, contour.transformOrigin );
@@ -101,7 +117,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 			}
 		}
 
-		// 2. transform the nodes
+		// b. transform the nodes
 		contour.nodes.forEach(function(node) {
 			if ( node.transforms ) {
 				matrix = Utils.transformsToMatrix( node.transforms, node.transformOrigin );
@@ -119,7 +135,10 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 		});
 	});
 
-	// TODO: handle components and components transforms
+	// 5. TODO: update components and transform components
+	this.components.forEach(function(component) {
+		component.update( params, font, font.glyphMap[component.name].solvingOrder );
+	});
 };
 
 module.exports = plumin;

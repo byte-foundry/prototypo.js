@@ -13,6 +13,7 @@
 		<style>
 
 		</style>
+		<script src="//localhost:8081"></script>
 
 	</head>
 	<body>
@@ -34,7 +35,8 @@
 
 			var xhr = new XMLHttpRequest(),
 				font,
-				fontSrc;
+				fontSrc,
+				glyph;
 
 			// synchronous request, YOLO
 			xhr.open('GET', 'node_modules/test.ptf/dist/font.json', false);
@@ -46,22 +48,33 @@
 			xhr.send();
 
 			font = prototypo.ParametricFont( fontSrc );
-			font.glyphMap.I.update({ width: 10, xHeight: 20 });
+			glyph = font.glyphMap.J;
+			glyph.update({ width: 10, xHeight: 20 }, font);
 
-			font.glyphMap.I.visible = true;
-			font.glyphMap.I.contours.forEach(function(contour) {
+			glyph.visible = true;
+			glyph.contours.forEach(function(contour) {
+				if ( contour.skeleton ) {
+					contour.visible = false;
+				} else {
+					contour.visible = true;
+				}
+			});
+			glyph.components.forEach(function(component) {
+				component.visible = true;
+				component.contours.forEach(function(contour) {
 					if ( contour.skeleton ) {
 						contour.visible = false;
 					} else {
 						contour.visible = true;
 					}
 				});
+			});
 
 			prototypo.paper.view.update();
 
-			console.log(font.glyphMap.I.solvingOrder.map(path => path.join('.')));
-			console.log(font.glyphMap.I.contours);
-			// console.log(font.glyphMap.I.contours[3].exportSVG());
+			// console.log(glyph.solvingOrder.map(path => path.join('.')));
+			console.log(glyph);
+			// console.log(glyph.contours[3].exportSVG());
 		</script>
 
 		<script>

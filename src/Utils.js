@@ -5,7 +5,7 @@ var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 var Utils = {};
 
 // create Glyph instance and all its child items: anchors, contours and components
-Utils.glyphFromSrc = function( glyphSrc ) {
+Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
 	var glyph = new paper.Glyph({
 		name: glyphSrc.name,
 		unicode: glyphSrc.unicode
@@ -13,34 +13,45 @@ Utils.glyphFromSrc = function( glyphSrc ) {
 	glyph.src = glyphSrc;
 	Utils.mergeStatic( glyph, glyphSrc );
 
-	if ( glyphSrc.anchors ) {
-		glyphSrc.anchors.forEach(function(anchorSrc) {
+	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
+		var anchor = new paper.Node();
+		anchor.src = anchorSrc;
+		Utils.mergeStatic( anchor, anchorSrc );
+
+		glyph.addAnchor( anchor );
+	});
+
+	(glyphSrc.contours || []).forEach(function(contourSrc) {
+		var contour = new paper.Path();
+		contour.src = contourSrc;
+		Utils.mergeStatic( contour, contourSrc );
+
+		glyph.addContour( contour );
+
+		// TODO: handle oncurve/offcurve points
+		contourSrc.nodes.forEach(function(nodeSrc) {
+			var node = new paper.Node();
+			node.src = nodeSrc;
+			Utils.mergeStatic( node, nodeSrc );
+
+			contour.add( node );
+		});
+	});
+
+	(glyphSrc.components || []).forEach(function(componentSrc) {
+		// components are glyphs, quite simply
+		var component = Utils.glyphFromSrc( fontSrc.glyphs[componentSrc.base] );
+		Utils.naive.expandSkeletons( component );
+		glyph.addComponent( component );
+
+		(componentSrc.anchors || []).forEach(function(anchorSrc) {
 			var anchor = new paper.Node();
 			anchor.src = anchorSrc;
 			Utils.mergeStatic( anchor, anchorSrc );
 
-			glyph.addAnchor( anchor );
+			component.addParentAnchor( anchor );
 		});
-	}
-
-	if ( glyphSrc.contours ) {
-		glyphSrc.contours.forEach(function(contourSrc) {
-			var contour = new paper.Path();
-			contour.src = contourSrc;
-			Utils.mergeStatic( contour, contourSrc );
-
-			glyph.addContour( contour );
-
-			// TODO: handle oncurve/offcurve points
-			contourSrc.nodes.forEach(function(nodeSrc) {
-				var node = new paper.Node();
-				node.src = nodeSrc;
-				Utils.mergeStatic( node, nodeSrc );
-
-				contour.add( node );
-			});
-		});
-	}
+	});
 
 	return glyph;
 };
@@ -74,7 +85,9 @@ Utils.createUpdaters = function( leaf, path ) {
 						// I can't remember, maybe I thought it could be useful someday...
 						leaf._operation.toString()
 							.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
-					) + '\n\n//# sourceURL=' + path
+					) +
+					// add sourceURL pragma to help debugging
+					'\n\n//# sourceURL=' + path
 				);
 
 		return ( leaf._updater = Function.apply( null, args ) );
@@ -115,22 +128,21 @@ Utils.ufoToPaper = function( src ) {
 
 	if ( src.outline && src.outline.component ) {
 		src.components = src.outline.component;
-		delete src.outline.contour;
+
+		src.components.forEach(function(component) {
+			if ( component.anchor ) {
+				component.anchors = component.anchor;
+				delete component.anchor;
+			}
+		});
+
+		delete src.outline.component;
 	}
 
 	if ( src.lib && src.lib.transformList ) {
 		src.transformList = src.lib.transformList;
 		delete src.lib.transformList;
 	}
-};
-
-// Useless right now, we do it in Glyph.prototype.update in prototypo.js
-Utils.updateAttr = function( attr, params, glyph ) {
-	var args = [ glyph.contours, glyph.anchors, glyph.parentAnchors, Utils ];
-	( attr._parameters || [] ).forEach(function(name) {
-		args.push( params[name] );
-	});
-	return attr._updater.apply( {}, args );
 };
 
 Utils.solveDependencyTree = function( leafSrc, path, excludeList ) {
@@ -156,8 +168,16 @@ Utils.excludeList = function( leafSrc, path, excludeList ) {
 			// static props are immediatly available, exclude them from the tree
 			excludeList.push( currPath );
 
+		} else if ( attr._dependencies ) {
+			// parentAnchors are always here when you need them, #parentingWin
+			attr._dependencies.forEach(function(dep) {
+				if ( /^parentAnchors/.test(dep) ) {
+					excludeList.push( dep );
+				}
+			});
+
 		// recurse
-		} else if ( !attr._dependencies && !attr._operation ) {
+		} else {
 			Utils.excludeList( attr, currPath, excludeList );
 		}
 	}
@@ -441,26 +461,5 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 Utils.normalizeAngle = function( angle ) {
 	return angle % ( 2 * Math.PI ) + ( angle < 0 ? 2 * Math.PI : 0 );
 };
-
-// Object.mixin polyfill for IE9+
-if ( !global.Object.mixin ) {
-	global.Object.mixin = function( target, source ) {
-		var props = Object.getOwnPropertyNames(source),
-			p,
-			descriptor,
-			length = props.length;
-
-		for (p = 0; p < length; p++) {
-			descriptor = Object.getOwnPropertyDescriptor(source, props[p]);
-			try {
-				Object.defineProperty(target, props[p], descriptor);
-			} catch (e) {
-				// in node, some properties cannot be redefiend and we're ok with that
-			}
-		}
-
-		return target;
-	};
-}
 
 module.exports = Utils;

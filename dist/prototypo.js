@@ -17881,7 +17881,7 @@ Object.defineProperty(Glyph.prototype, 'unicode', {
 // This has the added benefit of preventing CompoundPath#insertChildren
 // from arbitrarily changing the direction of paths
 Object.getOwnPropertyNames( paper.Item.prototype )
-	.forEach(function(name, i) {
+	.forEach(function(name) {
 		// exclude getters and non-methods
 		if ( Object.getOwnPropertyDescriptor(this, name).get ||
 				typeof this[name] !== 'function' ) {
@@ -17919,7 +17919,6 @@ Object.defineProperty(
 );
 
 Glyph.prototype.addComponent = function( item ) {
-	this.addChild( item );
 	this.components.push( item );
 	return item;
 };
@@ -17966,6 +17965,10 @@ Glyph.prototype.interpolate = function( glyph0, glyph1, coef ) {
 			coef
 		);
 
+		this.components.forEach(function(component, i) {
+			component.interpolate( glyph0.components[i], glyph1.components[i], coef );
+		});
+
 		this.ot.advanceWidth =
 			glyph0.ot.advanceWidth +
 			( glyph1.ot.advanceWidth - glyph0.ot.advanceWidth ) * coef;
@@ -17992,8 +17995,12 @@ Glyph.prototype.updateOTCommands = function( path ) {
 	}
 
 	this.contours.forEach(function( contour ) {
-		contour.updateOTCommands( this.ot.path );
+		contour.updateOTCommands( path );
 	}, this);
+
+	this.components.forEach(function( component ) {
+		component.updateOTCommands( path );
+	});
 
 	return this.ot;
 };
@@ -18159,7 +18166,6 @@ module.exports = plumin;
 //# sourceMappingURL=plumin.js.map
 }).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"_process":1}],4:[function(_dereq_,module,exports){
-(function (global){
 var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
 	paper = plumin.paper,
 	DepTree = _dereq_('../node_modules/deptree/index.js');
@@ -18167,7 +18173,7 @@ var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
 var Utils = {};
 
 // create Glyph instance and all its child items: anchors, contours and components
-Utils.glyphFromSrc = function( glyphSrc ) {
+Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
 	var glyph = new paper.Glyph({
 		name: glyphSrc.name,
 		unicode: glyphSrc.unicode
@@ -18175,34 +18181,45 @@ Utils.glyphFromSrc = function( glyphSrc ) {
 	glyph.src = glyphSrc;
 	Utils.mergeStatic( glyph, glyphSrc );
 
-	if ( glyphSrc.anchors ) {
-		glyphSrc.anchors.forEach(function(anchorSrc) {
+	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
+		var anchor = new paper.Node();
+		anchor.src = anchorSrc;
+		Utils.mergeStatic( anchor, anchorSrc );
+
+		glyph.addAnchor( anchor );
+	});
+
+	(glyphSrc.contours || []).forEach(function(contourSrc) {
+		var contour = new paper.Path();
+		contour.src = contourSrc;
+		Utils.mergeStatic( contour, contourSrc );
+
+		glyph.addContour( contour );
+
+		// TODO: handle oncurve/offcurve points
+		contourSrc.nodes.forEach(function(nodeSrc) {
+			var node = new paper.Node();
+			node.src = nodeSrc;
+			Utils.mergeStatic( node, nodeSrc );
+
+			contour.add( node );
+		});
+	});
+
+	(glyphSrc.components || []).forEach(function(componentSrc) {
+		// components are glyphs, quite simply
+		var component = Utils.glyphFromSrc( fontSrc.glyphs[componentSrc.base] );
+		Utils.naive.expandSkeletons( component );
+		glyph.addComponent( component );
+
+		(componentSrc.anchors || []).forEach(function(anchorSrc) {
 			var anchor = new paper.Node();
 			anchor.src = anchorSrc;
 			Utils.mergeStatic( anchor, anchorSrc );
 
-			glyph.addAnchor( anchor );
+			component.addParentAnchor( anchor );
 		});
-	}
-
-	if ( glyphSrc.contours ) {
-		glyphSrc.contours.forEach(function(contourSrc) {
-			var contour = new paper.Path();
-			contour.src = contourSrc;
-			Utils.mergeStatic( contour, contourSrc );
-
-			glyph.addContour( contour );
-
-			// TODO: handle oncurve/offcurve points
-			contourSrc.nodes.forEach(function(nodeSrc) {
-				var node = new paper.Node();
-				node.src = nodeSrc;
-				Utils.mergeStatic( node, nodeSrc );
-
-				contour.add( node );
-			});
-		});
-	}
+	});
 
 	return glyph;
 };
@@ -18236,7 +18253,9 @@ Utils.createUpdaters = function( leaf, path ) {
 						// I can't remember, maybe I thought it could be useful someday...
 						leaf._operation.toString()
 							.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
-					) + '\n\n//# sourceURL=' + path
+					) +
+					// add sourceURL pragma to help debugging
+					'\n\n//# sourceURL=' + path
 				);
 
 		return ( leaf._updater = Function.apply( null, args ) );
@@ -18277,22 +18296,21 @@ Utils.ufoToPaper = function( src ) {
 
 	if ( src.outline && src.outline.component ) {
 		src.components = src.outline.component;
-		delete src.outline.contour;
+
+		src.components.forEach(function(component) {
+			if ( component.anchor ) {
+				component.anchors = component.anchor;
+				delete component.anchor;
+			}
+		});
+
+		delete src.outline.component;
 	}
 
 	if ( src.lib && src.lib.transformList ) {
 		src.transformList = src.lib.transformList;
 		delete src.lib.transformList;
 	}
-};
-
-// Useless right now, we do it in Glyph.prototype.update in prototypo.js
-Utils.updateAttr = function( attr, params, glyph ) {
-	var args = [ glyph.contours, glyph.anchors, glyph.parentAnchors, Utils ];
-	( attr._parameters || [] ).forEach(function(name) {
-		args.push( params[name] );
-	});
-	return attr._updater.apply( {}, args );
 };
 
 Utils.solveDependencyTree = function( leafSrc, path, excludeList ) {
@@ -18318,8 +18336,16 @@ Utils.excludeList = function( leafSrc, path, excludeList ) {
 			// static props are immediatly available, exclude them from the tree
 			excludeList.push( currPath );
 
+		} else if ( attr._dependencies ) {
+			// parentAnchors are always here when you need them, #parentingWin
+			attr._dependencies.forEach(function(dep) {
+				if ( /^parentAnchors/.test(dep) ) {
+					excludeList.push( dep );
+				}
+			});
+
 		// recurse
-		} else if ( !attr._dependencies && !attr._operation ) {
+		} else {
 			Utils.excludeList( attr, currPath, excludeList );
 		}
 	}
@@ -18604,29 +18630,8 @@ Utils.normalizeAngle = function( angle ) {
 	return angle % ( 2 * Math.PI ) + ( angle < 0 ? 2 * Math.PI : 0 );
 };
 
-// Object.mixin polyfill for IE9+
-if ( !global.Object.mixin ) {
-	global.Object.mixin = function( target, source ) {
-		var props = Object.getOwnPropertyNames(source),
-			p,
-			descriptor,
-			length = props.length;
-
-		for (p = 0; p < length; p++) {
-			descriptor = Object.getOwnPropertyDescriptor(source, props[p]);
-			try {
-				Object.defineProperty(target, props[p], descriptor);
-			} catch (e) {
-				// in node, some properties cannot be redefiend and we're ok with that
-			}
-		}
-
-		return target;
-	};
-}
-
 module.exports = Utils;
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"../node_modules/deptree/index.js":2,"../node_modules/plumin.js/dist/plumin.js":3}],5:[function(_dereq_,module,exports){
 var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
 	paper = plumin.paper,
@@ -18674,7 +18679,8 @@ naive.expandSkeletons = function( glyph ) {
 				};
 				node.src.expandedTo = [left.src, right.src];
 
-			} else {
+			// the expanded node might have been defined explicitely
+			} else if ( node.src.expandedTo[0] && !node.src.expandedTo[0]._updater ) {
 				node.src.expandedTo.forEach(function( src, i ) {
 					Utils.mergeStatic( node.expandedTo[i], src );
 				});
@@ -18993,9 +18999,10 @@ function ParametricFont( src ) {
 		font,
 		name,
 		glyphSrc,
-		glyph;
+		glyph,
+		a;
 
-	// TODO: this block is only here for backward compat
+	// TODO: this, block is only here for backward compat
 	// and should be removed at some point in the future
 	if ( !src.fontinfo ) {
 		src.fontinfo = src.info;
@@ -19012,7 +19019,7 @@ function ParametricFont( src ) {
 
 		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
 
-		glyph = Utils.glyphFromSrc( glyphSrc );
+		glyph = Utils.glyphFromSrc( glyphSrc, src );
 
 		font.addGlyph( glyph );
 
@@ -19036,9 +19043,20 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 	}, this);
 };
 
-
-paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
-	this.solvingOrder.forEach(function(path) {
+/* Update the shape of the glyph, according to formula and parameters
+ * 0. before running, nodes have already been created by ParametricFont
+ *   (including expanded ones thanks to naive.expandSkeletons). And static
+ *   properties have been copied over to those nodes
+ * 1. We use the solving order to calculate all node properties except handle positions
+ * 2. We make sure 'line' types are set on both node of bezier curve, when present.
+ *    And we make smooth nodes... smooth.
+ * 3. Calculate the position of handles.
+ * 4. transform contours
+ * 5. Update components and transform them
+ */
+paper.PaperScope.prototype.Glyph.prototype.update = function( params, font, solvingOrder ) {
+	// 1. calculate node properties
+	( solvingOrder || this.solvingOrder ).forEach(function(path) {
 		var propName = path[path.length -1],
 			src = Utils.propFromPath( path, path.length, this.src ),
 			obj = Utils.propFromPath( path, path.length -1, this ),
@@ -19062,14 +19080,18 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 			// Previously prepareContour was only executed on outlines and skeletons
 			// but not on expanded contours.
 			// I have no idea why but I might rediscover it later.
+			// TODO: it might be possible to do 2. and 3. at the same time
+
+			// 2. check 'line' curves and smooth nodes
 			naive.prepareContour( contour );
+			// 3. calculate the position of handles
 			naive.updateContour( contour, params );
 		}
 	});
 
-	// transformation should be the very last step
+	// 4. transform contours
 	this.contours.forEach(function(contour) {
-		// 1. transform the contour
+		// a. transform the contour
 		// prepare and update outlines and expanded contours, but not skeletons
 		if ( contour.transforms ) {
 			var matrix = Utils.transformsToMatrix( contour.transforms, contour.transformOrigin );
@@ -19085,7 +19107,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 			}
 		}
 
-		// 2. transform the nodes
+		// b. transform the nodes
 		contour.nodes.forEach(function(node) {
 			if ( node.transforms ) {
 				matrix = Utils.transformsToMatrix( node.transforms, node.transformOrigin );
@@ -19103,10 +19125,14 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( params ) {
 		});
 	});
 
-	// TODO: handle components and components transforms
+	// 5. TODO: update components and transform components
+	this.components.forEach(function(component) {
+		component.update( params, font, font.glyphMap[component.name].solvingOrder );
+	});
 };
 
 module.exports = plumin;
+
 },{"../node_modules/plumin.js/dist/plumin.js":3,"./Utils.js":4,"./naive.js":5}]},{},[6])(6)
 });
 

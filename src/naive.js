@@ -44,7 +44,8 @@ naive.expandSkeletons = function( glyph ) {
 				};
 				node.src.expandedTo = [left.src, right.src];
 
-			} else {
+			// the expanded node might have been defined explicitely
+			} else if ( node.src.expandedTo[0] && !node.src.expandedTo[0]._updater ) {
 				node.src.expandedTo.forEach(function( src, i ) {
 					Utils.mergeStatic( node.expandedTo[i], src );
 				});

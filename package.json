@@ -4,14 +4,18 @@
   "description": "parametric-glyph engine",
   "dependencies": {},
   "devDependencies": {
-    "plumin.js": "^0.5.0",
-    "test.ptf": "^0.1.0",
+    "babelify": "^5.0.3",
     "browserify": "^7.0.0",
     "chai": "^1.10.0",
     "deptree": "~0.1.0",
     "derequire": "~1.2.0",
     "exorcist": "^0.1.6",
+    "http-server": "^0.7.5",
+    "live-reload": "^0.2.0",
     "mocha": "^2.1.1",
+    "opener": "^1.4.0",
+    "plumin.js": "^0.5.0",
+    "test.ptf": "^0.1.0",
     "uglify-js": "^2.4.14",
     "watchify": "^2.1.1"
   },
@@ -29,7 +33,15 @@
     "watchify": "watchify src/prototypo.js --igv global --debug --standalone prototypo -o dist/prototypo.js -v",
     "uglify": "uglifyjs dist/prototypo.js > dist/prototypo.min.js",
     "test": "mocha test/*.js",
-    "debug": "node-inspector --no-preload --web-port=8081 & mocha --debug-brk -w test/*.js"
+    "debug": "node-inspector --no-preload --web-port=8081 & mocha --debug-brk -w test/*.js",
+
+    "serve": "http-server -p 8080 .",
+    "live-reload": "live-reload --port 8081 .",
+
+    "open": "opener http://localhost:8080",
+
+    "start": "npm run opener",
+    "prestart": "npm run serve & npm run live-reload"
   },
   "repository": {
     "type": "git",
