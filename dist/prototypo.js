@@ -17752,6 +17752,14 @@ Font.prototype.interpolate = function( font0, font1, coef, set ) {
 	return this;
 };
 
+Font.prototype.updateSVGData = function( set ) {
+	this.svgData = this.getGlyphSubset( set ).map(function( glyph ) {
+		return glyph.updateSVGData();
+	}).join(' ');
+
+	return this;
+};
+
 Font.prototype.updateOTCommands = function( set ) {
 	this.ot.glyphs = this.getGlyphSubset( set ).map(function( glyph ) {
 		return glyph.updateOTCommands();
@@ -17988,6 +17996,23 @@ Glyph.prototype.interpolate = function( glyph0, glyph1, coef ) {
 	return this;
 };
 
+Glyph.prototype.updateSVGData = function( path ) {
+	if ( !path ) {
+		this.svgData = [];
+		path = this.svgData;
+	}
+
+	this.contours.forEach(function( contour ) {
+		contour.updateSVGData( path );
+	}, this);
+
+	this.components.forEach(function( component ) {
+		component.updateSVGData( path );
+	});
+
+	return this.svgData;
+};
+
 Glyph.prototype.updateOTCommands = function( path ) {
 	if ( !path ) {
 		this.ot.path.commands = [];
@@ -18120,6 +18145,37 @@ proto.updateOTCommands = function( path ) {
 				x: Math.round( curve.point2.x ) || 0,
 				y: Math.round( curve.point2.y ) || 0
 			});
+		}
+	});
+
+	return path;
+};
+
+proto.updateSVGData = function( path ) {
+	path.push(
+		'M',
+		Math.round( this._segments[0].point.x ) || 0,
+		Math.round( this._segments[0].point.y ) || 0
+	);
+
+	this.curves.forEach(function( curve ) {
+		if ( curve.isLinear() ) {
+			path.push(
+				'L',
+				Math.round( curve.point2.x ) || 0,
+				Math.round( curve.point2.y ) || 0
+			);
+
+		} else {
+			path.push(
+				'C',
+				Math.round( curve.point1.x + curve.handle1.x ) || 0,
+				Math.round( curve.point1.y + curve.handle1.y ) || 0,
+				Math.round( curve.point2.x + curve.handle2.x ) || 0,
+				Math.round( curve.point2.y + curve.handle2.y ) || 0,
+				Math.round( curve.point2.x ) || 0,
+				Math.round( curve.point2.y ) || 0
+			);
 		}
 	});
 
