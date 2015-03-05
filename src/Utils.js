@@ -191,6 +191,9 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 		if ( typeof attr === 'object' ) {
 			// objects with updater functions have dependencies
 			if ( attr._dependencies ) {
+				// TODO: do we really need to filter the excluded list here and
+				// in expandDependencies? Also, we don't remove duplicates, is
+				// that a problem?
 				var deps = attr._dependencies.filter(function(dep) {
 					return excludeList.indexOf( dep ) === -1;
 				});

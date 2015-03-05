@@ -12,7 +12,7 @@
     "exorcist": "^0.1.6",
     "http-server": "^0.7.5",
     "live-reload": "^0.2.0",
-    "mocha": "^2.1.1",
+    "mocha": "^2.1.0",
     "opener": "^1.4.0",
     "plumin.js": "^0.5.0",
     "test.ptf": "^0.1.0",

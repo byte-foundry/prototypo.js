@@ -17660,6 +17660,10 @@ Font.prototype.addGlyph = function( glyph ) {
 	}
 	this.altMap[glyph.ot.unicode].push( glyph );
 
+	// invalidate glyph subset cache
+	// TODO: switch to immutable.js to avoid this maddness
+	this._lastSubset = undefined;
+
 	return glyph;
 };
 
@@ -17679,24 +17683,21 @@ Object.defineProperty( Font.prototype, 'subset', {
 			return ( this._subset = false );
 		}
 
-		return ( this._subset = (typeof set === 'string' ? set.split('') : set)
-			.filter(function(e, i, arr) {
-				return arr.lastIndexOf(e) === i;
-			})
-			.map(function(e) {
-				return e.charCodeAt(0);
-			})
-			.sort()
-		);
+		return ( this._subset = Font.normalizeSubset( set ) );
 	}
 });
 
 Font.prototype.getGlyphSubset = function( set ) {
-	if ( set !== undefined ) {
-		this.subset = set;
+	if ( set === true ) {
+		return this.glyphs;
 	}
 
+	set = set !== undefined ?
+		Font.normalizeSubset( set ):
+		this._subset;
+
 	// reuse last subset if possible
+	// TODO: implement caching using immutable.js
 	if ( this._lastSubset && this._lastSubset[0] === ( this._subset || [] ).join() ) {
 		return this._lastSubset[1];
 	}
@@ -17717,8 +17718,8 @@ Font.prototype.getGlyphSubset = function( set ) {
 			}
 
 			// TODO: handle multiple unicodes
-
 			return false;
+
 		}, this)
 	];
 
@@ -17839,6 +17840,19 @@ if ( typeof window === 'object' && window.document ) {
 	};
 
 }
+
+Font.normalizeSubset = function( set ) {
+	return ( typeof set === 'string' ?
+			set.split('').map(function(e) {
+				return e.charCodeAt(0);
+			}):
+			set
+		)
+		.filter(function(e, i, arr) {
+			return arr.lastIndexOf(e) === i;
+		})
+		.sort();
+};
 
 module.exports = Font;
 },{"../node_modules/opentype.js/dist/opentype.js":1,"./Glyph.js":5}],5:[function(_dereq_,module,exports){
@@ -18121,6 +18135,10 @@ Object.defineProperties(proto, {
 });
 
 proto.updateOTCommands = function( path ) {
+	if ( this.visible === false ) {
+		return;
+	}
+
 	path.commands.push({
 		type: 'M',
 		x: Math.round( this._segments[0].point.x ) || 0,
@@ -18152,6 +18170,10 @@ proto.updateOTCommands = function( path ) {
 };
 
 proto.updateSVGData = function( path ) {
+	if ( this.visible === false ) {
+		return;
+	}
+
 	path.push(
 		'M',
 		Math.round( this._segments[0].point.x ) || 0,
@@ -18415,6 +18437,9 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 		if ( typeof attr === 'object' ) {
 			// objects with updater functions have dependencies
 			if ( attr._dependencies ) {
+				// TODO: do we really need to filter the excluded list here and
+				// in expandDependencies? Also, we don't remove duplicates, is
+				// that a problem?
 				var deps = attr._dependencies.filter(function(dep) {
 					return excludeList.indexOf( dep ) === -1;
 				});
@@ -18711,6 +18736,9 @@ naive.expandSkeletons = function( glyph ) {
 			rightNodes = [],
 			firstNode,
 			lastNode;
+
+		// skeletons should be hidden
+		contour.visible = false;
 
 		contour.nodes.forEach(function( node, j ) {
 			// TODO: a node should be able to specify two arbitrary expanded nodes
@@ -19112,7 +19140,7 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  */
 paper.PaperScope.prototype.Glyph.prototype.update = function( params, font, solvingOrder ) {
 	// 1. calculate node properties
-	( solvingOrder || this.solvingOrder ).forEach(function(path) {
+	( solvingOrder || this.solvingOrder || [] ).forEach(function(path) {
 		var propName = path[path.length -1],
 			src = Utils.propFromPath( path, path.length, this.src ),
 			obj = Utils.propFromPath( path, path.length -1, this ),

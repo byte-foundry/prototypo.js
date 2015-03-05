@@ -66,7 +66,7 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  */
 paper.PaperScope.prototype.Glyph.prototype.update = function( params, font, solvingOrder ) {
 	// 1. calculate node properties
-	( solvingOrder || this.solvingOrder ).forEach(function(path) {
+	( solvingOrder || this.solvingOrder || [] ).forEach(function(path) {
 		var propName = path[path.length -1],
 			src = Utils.propFromPath( path, path.length, this.src ),
 			obj = Utils.propFromPath( path, path.length -1, this ),

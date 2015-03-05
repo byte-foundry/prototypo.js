@@ -21,6 +21,9 @@ naive.expandSkeletons = function( glyph ) {
 			firstNode,
 			lastNode;
 
+		// skeletons should be hidden
+		contour.visible = false;
+
 		contour.nodes.forEach(function( node, j ) {
 			// TODO: a node should be able to specify two arbitrary expanded nodes
 			var left = new paper.Node(),
