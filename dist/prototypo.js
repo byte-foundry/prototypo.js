@@ -18798,13 +18798,16 @@ naive.expandSkeletons = function( glyph ) {
 			firstNode = contour.firstNode;
 			lastNode = contour.lastNode;
 
+			firstNode.type = 'corner';
+			lastNode.type = 'corner';
+
 			firstNode.expandedTo[0].type = 'corner';
 			firstNode.expandedTo[1].type = 'corner';
 			lastNode.expandedTo[0].type = 'corner';
 			lastNode.expandedTo[1].type = 'corner';
 
-			firstNode.expandedTo[0].typeOut = 'line';
-			firstNode.expandedTo[1].typeIn = 'line';
+			firstNode.expandedTo[0].typeIn = 'line';
+			firstNode.expandedTo[1].typeOut = 'line';
 			lastNode.expandedTo[0].typeOut = 'line';
 			lastNode.expandedTo[1].typeIn = 'line';
 

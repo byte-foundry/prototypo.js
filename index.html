@@ -48,8 +48,8 @@
 			xhr.send();
 
 			font = prototypo.ParametricFont( fontSrc );
-			glyph = font.glyphMap.J;
-			glyph.update({ width: 10, xHeight: 20 }, font);
+			glyph = font.glyphMap.K;
+			glyph.update({ width: 10, thickness: 10, xHeight: 400 }, font);
 
 			glyph.visible = true;
 			glyph.contours.forEach(function(contour) {

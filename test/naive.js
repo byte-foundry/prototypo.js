@@ -40,6 +40,56 @@ describe('naive', function() {
 			expect(glyph.contours[1].nodes[3].src._dependencies[0]).to.equal('contours.0.nodes.0');
 		});
 
+		it('should turn the first and last nodes of an open skeleton into corners', function() {
+			var glyph = Utils.glyphFromSrc({
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: false,
+						nodes: [{
+							type: 'smooth',
+							x: 10,
+							y: 10
+						}, {
+							type: 'smooth',
+							x: 200,
+							y: 400
+						}]
+					}]
+				});
+
+			naive.expandSkeletons( glyph );
+
+			expect(glyph.contours[0].nodes[0].type).to.equal('corner');
+			expect(glyph.contours[0].nodes[1].type).to.equal('corner');
+		});
+
+		it('should make a straight line at each tip of an open skeleton', function() {
+			var glyph = Utils.glyphFromSrc({
+					name: 'A',
+					contours: [{
+						skeleton: true,
+						closed: false,
+						nodes: [{
+							type: 'smooth',
+							x: 10,
+							y: 10
+						}, {
+							type: 'smooth',
+							x: 200,
+							y: 400
+						}]
+					}]
+				});
+
+			naive.expandSkeletons( glyph );
+
+			expect(glyph.contours[0].nodes[0].expandedTo[0].typeIn).to.equal('line');
+			expect(glyph.contours[0].nodes[0].expandedTo[1].typeOut).to.equal('line');
+			expect(glyph.contours[0].nodes[1].expandedTo[0].typeOut).to.equal('line');
+			expect(glyph.contours[0].nodes[1].expandedTo[1].typeIn).to.equal('line');
+		});
+
 		it('should expand a closed skeleton into two additional contours', function() {
 			var glyph = Utils.glyphFromSrc({
 					name: 'A',
