@@ -289,10 +289,23 @@ naive.updateContour = function( path, params ) {
 
 		// direction of handles is parallel
 		if ( rri === null ) {
-			startCtrl.x = 0;
-			startCtrl.y = 0;
-			endCtrl.x = 0;
-			endCtrl.y = 0;
+			// startCtrl.x = 0;
+			// startCtrl.y = 0;
+			// endCtrl.x = 0;
+			// endCtrl.y = 0;
+			var angle = Utils.lineAngle( start._point, end._point ),
+				middle = { 
+					x: Math.abs( start._point.x - end._point.x ) / 2 + start._point.x, 
+					y: Math.abs( start._point.y - end._point.y ) / 2 + start._point.y
+				},
+				p0 = Utils.rayRayIntersection( start._point, startDir, middle, angle - Math.PI / 2 ),
+				p1 = Utils.rayRayIntersection( middle, angle + Math.PI / 2, end._point, endDir );
+
+			startCtrl.x = ( Math.round(p0[0]) - start._point.x ) * curviness * startTension;
+			startCtrl.y = ( Math.round(p0[1]) - start._point.y ) * curviness * startTension;
+			endCtrl.x = ( Math.round(p1[0]) - end._point.x ) * curviness * endTension;
+			endCtrl.y = ( Math.round(p1[1]) - end._point.y ) * curviness * endTension;
+
 			return;
 		}
 

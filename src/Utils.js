@@ -44,7 +44,7 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
 		Utils.naive.expandSkeletons( component );
 		glyph.addComponent( component );
 
-		(componentSrc.anchors || []).forEach(function(anchorSrc) {
+		(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
 			var anchor = new paper.Node();
 			anchor.src = anchorSrc;
 			Utils.mergeStatic( anchor, anchorSrc );
@@ -131,7 +131,7 @@ Utils.ufoToPaper = function( src ) {
 
 		src.components.forEach(function(component) {
 			if ( component.anchor ) {
-				component.anchors = component.anchor;
+				component.parentAnchors = component.anchor;
 				delete component.anchor;
 			}
 		});
@@ -197,6 +197,7 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 				var deps = attr._dependencies.filter(function(dep) {
 					return excludeList.indexOf( dep ) === -1;
 				});
+				// TODO: we should add the .expand properties only when in a skeleton
 				deps = Utils.expandDependencies( deps, excludeList );
 				depTree.add(currPath, deps);
 			}
@@ -338,6 +339,11 @@ Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
 		// this should work equally well with ax+c or bx+d
 		a * x + c
 	]);
+};
+
+// return the angle between two points
+Utils.lineAngle = function( p0, p1 ) {
+	return Math.atan2( p1.y - p0.y, p1.x - p0.x );
 };
 
 Utils.onLine = function( params ) {
