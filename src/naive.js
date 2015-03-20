@@ -1,8 +1,8 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
-	paper = plumin.paper,
 	Utils = require('./Utils.js');
 
-var naive = {};
+var paper = plumin.paper,
+	naive = {};
 
 // default method to expand skeletons:
 // derives two additional node from every node with an .expand object
@@ -25,32 +25,33 @@ naive.expandSkeletons = function( glyph ) {
 		contour.visible = false;
 
 		contour.nodes.forEach(function( node, j ) {
-			// TODO: a node should be able to specify two arbitrary expanded nodes
+			// TODO: a node should be able to specify two arbitrary expanded
+			// nodes
 			var left = new paper.Node(),
 				right = new paper.Node();
 
 			leftNodes.push(left);
 			rightNodes.unshift(right);
-			node.expandedTo = [left, right];
+			node.expandedTo = [ left, right ];
 			left.expandedFrom = right.expandedFrom = node;
 
 			if ( !node.src.expandedTo ) {
 				left.src = {
-					_dependencies: ['contours.' + i + '.nodes.' + j],
-					_parameters: ['width'],
+					_dependencies: [ 'contours.' + i + '.nodes.' + j ],
+					_parameters: [ 'width' ],
 					_updater: naive.expandedNodeUpdater
 				};
 				right.src = {
-					_dependencies: ['contours.' + i + '.nodes.' + j],
-					_parameters: ['width'],
+					_dependencies: [ 'contours.' + i + '.nodes.' + j ],
+					_parameters: [ 'width' ],
 					_updater: naive.expandedNodeUpdater
 				};
-				node.src.expandedTo = [left.src, right.src];
+				node.src.expandedTo = [ left.src, right.src ];
 
 			// the expanded node might have been defined explicitely
 			} else if ( node.src.expandedTo[0] && !node.src.expandedTo[0]._updater ) {
-				node.src.expandedTo.forEach(function( src, i ) {
-					Utils.mergeStatic( node.expandedTo[i], src );
+				node.src.expandedTo.forEach(function( src, k ) {
+					Utils.mergeStatic( node.expandedTo[k], src );
 				});
 			}
 
@@ -119,25 +120,25 @@ naive.expandSkeletons = function( glyph ) {
 };
 
 // Calculate expanded node position
-naive.expandedNodeUpdater = function( propName, contours, anchors, parentAnchors, Utils, _width ) {
+naive.expandedNodeUpdater = function( propName, contours, anchors, parentAnchors, _Utils, _width ) {
 	var node = this[propName],
 		isLeft = +propName === 0,
 		origin = node.expandedFrom,
 		expand = origin.expand,
 		width = expand && expand.width !== undefined ?
-			expand.width: _width,
+			expand.width : _width,
 		coef = expand && expand.distr !== undefined ?
-			( isLeft ? expand.distr : 1 - expand.distr ):
+			( isLeft ? expand.distr : 1 - expand.distr ) :
 			0.5,
 		angle = ( isLeft ? Math.PI : 0 ) +
 			( expand && expand.angle !== undefined ?
-				expand.angle:
+				expand.angle :
 				// TWe resort to using directions.
 				// This is wrong, directions are not included in the
 				// dependencies of the updater and might not be ready yet.
 				// TODO: Fix this (always require angle to be specified?)
 				( origin._dirOut !== undefined ?
-					origin._dirOut - Math.PI / 2:
+					origin._dirOut - Math.PI / 2 :
 					origin._dirIn + Math.PI / 2
 				)
 			);
@@ -171,7 +172,7 @@ naive.skeletonCopier = function() {
 	if ( node._dirIn !== undefined ) {
 		left._dirIn = right._dirOut = node._dirIn;
 
-		if ( node.type === 'smooth' && node._dirOut === undefined  ) {
+		if ( node.type === 'smooth' && node._dirOut === undefined ) {
 			left._dirOut = right._dirIn = node._dirIn + Math.PI;
 		}
 	}
@@ -194,10 +195,10 @@ naive.skeletonCopier = function() {
 
 	// tension
 	left.tensionIn = right.tensionOut = node.tensionIn !== undefined ?
-		node.tensionIn:
+		node.tensionIn :
 		( node.tension !== undefined ? node.tension : 1 );
 	left.tensionOut = right.tensionIn = node.tensionOut !== undefined ?
-		node.tensionOut:
+		node.tensionOut :
 		( node.tension !== undefined ? node.tension : 1 );
 };
 
@@ -231,7 +232,7 @@ naive.prepareContour = function( path ) {
 // sets the position of control points
 // can be renamed #updateControls if no other operation is added
 naive.updateContour = function( path, params ) {
-	var curviness = params.curviness !== undefined ? params.curviness : 2/3;
+	var curviness = params.curviness !== undefined ? params.curviness : 2 / 3;
 
 	path.nodes.forEach(function(node) {
 		var start = node,
@@ -267,17 +268,17 @@ naive.updateContour = function( path, params ) {
 		}
 
 		startTension = start.tensionOut !== undefined ?
-			start.tensionOut:
+			start.tensionOut :
 			( start.tension !== undefined ? start.tension : 1 );
 		endTension = end.tensionIn !== undefined ?
-			end.tensionIn:
+			end.tensionIn :
 			( end.tension !== undefined ? end.tension : 1 );
 
 		startDir = start._dirOut !== undefined ?
-			start._dirOut:
+			start._dirOut :
 			start.type === 'smooth' ? start._dirIn + Math.PI : 0;
 		endDir = end._dirIn !== undefined ?
-			end._dirIn:
+			end._dirIn :
 			end.type === 'smooth' ? end._dirOut - Math.PI : 0;
 
 		rri = Utils.rayRayIntersection(
@@ -294,8 +295,8 @@ naive.updateContour = function( path, params ) {
 			// endCtrl.x = 0;
 			// endCtrl.y = 0;
 			var angle = Utils.lineAngle( start._point, end._point ),
-				middle = { 
-					x: Math.abs( start._point.x - end._point.x ) / 2 + start._point.x, 
+				middle = {
+					x: Math.abs( start._point.x - end._point.x ) / 2 + start._point.x,
 					y: Math.abs( start._point.y - end._point.y ) / 2 + start._point.y
 				},
 				p0 = Utils.rayRayIntersection( start._point, startDir, middle, angle - Math.PI / 2 ),

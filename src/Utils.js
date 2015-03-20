@@ -1,11 +1,12 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
-	paper = plumin.paper,
 	DepTree = require('../node_modules/deptree/index.js');
 
-var Utils = {};
+var paper = plumin.paper,
+	Utils = {};
 
-// create Glyph instance and all its child items: anchors, contours and components
-Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
+// create Glyph instance and all its child items: anchors, contours
+// and components
+Utils.glyphFromSrc = function( glyphSrc, fontSrc, embed ) {
 	var glyph = new paper.Glyph({
 		name: glyphSrc.name,
 		unicode: glyphSrc.unicode
@@ -13,7 +14,7 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
 	glyph.src = glyphSrc;
 	Utils.mergeStatic( glyph, glyphSrc );
 
-	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
+	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();
 		anchor.src = anchorSrc;
 		Utils.mergeStatic( anchor, anchorSrc );
@@ -38,20 +39,39 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
 		});
 	});
 
-	(glyphSrc.components || []).forEach(function(componentSrc) {
-		// components are glyphs, quite simply
-		var component = Utils.glyphFromSrc( fontSrc.glyphs[componentSrc.base] );
-		Utils.naive.expandSkeletons( component );
-		glyph.addComponent( component );
+	if ( !glyphSrc.components ) {
+		return glyph;
+	}
 
-		(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
-			var anchor = new paper.Node();
-			anchor.src = anchorSrc;
-			Utils.mergeStatic( anchor, anchorSrc );
+	// components can only be embedded once all glyphs have been generated
+	// from source
+	glyph.embedComponents = function() {
+		glyphSrc.components.forEach(function(componentSrc) {
+			// components are glyphs, quite simply
+			var component = Utils.glyphFromSrc(
+					fontSrc.glyphs[componentSrc.base],
+					fontSrc,
+					// components' subcomponents can be embedded immediatly
+					true
+				);
+			Utils.naive.expandSkeletons( component );
+			glyph.addComponent( component );
 
-			component.addParentAnchor( anchor );
+			(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
+				var anchor = new paper.Node();
+				anchor.src = anchorSrc;
+				Utils.mergeStatic( anchor, anchorSrc );
+
+				component.addParentAnchor( anchor );
+			});
 		});
-	});
+
+		delete glyph.embedComponents;
+	};
+
+	if ( embed ) {
+		glyph.embedComponents();
+	}
 
 	return glyph;
 };
@@ -74,15 +94,19 @@ Utils.mergeStatic = function( obj, src ) {
 
 Utils.createUpdaters = function( leaf, path ) {
 	if ( leaf.constructor === Object &&
-			( typeof leaf._operation === 'string' || typeof leaf._operation === 'function' ) ) {
+			( typeof leaf._operation === 'string' ||
+			typeof leaf._operation === 'function' ) ) {
 
-		var args = ['propName', 'contours', 'anchors', 'parentAnchors', 'Utils']
+		var args = [
+					'propName', 'contours', 'anchors', 'parentAnchors', 'Utils'
+				]
 				.concat( leaf._parameters || [] )
 				.concat(
 					( typeof leaf._operation === 'string' ?
-						'return ' + leaf._operation:
+						'return ' + leaf._operation :
 						// In which case is the operation a function?
-						// I can't remember, maybe I thought it could be useful someday...
+						// I can't remember, maybe I thought it could be useful
+						// someday...
 						leaf._operation.toString()
 							.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
 					) +
@@ -90,7 +114,8 @@ Utils.createUpdaters = function( leaf, path ) {
 					'\n\n//# sourceURL=' + path
 				);
 
-		return ( leaf._updater = Function.apply( null, args ) );
+		leaf._updater = Function.apply( null, args );
+		return leaf._updater;
 	}
 
 	if ( leaf.constructor === Object ) {
@@ -100,8 +125,8 @@ Utils.createUpdaters = function( leaf, path ) {
 	}
 
 	if ( leaf.constructor === Array ) {
-		leaf.forEach(function(child, i) {
-			Utils.createUpdaters( child, path + '.' + i );
+		leaf.forEach(function(child, j) {
+			Utils.createUpdaters( child, path + '.' + j );
 		});
 	}
 };
@@ -139,10 +164,14 @@ Utils.ufoToPaper = function( src ) {
 		delete src.outline.component;
 	}
 
+	delete src.outline;
+
 	if ( src.lib && src.lib.transformList ) {
 		src.transformList = src.lib.transformList;
 		delete src.lib.transformList;
 	}
+
+	return src;
 };
 
 Utils.solveDependencyTree = function( leafSrc, path, excludeList ) {
@@ -197,7 +226,8 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 				var deps = attr._dependencies.filter(function(dep) {
 					return excludeList.indexOf( dep ) === -1;
 				});
-				// TODO: we should add the .expand properties only when in a skeleton
+				// TODO: we should add the .expand properties only when in
+				// a skeleton
 				deps = Utils.expandDependencies( deps, excludeList );
 				depTree.add(currPath, deps);
 			}
@@ -216,21 +246,21 @@ var rpoint = /\.point$/;
 // This list is expandable by plugins, 'naive' uses this possibility
 // hashtag #expandableception
 Utils.expandables = [
-	[/\.nodes\.\d+\.point$/, function( dep ) {
+	[ /\.nodes\.\d+\.point$/, function( dep ) {
 		dep = dep.replace(rpoint, '');
 
 		return [
 			dep + '.x',
 			dep + '.y'
 		];
-	}],
-	[/\.nodes\.\d+$/, function( dep ) {
+	} ],
+	[ /\.nodes\.\d+$/, function( dep ) {
 		return [
 			dep + '.x',
 			dep + '.y',
 			dep + '.expand'
 		];
-	}]
+	} ]
 ];
 Utils.expandDependencies = function( deps, excludeList ) {
 	deps = deps.map(function(dep) {
@@ -260,15 +290,17 @@ Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
 		y3 = p3.y,
 		x4 = p4.x,
 		y4 = p4.y,
-		d = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+		d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
 	if ( d === 0 ) {
 		return null;
 	}
 
 	return new Float32Array([
-		( (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4) ) / d,
-		( (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4) ) / d
+		( (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4) ) /
+		d,
+		( (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4) ) /
+		d
 	]);
 };
 
@@ -354,7 +386,7 @@ Utils.onLine = function( params ) {
 		];
 
 	return 'x' in params ?
-		( params.x - origin.x ) / vector[0] * vector[1] + origin.y:
+		( params.x - origin.x ) / vector[0] * vector[1] + origin.y :
 		( params.y - origin.y ) / vector[1] * vector[0] + origin.x;
 };
 
@@ -362,11 +394,11 @@ var rdeg = /deg$/;
 Utils.transformsToMatrix = function( transforms, origin ) {
 	var prev = new Float32Array(6),
 		curr = new Float32Array(6),
-		rslt = new Float32Array([1, 0, 0, 1, 0, 0]);
+		rslt = new Float32Array([ 1, 0, 0, 1, 0, 0 ]);
 
 	if ( origin ) {
-		transforms.unshift(['translate', origin[0], origin[1]]);
-		transforms.push(['translate', -origin[0], -origin[1]]);
+		transforms.unshift([ 'translate', origin[0], origin[1] ]);
+		transforms.push([ 'translate', -origin[0], -origin[1] ]);
 	}
 
 	transforms.forEach(function( transform ) {
@@ -375,7 +407,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 		// convert degrees to radian
 		for ( var i = 1; i < transform.length; i++ ) {
-			if ( transform[i] && typeof transform[i] === 'string' && rdeg.test(transform[i]) ) {
+			if ( transform[i] && typeof transform[i] === 'string' &&
+					rdeg.test(transform[i]) ) {
 				transform[i] = parseFloat(transform[i]) * ( Math.PI * 2 / 360 );
 			}
 		}
@@ -418,7 +451,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 			// stop parsing transform when encountering skewX(90)
 			// see http://stackoverflow.com/questions/21094958/how-to-deal-with-infinity-in-a-2d-matrix
 			transform[1] = transform[1] % ( 2 * Math.PI );
-			if ( transform[1] === Math.PI / 2 || transform[1] === -Math.PI /2 ) {
+			if ( transform[1] === Math.PI / 2 ||
+					transform[1] === -Math.PI / 2 ) {
 				return rslt;
 			}
 			curr[2] = Math.tan( transform[1] );
@@ -426,7 +460,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 		case 'skewY':
 			transform[1] = transform[1] % ( 2 * Math.PI );
-			if ( transform[1] === Math.PI / 2 || transform[1] === -Math.PI /2 ) {
+			if ( transform[1] === Math.PI / 2 ||
+					transform[1] === -Math.PI / 2 ) {
 				return rslt;
 			}
 			curr[1] = Math.tan( transform[1] );

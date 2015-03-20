@@ -1,70 +1,41 @@
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var o;"undefined"!=typeof window?o=window:"undefined"!=typeof global?o=global:"undefined"!=typeof self&&(o=self),o.prototypo=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.prototypo = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
+var queue = [];
+var draining = false;
 
-process.nextTick = (function () {
-    var canSetImmediate = typeof window !== 'undefined'
-    && window.setImmediate;
-    var canMutationObserver = typeof window !== 'undefined'
-    && window.MutationObserver;
-    var canPost = typeof window !== 'undefined'
-    && window.postMessage && window.addEventListener
-    ;
-
-    if (canSetImmediate) {
-        return function (f) { return window.setImmediate(f) };
+function drainQueue() {
+    if (draining) {
+        return;
     }
-
-    var queue = [];
-
-    if (canMutationObserver) {
-        var hiddenDiv = document.createElement("div");
-        var observer = new MutationObserver(function () {
-            var queueList = queue.slice();
-            queue.length = 0;
-            queueList.forEach(function (fn) {
-                fn();
-            });
-        });
-
-        observer.observe(hiddenDiv, { attributes: true });
-
-        return function nextTick(fn) {
-            if (!queue.length) {
-                hiddenDiv.setAttribute('yes', 'no');
-            }
-            queue.push(fn);
-        };
+    draining = true;
+    var currentQueue;
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        var i = -1;
+        while (++i < len) {
+            currentQueue[i]();
+        }
+        len = queue.length;
     }
-
-    if (canPost) {
-        window.addEventListener('message', function (ev) {
-            var source = ev.source;
-            if ((source === window || source === null) && ev.data === 'process-tick') {
-                ev.stopPropagation();
-                if (queue.length > 0) {
-                    var fn = queue.shift();
-                    fn();
-                }
-            }
-        }, true);
-
-        return function nextTick(fn) {
-            queue.push(fn);
-            window.postMessage('process-tick', '*');
-        };
+    draining = false;
+}
+process.nextTick = function (fun) {
+    queue.push(fun);
+    if (!draining) {
+        setTimeout(drainQueue, 0);
     }
-
-    return function nextTick(fn) {
-        setTimeout(fn, 0);
-    };
-})();
+};
 
 process.title = 'browser';
 process.browser = true;
 process.env = {};
 process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
 
 function noop() {}
 
@@ -85,6 +56,7 @@ process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
+process.umask = function() { return 0; };
 
 },{}],2:[function(_dereq_,module,exports){
 var DepTree = function() {
@@ -147,7 +119,7 @@ module.exports = DepTree;
 
 },{}],3:[function(_dereq_,module,exports){
 (function (process,global){
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.plumin=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.plumin = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.opentype=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
 // Run-time checking of preconditions.
 
@@ -4446,7 +4418,7 @@ exports.sizeOf = sizeOf;
 
 },{}],2:[function(_dereq_,module,exports){
 /*!
- * Paper.js v0.9.21 - The Swiss Army Knife of Vector Graphics Scripting.
+ * Paper.js v0.9.22 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
  *
  * Copyright (c) 2011 - 2014, Juerg Lehni & Jonathan Puckey
@@ -4456,7 +4428,7 @@ exports.sizeOf = sizeOf;
  *
  * All rights reserved.
  *
- * Date: Mon Jan 26 16:22:06 2015 +0100
+ * Date: Wed Mar 18 10:25:56 2015 +0100
  *
  ***
  *
@@ -4911,7 +4883,8 @@ Base.inject({
 		},
 
 		deserialize: function(json, create, _data) {
-			var res = json;
+			var res = json,
+				isRoot = !_data;
 			_data = _data || {};
 			if (Array.isArray(json)) {
 				var type = json[0],
@@ -4940,7 +4913,9 @@ Base.inject({
 				for (var key in json)
 					res[key] = Base.deserialize(json[key], create, _data);
 			}
-			return res;
+			return isRoot && json && json.length && json[0][0] === 'dictionary'
+					? res[1]
+					: res;
 		},
 
 		exportJSON: function(obj, options) {
@@ -5185,7 +5160,7 @@ var PaperScope = Base.extend({
 		}
 	},
 
-	version: '0.9.21',
+	version: '0.9.22',
 
 	getView: function() {
 		return this.project && this.project.getView();
@@ -5368,8 +5343,6 @@ var Numerical = new function() {
 	var abs = Math.abs,
 		sqrt = Math.sqrt,
 		pow = Math.pow,
-		cos = Math.cos,
-		PI = Math.PI,
 		TOLERANCE = 1e-6,
 		EPSILON = 1e-12,
 		MACHINE_EPSILON = 1.12e-16;
@@ -7689,8 +7662,8 @@ var Item = Base.extend(Emitter, {
 		return this._applyMatrix;
 	},
 
-	setApplyMatrix: function(transform) {
-		if (this._applyMatrix = this._canApplyMatrix && !!transform)
+	setApplyMatrix: function(apply) {
+		if (this._applyMatrix = this._canApplyMatrix && !!apply)
 			this.transform(null, true);
 	},
 
@@ -9114,8 +9087,10 @@ var Raster = Item.extend({
 				this.setImage(object);
 			}
 		}
-		if (!this._size)
+		if (!this._size) {
 			this._size = new Size();
+			this._loaded = false;
+		}
 	},
 
 	_equals: function(item) {
@@ -9203,9 +9178,11 @@ var Raster = Item.extend({
 		if (image && image.getContext) {
 			this._image = null;
 			this._canvas = image;
+			this._loaded = true;
 		} else {
 			this._image = image;
 			this._canvas = null;
+			this._loaded = image && image.complete;
 		}
 		this._size = new Size(
 				image ? image.naturalWidth || image.width : 0,
@@ -9277,7 +9254,7 @@ var Raster = Item.extend({
 	},
 
 	getElement: function() {
-		return this._canvas || this._image;
+		return this._canvas || this._loaded && this._image;
 	}
 }, {
 	beans: false,
@@ -9343,8 +9320,10 @@ var Raster = Item.extend({
 		if (path)
 			path.draw(ctx, new Base({ clip: true, matrices: [matrix] }));
 		this._matrix.applyToContext(ctx);
-		ctx.drawImage(this.getElement(),
-				-this._size.width / 2, -this._size.height / 2);
+		var element = this.getElement(),
+			size = this._size;
+		if (element)
+			ctx.drawImage(element, -size.width / 2, -size.height / 2);
 		ctx.restore();
 		var pixels = ctx.getImageData(0.5, 0.5, Math.ceil(width),
 				Math.ceil(height)).data,
@@ -11021,7 +11000,7 @@ var PathItem = Item.extend({
 
 		this.clear();
 
-		for (var i = 0, l = parts.length; i < l; i++) {
+		for (var i = 0, l = parts && parts.length; i < l; i++) {
 			var part = parts[i],
 				command = part[0],
 				lower = command.toLowerCase();
@@ -13144,7 +13123,6 @@ PathItem.inject(new function() {
 				var curve = curves[i],
 					values = curve.values,
 					winding = curve.winding,
-					next = curve.next,
 					prevT,
 					prevX;
 				if (winding && (winding === 1
@@ -16529,6 +16507,7 @@ new function() {
 		attrs.y += bounds.y;
 		attrs.width = formatter.number(bounds.width);
 		attrs.height = formatter.number(bounds.height);
+		attrs.overflow = 'visible';
 		return createElement('use', attrs);
 	}
 
@@ -16688,7 +16667,7 @@ new function() {
 			if (onExport)
 				node = onExport(item, node, options) || node;
 			var data = JSON.stringify(item._data);
-			if (data && data  !== '{}')
+			if (data && data !== '{}' && data !== 'null')
 				node.setAttribute('data-paper-data', data);
 		}
 		return node && applyStyle(item, node, isRoot);
@@ -17218,8 +17197,6 @@ return paper;
 };
 
 },{}],3:[function(_dereq_,module,exports){
-var paper = _dereq_('../node_modules/paper/dist/paper-core.js');
-
 function Collection( args ) {
 	// already a Collection? Job's done
 	if ( arguments.length === 1 && args instanceof Collection ) {
@@ -17292,8 +17269,7 @@ function wrapConstructor( constructor, prototype, useConstructed ) {
 			c = Object.create(prototype);
 			tmp = constructor.apply(c, arguments);
 			return useConstructed ?
-				tmp:
-				c;
+				tmp : c;
 
 		// without new, build a collection
 		} else {
@@ -17329,12 +17305,12 @@ function unwrapArg( arr, id, isPlural ) {
 	// unwrap a single collection
 	if ( arr && arr[id] instanceof Collection ) {
 		arr[id] = isPlural ?
-			[].slice.call( arr[id], 0 ):
+			[].slice.call( arr[id], 0 ) :
 			arr[id][0];
 
 	// unwrap an array of collection
 	} else if ( arr && arr[id].length && arr[id][0] instanceof Collection ) {
-		for ( i = -1; ++i < arr[id].length; ) {
+		for ( var i = -1; ++i < arr[id].length; ) {
 			arr[id][i] = arr[id][i][0];
 		}
 	}
@@ -17343,7 +17319,6 @@ function unwrapArg( arr, id, isPlural ) {
 function unwrapArgs() {
 	var isPlural = this.isPlural,
 		args = [].slice.call( arguments, 0 ),
-		arr,
 		id,
 		i;
 
@@ -17367,7 +17342,7 @@ function unwrapArgs() {
 		for ( i = -1; ++i < args.length; ) {
 			// if the method is plural (addChildren) and we're unwrapping
 			// the last argument, we want to keep it in an array
-			unwrapArg( args, i, i === args.length -1 && isPlural );
+			unwrapArg( args, i, i === args.length - 1 && isPlural );
 		}
 	}
 
@@ -17382,7 +17357,7 @@ Collection.proxy = function( paper ) {
 	var methodNames = {};
 	Object.getOwnPropertyNames( paper.PaperScope.prototype )
 		.filter( constructorFilter, paper.PaperScope.prototype )
-		.forEach(function(name, i) {
+		.forEach(function(name) {
 			plumin[name] = wrapConstructor( this[name], this[name].prototype );
 
 			// we don't want to proxy methods of Collection
@@ -17390,29 +17365,34 @@ Collection.proxy = function( paper ) {
 				return;
 			}
 
-			Object.getOwnPropertyNames( this[name].prototype ).forEach(function(name, i) {
-				// collect unique method names (first test avoids getters)
-				if ( !Object.getOwnPropertyDescriptor(this, name).get &&
-						typeof this[name] === 'function' ) {
+			Object.getOwnPropertyNames( this[name].prototype )
+				.forEach(function(_name) {
+					// collect unique method names (first test avoids getters)
+					if ( !Object.getOwnPropertyDescriptor(this, _name).get &&
+							typeof this[_name] === 'function' ) {
 
-					methodNames[name] = true;
-				}
+						methodNames[_name] = true;
+					}
 
-			}, this[name].prototype);
+				}, this[name].prototype);
 
 		}, paper.PaperScope.prototype);
 
 	Object.keys( paper.PaperScope.prototype.Path )
 		.filter( constructorFilter, paper.PaperScope.prototype.Path )
 		.forEach(function(name) {
-			plumin.Path[name] = wrapConstructor( this[name], this.prototype, true );
+			plumin.Path[name] = wrapConstructor(
+				this[name], this.prototype, true
+			);
 
 		}, paper.PaperScope.prototype.Path );
 
 	Object.keys( paper.PaperScope.prototype.Shape )
 		.filter( constructorFilter, paper.PaperScope.prototype.Shape )
 		.forEach(function(name) {
-			plumin.Shape[name] = wrapConstructor( this[name], this.prototype, true );
+			plumin.Shape[name] = wrapConstructor(
+				this[name], this.prototype, true
+			);
 
 		}, paper.PaperScope.prototype.Shape );
 
@@ -17541,7 +17521,7 @@ Collection.proxy = function( paper ) {
 			'addContours',
 			'insertContours',
 			'addComponents'
-		],
+		]/*,
 		mathPoinFn = [
 			'round',
 			'ceil',
@@ -17554,7 +17534,7 @@ Collection.proxy = function( paper ) {
 			'subtract',
 			'exclude',
 			'divide'
-		];
+		]*/;
 
 	chain.forEach(function(name) {
 		Collection.prototype[name] = function() {
@@ -17577,7 +17557,8 @@ Collection.proxy = function( paper ) {
 };
 
 module.exports = Collection;
-},{"../node_modules/paper/dist/paper-core.js":2}],4:[function(_dereq_,module,exports){
+
+},{}],4:[function(_dereq_,module,exports){
 var opentype = _dereq_('../node_modules/opentype.js/dist/opentype.js'),
 	Glyph = _dereq_('./Glyph.js');
 
@@ -17647,9 +17628,11 @@ Font.prototype.addGlyph = function( glyph ) {
 	}
 
 	// build the default cmap
-	// if multiple glyphs share the same unicode, use the glyph where unicode and name are equal
+	// if multiple glyphs share the same unicode, use the glyph where unicode
+	// and name are equal
 	if ( !this.charMap[glyph.ot.unicode] ||
-			( glyph.name.length === 1 && glyph.name.charCodeAt(0) === glyph.ot.unicode ) ) {
+			( glyph.name.length === 1 &&
+				glyph.name.charCodeAt(0) === glyph.ot.unicode ) ) {
 
 		this.charMap[glyph.ot.unicode] = glyph;
 	}
@@ -17679,11 +17662,10 @@ Object.defineProperty( Font.prototype, 'subset', {
 		return this._subset;
 	},
 	set: function( set ) {
-		if ( set === false ) {
-			return ( this._subset = false );
-		}
+		this._subset = set === false ?
+			false : Font.normalizeSubset( set );
 
-		return ( this._subset = Font.normalizeSubset( set ) );
+		return this._subset;
 	}
 });
 
@@ -17693,12 +17675,14 @@ Font.prototype.getGlyphSubset = function( set ) {
 	}
 
 	set = set !== undefined ?
-		Font.normalizeSubset( set ):
+		Font.normalizeSubset( set ) :
 		this._subset;
 
 	// reuse last subset if possible
 	// TODO: implement caching using immutable.js
-	if ( this._lastSubset && this._lastSubset[0] === ( this._subset || [] ).join() ) {
+	if ( this._lastSubset &&
+			this._lastSubset[0] === ( this._subset || [] ).join() ) {
+
 		return this._lastSubset[1];
 	}
 
@@ -17713,7 +17697,9 @@ Font.prototype.getGlyphSubset = function( set ) {
 				return true;
 			}
 
-			if ( this._subset && this._subset.indexOf( glyph.ot.unicode ) !== -1 ) {
+			if ( this._subset &&
+					this._subset.indexOf( glyph.ot.unicode ) !== -1 ) {
+
 				return true;
 			}
 
@@ -17792,7 +17778,7 @@ if ( typeof window === 'object' && window.document ) {
 	Font.prototype.addToFonts = document.fonts ?
 		// CSS font loading, lightning fast
 		function( buffer ) {
-			var fontface = new FontFace(
+			var fontface = new window.FontFace(
 				this.ot.familyName,
 				buffer || this.ot.toBuffer()
 			);
@@ -17801,12 +17787,12 @@ if ( typeof window === 'object' && window.document ) {
 			this.addedFonts.push( fontface );
 
 			return this;
-		}:
+		} :
 		function( buffer ) {
 			var url = _URL.createObjectURL(
 					new Blob(
-						[ new DataView( buffer || this.ot.toBuffer() ) ],
-						{type: 'font/opentype'}
+						[ new DataView( buffer || this.ot.toBuffer() ) ],
+						{ type: 'font/opentype' }
 					)
 				);
 
@@ -17816,7 +17802,8 @@ if ( typeof window === 'object' && window.document ) {
 			}
 
 			this.styleSheet.insertRule(
-				'@font-face { font-family: "' + this.ot.familyName + '"; src: url(' + url + '); }',
+				'@font-face { font-family: "' + this.ot.familyName + '";' +
+				'src: url(' + url + '); }',
 				0
 			);
 			this.fontObjectURL = url;
@@ -17833,7 +17820,7 @@ if ( typeof window === 'object' && window.document ) {
 
 		reader.readAsDataURL(new Blob(
 			[ new DataView( buffer || this.ot.toBuffer() ) ],
-			{type: 'font/opentype'}
+			{ type: 'font/opentype' }
 		));
 
 		return this;
@@ -17845,7 +17832,7 @@ Font.normalizeSubset = function( set ) {
 	return ( typeof set === 'string' ?
 			set.split('').map(function(e) {
 				return e.charCodeAt(0);
-			}):
+			}) :
 			set
 		)
 		.filter(function(e, i, arr) {
@@ -17855,6 +17842,7 @@ Font.normalizeSubset = function( set ) {
 };
 
 module.exports = Font;
+
 },{"../node_modules/opentype.js/dist/opentype.js":1,"./Glyph.js":5}],5:[function(_dereq_,module,exports){
 var opentype = _dereq_('../node_modules/opentype.js/dist/opentype.js'),
 	paper = _dereq_('../node_modules/paper/dist/paper-core.js');
@@ -17879,7 +17867,7 @@ function Glyph( args ) {
 	this.parentAnchors = ( args && args.parentAnchors ) || [];
 
 	// default fill color needed to display the glyph in a canvas
-	this.fillColor = new paper.Color(0,0,0);
+	this.fillColor = new paper.Color(0, 0, 0);
 	// but each individual glyph must be explicitely made visible
 	this.visible = false;
 }
@@ -17891,7 +17879,7 @@ Glyph.prototype.constructor = Glyph;
 Object.defineProperty(Glyph.prototype, 'unicode', {
 	set: function( code ) {
 		this.ot.unicode = typeof code === 'string' ?
-			code.charCodeAt(0):
+			code.charCodeAt(0) :
 			code;
 	},
 	get: function() {
@@ -17930,7 +17918,9 @@ Glyph.prototype.insertChildren = function(index, items, _preserve) {
 		}));
 	}
 
-	return paper.Item.prototype.insertChildren.call(this, index, items, _preserve, paper.Path);
+	return paper.Item.prototype.insertChildren.call(
+		this, index, items, _preserve, paper.Path
+	);
 };
 
 // proxy .children to .contours
@@ -17987,8 +17977,10 @@ Glyph.prototype.interpolate = function( glyph0, glyph1, coef ) {
 			coef
 		);
 
-		this.components.forEach(function(component, i) {
-			component.interpolate( glyph0.components[i], glyph1.components[i], coef );
+		this.components.forEach(function(component, j) {
+			component.interpolate(
+				glyph0.components[j], glyph1.components[j], coef
+			);
 		});
 
 		this.ot.advanceWidth =
@@ -18049,7 +18041,7 @@ Glyph.prototype.importOT = function( otGlyph ) {
 	this.ot = otGlyph;
 
 	if ( !otGlyph.path || !otGlyph.path.commands ) {
-		return;
+		return this;
 	}
 
 	this.ot.path.commands.forEach(function(command) {
@@ -18065,14 +18057,14 @@ Glyph.prototype.importOT = function( otGlyph ) {
 				break;
 			case 'C':
 				current.cubicCurveTo(
-					[command.x1, command.y1],
-					[command.x2, command.y2],
+					[ command.x1, command.y1 ],
+					[ command.x2, command.y2 ],
 					command
 				);
 				break;
 			case 'Q':
 				current.quadraticCurveTo(
-					[command.x1, command.y1],
+					[ command.x1, command.y1 ],
 					command
 				);
 				break;
@@ -18092,6 +18084,7 @@ Glyph.prototype.importOT = function( otGlyph ) {
 };
 
 module.exports = Glyph;
+
 },{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2}],6:[function(_dereq_,module,exports){
 var paper = _dereq_('../node_modules/paper/dist/paper-core.js');
 
@@ -18114,15 +18107,17 @@ Object.defineProperty( paper.Segment.prototype, 'y', {
 });
 
 module.exports = paper.Segment;
+
 },{"../node_modules/paper/dist/paper-core.js":2}],7:[function(_dereq_,module,exports){
 /* Extend the Path prototype to add OpenType conversion
  * and alias *segments methods and properties to *nodes
  */
-var paper = _dereq_('../node_modules/paper/dist/paper-core.js'),
-	proto = paper.PaperScope.prototype.Path.prototype;
+var paper = _dereq_('../node_modules/paper/dist/paper-core.js');
+
+var proto = paper.PaperScope.prototype.Path.prototype;
 
 // alias *Segments methods to *Nodes equivalents
-['add', 'insert', 'remove'].forEach(function(name) {
+[ 'add', 'insert', 'remove' ].forEach(function(name) {
 	proto[name + 'Nodes'] =
 		proto[name + 'Segments'];
 });
@@ -18136,7 +18131,7 @@ Object.defineProperties(proto, {
 
 proto.updateOTCommands = function( path ) {
 	if ( this.visible === false ) {
-		return;
+		return path;
 	}
 
 	path.commands.push({
@@ -18171,7 +18166,7 @@ proto.updateOTCommands = function( path ) {
 
 proto.updateSVGData = function( path ) {
 	if ( this.visible === false ) {
-		return;
+		return path;
 	}
 
 	path.push(
@@ -18205,6 +18200,7 @@ proto.updateSVGData = function( path ) {
 };
 
 module.exports = paper.Path;
+
 },{"../node_modules/paper/dist/paper-core.js":2}],8:[function(_dereq_,module,exports){
 var opentype = _dereq_('../node_modules/opentype.js/dist/opentype.js'),
 	paper = _dereq_('../node_modules/paper/dist/paper-core.js'),
@@ -18236,6 +18232,7 @@ plumin.proxy = Collection.proxy.bind(plumin);
 plumin.proxy(paper);
 
 module.exports = plumin;
+
 },{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2,"./Collection.js":3,"./Font.js":4,"./Glyph.js":5,"./Node.js":6,"./Path.js":7}]},{},[8])(8)
 });
 
@@ -18243,15 +18240,17 @@ module.exports = plumin;
 
 //# sourceMappingURL=plumin.js.map
 }).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+
 },{"_process":1}],4:[function(_dereq_,module,exports){
 var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
-	paper = plumin.paper,
 	DepTree = _dereq_('../node_modules/deptree/index.js');
 
-var Utils = {};
+var paper = plumin.paper,
+	Utils = {};
 
-// create Glyph instance and all its child items: anchors, contours and components
-Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
+// create Glyph instance and all its child items: anchors, contours
+// and components
+Utils.glyphFromSrc = function( glyphSrc, fontSrc, embed ) {
 	var glyph = new paper.Glyph({
 		name: glyphSrc.name,
 		unicode: glyphSrc.unicode
@@ -18259,7 +18258,7 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
 	glyph.src = glyphSrc;
 	Utils.mergeStatic( glyph, glyphSrc );
 
-	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
+	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();
 		anchor.src = anchorSrc;
 		Utils.mergeStatic( anchor, anchorSrc );
@@ -18284,20 +18283,39 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc ) {
 		});
 	});
 
-	(glyphSrc.components || []).forEach(function(componentSrc) {
-		// components are glyphs, quite simply
-		var component = Utils.glyphFromSrc( fontSrc.glyphs[componentSrc.base] );
-		Utils.naive.expandSkeletons( component );
-		glyph.addComponent( component );
+	if ( !glyphSrc.components ) {
+		return glyph;
+	}
 
-		(componentSrc.anchors || []).forEach(function(anchorSrc) {
-			var anchor = new paper.Node();
-			anchor.src = anchorSrc;
-			Utils.mergeStatic( anchor, anchorSrc );
+	// components can only be embedded once all glyphs have been generated
+	// from source
+	glyph.embedComponents = function() {
+		glyphSrc.components.forEach(function(componentSrc) {
+			// components are glyphs, quite simply
+			var component = Utils.glyphFromSrc(
+					fontSrc.glyphs[componentSrc.base],
+					fontSrc,
+					// components' subcomponents can be embedded immediatly
+					true
+				);
+			Utils.naive.expandSkeletons( component );
+			glyph.addComponent( component );
 
-			component.addParentAnchor( anchor );
+			(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
+				var anchor = new paper.Node();
+				anchor.src = anchorSrc;
+				Utils.mergeStatic( anchor, anchorSrc );
+
+				component.addParentAnchor( anchor );
+			});
 		});
-	});
+
+		delete glyph.embedComponents;
+	};
+
+	if ( embed ) {
+		glyph.embedComponents();
+	}
 
 	return glyph;
 };
@@ -18320,15 +18338,19 @@ Utils.mergeStatic = function( obj, src ) {
 
 Utils.createUpdaters = function( leaf, path ) {
 	if ( leaf.constructor === Object &&
-			( typeof leaf._operation === 'string' || typeof leaf._operation === 'function' ) ) {
+			( typeof leaf._operation === 'string' ||
+			typeof leaf._operation === 'function' ) ) {
 
-		var args = ['propName', 'contours', 'anchors', 'parentAnchors', 'Utils']
+		var args = [
+					'propName', 'contours', 'anchors', 'parentAnchors', 'Utils'
+				]
 				.concat( leaf._parameters || [] )
 				.concat(
 					( typeof leaf._operation === 'string' ?
-						'return ' + leaf._operation:
+						'return ' + leaf._operation :
 						// In which case is the operation a function?
-						// I can't remember, maybe I thought it could be useful someday...
+						// I can't remember, maybe I thought it could be useful
+						// someday...
 						leaf._operation.toString()
 							.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
 					) +
@@ -18336,7 +18358,8 @@ Utils.createUpdaters = function( leaf, path ) {
 					'\n\n//# sourceURL=' + path
 				);
 
-		return ( leaf._updater = Function.apply( null, args ) );
+		leaf._updater = Function.apply( null, args );
+		return leaf._updater;
 	}
 
 	if ( leaf.constructor === Object ) {
@@ -18346,8 +18369,8 @@ Utils.createUpdaters = function( leaf, path ) {
 	}
 
 	if ( leaf.constructor === Array ) {
-		leaf.forEach(function(child, i) {
-			Utils.createUpdaters( child, path + '.' + i );
+		leaf.forEach(function(child, j) {
+			Utils.createUpdaters( child, path + '.' + j );
 		});
 	}
 };
@@ -18377,7 +18400,7 @@ Utils.ufoToPaper = function( src ) {
 
 		src.components.forEach(function(component) {
 			if ( component.anchor ) {
-				component.anchors = component.anchor;
+				component.parentAnchors = component.anchor;
 				delete component.anchor;
 			}
 		});
@@ -18385,10 +18408,14 @@ Utils.ufoToPaper = function( src ) {
 		delete src.outline.component;
 	}
 
+	delete src.outline;
+
 	if ( src.lib && src.lib.transformList ) {
 		src.transformList = src.lib.transformList;
 		delete src.lib.transformList;
 	}
+
+	return src;
 };
 
 Utils.solveDependencyTree = function( leafSrc, path, excludeList ) {
@@ -18443,6 +18470,8 @@ Utils.dependencyTree = function( leafSrc, path, excludeList, depTree ) {
 				var deps = attr._dependencies.filter(function(dep) {
 					return excludeList.indexOf( dep ) === -1;
 				});
+				// TODO: we should add the .expand properties only when in
+				// a skeleton
 				deps = Utils.expandDependencies( deps, excludeList );
 				depTree.add(currPath, deps);
 			}
@@ -18461,21 +18490,21 @@ var rpoint = /\.point$/;
 // This list is expandable by plugins, 'naive' uses this possibility
 // hashtag #expandableception
 Utils.expandables = [
-	[/\.nodes\.\d+\.point$/, function( dep ) {
+	[ /\.nodes\.\d+\.point$/, function( dep ) {
 		dep = dep.replace(rpoint, '');
 
 		return [
 			dep + '.x',
 			dep + '.y'
 		];
-	}],
-	[/\.nodes\.\d+$/, function( dep ) {
+	} ],
+	[ /\.nodes\.\d+$/, function( dep ) {
 		return [
 			dep + '.x',
 			dep + '.y',
 			dep + '.expand'
 		];
-	}]
+	} ]
 ];
 Utils.expandDependencies = function( deps, excludeList ) {
 	deps = deps.map(function(dep) {
@@ -18505,15 +18534,17 @@ Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
 		y3 = p3.y,
 		x4 = p4.x,
 		y4 = p4.y,
-		d = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
+		d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
 
 	if ( d === 0 ) {
 		return null;
 	}
 
 	return new Float32Array([
-		( (x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4) ) / d,
-		( (x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4) ) / d
+		( (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4) ) /
+		d,
+		( (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4) ) /
+		d
 	]);
 };
 
@@ -18586,6 +18617,11 @@ Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
 	]);
 };
 
+// return the angle between two points
+Utils.lineAngle = function( p0, p1 ) {
+	return Math.atan2( p1.y - p0.y, p1.x - p0.x );
+};
+
 Utils.onLine = function( params ) {
 	var origin = params.on[0],
 		vector = [
@@ -18594,7 +18630,7 @@ Utils.onLine = function( params ) {
 		];
 
 	return 'x' in params ?
-		( params.x - origin.x ) / vector[0] * vector[1] + origin.y:
+		( params.x - origin.x ) / vector[0] * vector[1] + origin.y :
 		( params.y - origin.y ) / vector[1] * vector[0] + origin.x;
 };
 
@@ -18602,11 +18638,11 @@ var rdeg = /deg$/;
 Utils.transformsToMatrix = function( transforms, origin ) {
 	var prev = new Float32Array(6),
 		curr = new Float32Array(6),
-		rslt = new Float32Array([1, 0, 0, 1, 0, 0]);
+		rslt = new Float32Array([ 1, 0, 0, 1, 0, 0 ]);
 
 	if ( origin ) {
-		transforms.unshift(['translate', origin[0], origin[1]]);
-		transforms.push(['translate', -origin[0], -origin[1]]);
+		transforms.unshift([ 'translate', origin[0], origin[1] ]);
+		transforms.push([ 'translate', -origin[0], -origin[1] ]);
 	}
 
 	transforms.forEach(function( transform ) {
@@ -18615,7 +18651,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 		// convert degrees to radian
 		for ( var i = 1; i < transform.length; i++ ) {
-			if ( transform[i] && typeof transform[i] === 'string' && rdeg.test(transform[i]) ) {
+			if ( transform[i] && typeof transform[i] === 'string' &&
+					rdeg.test(transform[i]) ) {
 				transform[i] = parseFloat(transform[i]) * ( Math.PI * 2 / 360 );
 			}
 		}
@@ -18658,7 +18695,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 			// stop parsing transform when encountering skewX(90)
 			// see http://stackoverflow.com/questions/21094958/how-to-deal-with-infinity-in-a-2d-matrix
 			transform[1] = transform[1] % ( 2 * Math.PI );
-			if ( transform[1] === Math.PI / 2 || transform[1] === -Math.PI /2 ) {
+			if ( transform[1] === Math.PI / 2 ||
+					transform[1] === -Math.PI / 2 ) {
 				return rslt;
 			}
 			curr[2] = Math.tan( transform[1] );
@@ -18666,7 +18704,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 		case 'skewY':
 			transform[1] = transform[1] % ( 2 * Math.PI );
-			if ( transform[1] === Math.PI / 2 || transform[1] === -Math.PI /2 ) {
+			if ( transform[1] === Math.PI / 2 ||
+					transform[1] === -Math.PI / 2 ) {
 				return rslt;
 			}
 			curr[1] = Math.tan( transform[1] );
@@ -18715,10 +18754,10 @@ module.exports = Utils;
 
 },{"../node_modules/deptree/index.js":2,"../node_modules/plumin.js/dist/plumin.js":3}],5:[function(_dereq_,module,exports){
 var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
-	paper = plumin.paper,
 	Utils = _dereq_('./Utils.js');
 
-var naive = {};
+var paper = plumin.paper,
+	naive = {};
 
 // default method to expand skeletons:
 // derives two additional node from every node with an .expand object
@@ -18741,32 +18780,33 @@ naive.expandSkeletons = function( glyph ) {
 		contour.visible = false;
 
 		contour.nodes.forEach(function( node, j ) {
-			// TODO: a node should be able to specify two arbitrary expanded nodes
+			// TODO: a node should be able to specify two arbitrary expanded
+			// nodes
 			var left = new paper.Node(),
 				right = new paper.Node();
 
 			leftNodes.push(left);
 			rightNodes.unshift(right);
-			node.expandedTo = [left, right];
+			node.expandedTo = [ left, right ];
 			left.expandedFrom = right.expandedFrom = node;
 
 			if ( !node.src.expandedTo ) {
 				left.src = {
-					_dependencies: ['contours.' + i + '.nodes.' + j],
-					_parameters: ['width'],
+					_dependencies: [ 'contours.' + i + '.nodes.' + j ],
+					_parameters: [ 'width' ],
 					_updater: naive.expandedNodeUpdater
 				};
 				right.src = {
-					_dependencies: ['contours.' + i + '.nodes.' + j],
-					_parameters: ['width'],
+					_dependencies: [ 'contours.' + i + '.nodes.' + j ],
+					_parameters: [ 'width' ],
 					_updater: naive.expandedNodeUpdater
 				};
-				node.src.expandedTo = [left.src, right.src];
+				node.src.expandedTo = [ left.src, right.src ];
 
 			// the expanded node might have been defined explicitely
 			} else if ( node.src.expandedTo[0] && !node.src.expandedTo[0]._updater ) {
-				node.src.expandedTo.forEach(function( src, i ) {
-					Utils.mergeStatic( node.expandedTo[i], src );
+				node.src.expandedTo.forEach(function( src, k ) {
+					Utils.mergeStatic( node.expandedTo[k], src );
 				});
 			}
 
@@ -18835,25 +18875,25 @@ naive.expandSkeletons = function( glyph ) {
 };
 
 // Calculate expanded node position
-naive.expandedNodeUpdater = function( propName, contours, anchors, parentAnchors, Utils, _width ) {
+naive.expandedNodeUpdater = function( propName, contours, anchors, parentAnchors, _Utils, _width ) {
 	var node = this[propName],
 		isLeft = +propName === 0,
 		origin = node.expandedFrom,
 		expand = origin.expand,
 		width = expand && expand.width !== undefined ?
-			expand.width: _width,
+			expand.width : _width,
 		coef = expand && expand.distr !== undefined ?
-			( isLeft ? expand.distr : 1 - expand.distr ):
+			( isLeft ? expand.distr : 1 - expand.distr ) :
 			0.5,
 		angle = ( isLeft ? Math.PI : 0 ) +
 			( expand && expand.angle !== undefined ?
-				expand.angle:
+				expand.angle :
 				// TWe resort to using directions.
 				// This is wrong, directions are not included in the
 				// dependencies of the updater and might not be ready yet.
 				// TODO: Fix this (always require angle to be specified?)
 				( origin._dirOut !== undefined ?
-					origin._dirOut - Math.PI / 2:
+					origin._dirOut - Math.PI / 2 :
 					origin._dirIn + Math.PI / 2
 				)
 			);
@@ -18887,7 +18927,7 @@ naive.skeletonCopier = function() {
 	if ( node._dirIn !== undefined ) {
 		left._dirIn = right._dirOut = node._dirIn;
 
-		if ( node.type === 'smooth' && node._dirOut === undefined  ) {
+		if ( node.type === 'smooth' && node._dirOut === undefined ) {
 			left._dirOut = right._dirIn = node._dirIn + Math.PI;
 		}
 	}
@@ -18910,10 +18950,10 @@ naive.skeletonCopier = function() {
 
 	// tension
 	left.tensionIn = right.tensionOut = node.tensionIn !== undefined ?
-		node.tensionIn:
+		node.tensionIn :
 		( node.tension !== undefined ? node.tension : 1 );
 	left.tensionOut = right.tensionIn = node.tensionOut !== undefined ?
-		node.tensionOut:
+		node.tensionOut :
 		( node.tension !== undefined ? node.tension : 1 );
 };
 
@@ -18947,7 +18987,7 @@ naive.prepareContour = function( path ) {
 // sets the position of control points
 // can be renamed #updateControls if no other operation is added
 naive.updateContour = function( path, params ) {
-	var curviness = params.curviness !== undefined ? params.curviness : 2/3;
+	var curviness = params.curviness !== undefined ? params.curviness : 2 / 3;
 
 	path.nodes.forEach(function(node) {
 		var start = node,
@@ -18983,17 +19023,17 @@ naive.updateContour = function( path, params ) {
 		}
 
 		startTension = start.tensionOut !== undefined ?
-			start.tensionOut:
+			start.tensionOut :
 			( start.tension !== undefined ? start.tension : 1 );
 		endTension = end.tensionIn !== undefined ?
-			end.tensionIn:
+			end.tensionIn :
 			( end.tension !== undefined ? end.tension : 1 );
 
 		startDir = start._dirOut !== undefined ?
-			start._dirOut:
+			start._dirOut :
 			start.type === 'smooth' ? start._dirIn + Math.PI : 0;
 		endDir = end._dirIn !== undefined ?
-			end._dirIn:
+			end._dirIn :
 			end.type === 'smooth' ? end._dirOut - Math.PI : 0;
 
 		rri = Utils.rayRayIntersection(
@@ -19005,10 +19045,23 @@ naive.updateContour = function( path, params ) {
 
 		// direction of handles is parallel
 		if ( rri === null ) {
-			startCtrl.x = 0;
-			startCtrl.y = 0;
-			endCtrl.x = 0;
-			endCtrl.y = 0;
+			// startCtrl.x = 0;
+			// startCtrl.y = 0;
+			// endCtrl.x = 0;
+			// endCtrl.y = 0;
+			var angle = Utils.lineAngle( start._point, end._point ),
+				middle = {
+					x: Math.abs( start._point.x - end._point.x ) / 2 + start._point.x,
+					y: Math.abs( start._point.y - end._point.y ) / 2 + start._point.y
+				},
+				p0 = Utils.rayRayIntersection( start._point, startDir, middle, angle - Math.PI / 2 ),
+				p1 = Utils.rayRayIntersection( middle, angle + Math.PI / 2, end._point, endDir );
+
+			startCtrl.x = ( Math.round(p0[0]) - start._point.x ) * curviness * startTension;
+			startCtrl.y = ( Math.round(p0[1]) - start._point.y ) * curviness * startTension;
+			endCtrl.x = ( Math.round(p1[0]) - end._point.x ) * curviness * endTension;
+			endCtrl.y = ( Math.round(p1[1]) - end._point.y ) * curviness * endTension;
+
 			return;
 		}
 
@@ -19074,20 +19127,20 @@ Utils.expandables.push([rexpandedTo, function( dep ) {
 }]);
 
 module.exports = naive;
+
 },{"../node_modules/plumin.js/dist/plumin.js":3,"./Utils.js":4}],6:[function(_dereq_,module,exports){
 /*jshint -W098 */
 var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
-	paper = plumin.paper,
 	Utils = _dereq_('./Utils.js'),
 	naive = _dereq_('./naive.js');
 
+var paper = plumin.paper;
+
 function ParametricFont( src ) {
-	var fontinfo,
-		font,
+	var font,
 		name,
 		glyphSrc,
-		glyph,
-		a;
+		glyph;
 
 	// TODO: this, block is only here for backward compat
 	// and should be removed at some point in the future
@@ -19112,10 +19165,18 @@ function ParametricFont( src ) {
 
 		naive.expandSkeletons( glyph );
 
-		glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc ).map(function(path) {
-			return path.split('.');
-		});
+		glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc )
+			.map(function(path) {
+				return path.split('.');
+			});
 	}
+
+	// all glyphs are ready, embed components now
+	font.glyphs.forEach(function( _glyph ) {
+		if ( _glyph.embedComponents ) {
+			_glyph.embedComponents();
+		}
+	});
 
 	return font;
 }
@@ -19134,89 +19195,106 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 0. before running, nodes have already been created by ParametricFont
  *   (including expanded ones thanks to naive.expandSkeletons). And static
  *   properties have been copied over to those nodes
- * 1. We use the solving order to calculate all node properties except handle positions
- * 2. We make sure 'line' types are set on both node of bezier curve, when present.
+ * 1. We use the solving order to calculate all node properties except
+ *    handle positions.
+ * 2. We make sure 'line' types are set on both node of bezier curve,
+ *    when present.
  *    And we make smooth nodes... smooth.
  * 3. Calculate the position of handles.
  * 4. transform contours
  * 5. Update components and transform them
  */
-paper.PaperScope.prototype.Glyph.prototype.update = function( params, font, solvingOrder ) {
-	// 1. calculate node properties
-	( solvingOrder || this.solvingOrder || [] ).forEach(function(path) {
-		var propName = path[path.length -1],
-			src = Utils.propFromPath( path, path.length, this.src ),
-			obj = Utils.propFromPath( path, path.length -1, this ),
-			result = src && src._updater.apply( obj,
-				[ propName, this.contours, this.anchors, this.parentAnchors, Utils ].concat(
-					src._parameters.map(function(name) {
-						return params[name];
-					})
-				)
-			);
+paper.PaperScope.prototype.Glyph.prototype.update =
+	function( params, font, solvingOrder ) {
+		// 1. calculate node properties
+		( solvingOrder || this.solvingOrder || [] ).forEach(function(path) {
+			var propName = path[path.length - 1],
+				src = Utils.propFromPath( path, path.length, this.src ),
+				obj = Utils.propFromPath( path, path.length - 1, this ),
+				result = src && src._updater.apply( obj,
+					[
+						propName, this.contours, this.anchors,
+						this.parentAnchors, Utils
+					].concat(
+						src._parameters.map(function(name) {
+							return params[name];
+						})
+					)
+				);
 
-		// Assume that updaters returning undefined have their own assignment logic
-		if ( result !== undefined ) {
-			obj[propName] = result;
-		}
-	}, this);
-
-	this.contours.forEach(function(contour) {
-		// prepare and update outlines and expanded contours, but not skeletons
-		if ( contour.skeleton !== true ) {
-			// Previously prepareContour was only executed on outlines and skeletons
-			// but not on expanded contours.
-			// I have no idea why but I might rediscover it later.
-			// TODO: it might be possible to do 2. and 3. at the same time
-
-			// 2. check 'line' curves and smooth nodes
-			naive.prepareContour( contour );
-			// 3. calculate the position of handles
-			naive.updateContour( contour, params );
-		}
-	});
-
-	// 4. transform contours
-	this.contours.forEach(function(contour) {
-		// a. transform the contour
-		// prepare and update outlines and expanded contours, but not skeletons
-		if ( contour.transforms ) {
-			var matrix = Utils.transformsToMatrix( contour.transforms, contour.transformOrigin );
-
-			if ( contour.skeleton !== true ) {
-				contour.transform( matrix );
-
-			// when dealing with a skeleton, apply transforms only to expanded items
-			} else {
-				contour.expandedTo.forEach(function( contour ) {
-					contour.transform( matrix );
-				});
+			// Assume that updaters returning undefined have their own
+			// assignment logic
+			if ( result !== undefined ) {
+				obj[propName] = result;
 			}
-		}
+		}, this);
 
-		// b. transform the nodes
-		contour.nodes.forEach(function(node) {
-			if ( node.transforms ) {
-				matrix = Utils.transformsToMatrix( node.transforms, node.transformOrigin );
+		this.contours.forEach(function(contour) {
+			// prepare and update outlines and expanded contours, but not
+			// skeletons
+			if ( contour.skeleton !== true ) {
+				// Previously prepareContour was only executed on outlines and
+				// skeletons but not on expanded contours.
+				// I have no idea why but I might rediscover it later.
+				// TODO: it might be possible to do 2. and 3. at the same time
+
+				// 2. check 'line' curves and smooth nodes
+				naive.prepareContour( contour );
+				// 3. calculate the position of handles
+				naive.updateContour( contour, params );
+			}
+		});
+
+		// 4. transform contours
+		this.contours.forEach(function(contour) {
+			// a. transform the contour
+			// prepare and update outlines and expanded contours, but not
+			// skeletons
+			if ( contour.transforms ) {
+				var matrix = Utils.transformsToMatrix(
+							contour.transforms, contour.transformOrigin
+						);
 
 				if ( contour.skeleton !== true ) {
-					node.transform( matrix );
+					contour.transform( matrix );
 
-				// when dealing with a skeleton, apply transforms only to expanded items
+				// when dealing with a skeleton, apply transforms only to
+				// expanded items
 				} else {
-					node.expandedTo.forEach(function( node ) {
-						node.transform( matrix );
+					contour.expandedTo.forEach(function( _contour ) {
+						_contour.transform( matrix );
 					});
 				}
 			}
-		});
-	});
 
-	// 5. TODO: update components and transform components
-	this.components.forEach(function(component) {
-		component.update( params, font, font.glyphMap[component.name].solvingOrder );
-	});
-};
+			// b. transform the nodes
+			contour.nodes.forEach(function(node) {
+				if ( node.transforms ) {
+					matrix = Utils.transformsToMatrix(
+						node.transforms, node.transformOrigin
+					);
+
+					if ( contour.skeleton !== true ) {
+						node.transform( matrix );
+
+					// when dealing with a skeleton, apply transforms only to
+					// expanded items
+					} else {
+						node.expandedTo.forEach(function( _node ) {
+							_node.transform( matrix );
+						});
+					}
+				}
+			});
+		});
+
+		// 5. TODO: update components and transform components
+		this.components.forEach(function(component) {
+			component.update(
+				params, font, font.glyphMap[component.name].solvingOrder
+			);
+		});
+	};
 
 module.exports = plumin;
 
