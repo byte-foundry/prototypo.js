@@ -49,7 +49,8 @@ naive.expandSkeletons = function( glyph ) {
 				node.src.expandedTo = [ left.src, right.src ];
 
 			// the expanded node might have been defined explicitely
-			} else if ( node.src.expandedTo[0] && !node.src.expandedTo[0]._updater ) {
+			} else if ( node.src.expandedTo[0] &&
+					!node.src.expandedTo[0]._updater ) {
 				node.src.expandedTo.forEach(function( src, k ) {
 					Utils.mergeStatic( node.expandedTo[k], src );
 				});
@@ -58,12 +59,13 @@ naive.expandSkeletons = function( glyph ) {
 			// This will copy properties such as types, directions and tensions
 			// to the expanded node.
 			// This should be the last updated property of this node.
-			// We rely on the fact that javascript interpreters currently enumerate
-			// properties in insertion order, but this behavior isn't in the specs.
+			// We rely on the fact that javascript interpreters currently
+			// enumerate properties in insertion order, but this behavior isn't
+			// in the specs.
 			node.src.copier = {
-				// We depend on .expand.angle, but we don't specify it, otherwise
-				// copier would be executed right after .expand, but before the other
-				// properties.
+				// We depend on .expand.angle, but we don't specify it,
+				// otherwise copier would be executed right after .expand, but
+				// before the other properties.
 				_dependencies: [],
 				_parameters: [],
 				_updater: naive.skeletonCopier
@@ -76,7 +78,7 @@ naive.expandSkeletons = function( glyph ) {
 				closed: true,
 				segments: leftNodes.concat(rightNodes)
 			});
-			contour.expandedTo = [leftContour];
+			contour.expandedTo = [ leftContour ];
 			leftContour.expandedFrom = contour;
 			additionalContours.push( leftContour );
 
@@ -120,7 +122,9 @@ naive.expandSkeletons = function( glyph ) {
 };
 
 // Calculate expanded node position
-naive.expandedNodeUpdater = function( propName, contours, anchors, parentAnchors, _Utils, _width ) {
+naive.expandedNodeUpdater = function(
+	propName, contours, anchors, parentAnchors, _Utils, _width
+) {
 	var node = this[propName],
 		isLeft = +propName === 0,
 		origin = node.expandedFrom,
@@ -148,7 +152,8 @@ naive.expandedNodeUpdater = function( propName, contours, anchors, parentAnchors
 	node.point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
 };
 
-// copy skeleton properties such as types, directions and tensions to expanded nodes
+// copy skeleton properties such as types, directions and tensions to expanded
+// nodes
 naive.skeletonCopier = function() {
 	var node = this,
 		angle = node.expand && node.expand.angle || 0,
@@ -203,17 +208,21 @@ naive.skeletonCopier = function() {
 };
 
 // Make sure 'line' types are set on both side of segments
-// and if a smooth node is used in a straight segment, update the directions appropriately
-// this can only be done once the types, directions and position of all nodes have been updated
-// can be renamed #prepareLines if no other operation is added
-// TODO: try doing it at the same time as updateContour (once we have more complex glyphs)
+// and if a smooth node is used in a straight segment, update the directions
+// appropriately this can only be done once the types, directions and position
+// of all nodes have been updated can be renamed #prepareLines if no other
+// operation is added
+// TODO: try doing it at the same time as updateContour (once we have more
+// complex glyphs)
 naive.prepareContour = function( path ) {
 	path.nodes.forEach(function(node) {
 		if ( node.typeIn === 'line' && node.previous ) {
 			node.previous.typeOut = 'line';
 
 			if ( node.type === 'smooth' ) {
-				node._dirIn = node.point.getAngleInRadians( node.previous.point );
+				node._dirIn = node.point.getAngleInRadians(
+					node.previous.point
+				);
 				node._dirOut = node._dirIn + Math.PI;
 			}
 		}
@@ -296,24 +305,38 @@ naive.updateContour = function( path, params ) {
 			// endCtrl.y = 0;
 			var angle = Utils.lineAngle( start._point, end._point ),
 				middle = {
-					x: Math.abs( start._point.x - end._point.x ) / 2 + start._point.x,
-					y: Math.abs( start._point.y - end._point.y ) / 2 + start._point.y
+					x: Math.abs( start._point.x - end._point.x ) / 2 +
+						start._point.x,
+					y: Math.abs( start._point.y - end._point.y ) / 2 +
+						start._point.y
 				},
-				p0 = Utils.rayRayIntersection( start._point, startDir, middle, angle - Math.PI / 2 ),
-				p1 = Utils.rayRayIntersection( middle, angle + Math.PI / 2, end._point, endDir );
+				p0 = Utils.rayRayIntersection(
+					start._point, startDir, middle, angle - Math.PI / 2
+				),
+				p1 = Utils.rayRayIntersection(
+					middle, angle + Math.PI / 2, end._point, endDir
+				);
 
-			startCtrl.x = ( Math.round(p0[0]) - start._point.x ) * curviness * startTension;
-			startCtrl.y = ( Math.round(p0[1]) - start._point.y ) * curviness * startTension;
-			endCtrl.x = ( Math.round(p1[0]) - end._point.x ) * curviness * endTension;
-			endCtrl.y = ( Math.round(p1[1]) - end._point.y ) * curviness * endTension;
+			startCtrl.x = ( Math.round(p0[0]) - start._point.x ) *
+				curviness * startTension;
+			startCtrl.y = ( Math.round(p0[1]) - start._point.y ) *
+				curviness * startTension;
+			endCtrl.x = ( Math.round(p1[0]) - end._point.x ) *
+				curviness * endTension;
+			endCtrl.y = ( Math.round(p1[1]) - end._point.y ) *
+				curviness * endTension;
 
 			return;
 		}
 
-		startCtrl.x = ( Math.round(rri[0]) - start.point.x ) * curviness * startTension;
-		startCtrl.y = ( Math.round(rri[1]) - start.point.y ) * curviness * startTension;
-		endCtrl.x = ( Math.round(rri[0]) - end.point.x ) * curviness * endTension;
-		endCtrl.y = ( Math.round(rri[1]) - end.point.y ) * curviness * endTension;
+		startCtrl.x = ( Math.round(rri[0]) - start.point.x ) *
+			curviness * startTension;
+		startCtrl.y = ( Math.round(rri[1]) - start.point.y ) *
+			curviness * startTension;
+		endCtrl.x = ( Math.round(rri[0]) - end.point.x ) *
+			curviness * endTension;
+		endCtrl.y = ( Math.round(rri[1]) - end.point.y ) *
+			curviness * endTension;
 	});
 };
 
@@ -324,7 +347,7 @@ Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
 			return this._expand;
 		},
 		set: function( expand ) {
-			if ( typeof expand.angle === 'string' && rdeg.test( expand.angle ) ) {
+			if ( typeof expand.angle === 'string' && rdeg.test(expand.angle) ) {
 				expand.angle = parseFloat(expand.angle) * ( Math.PI * 2 / 360 );
 			}
 
@@ -358,7 +381,7 @@ Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
 });
 
 var rexpandedTo = /\.expandedTo\.\d+(?:\.point)?$/;
-Utils.expandables.push([rexpandedTo, function( dep ) {
+Utils.expandables.push([ rexpandedTo, function( dep ) {
 	dep = dep.replace(rexpandedTo, '');
 
 	return [
@@ -369,6 +392,6 @@ Utils.expandables.push([rexpandedTo, function( dep ) {
 		dep + '.expandedTo.0',
 		dep + '.expandedTo.1'
 	];
-}]);
+} ]);
 
 module.exports = naive;
