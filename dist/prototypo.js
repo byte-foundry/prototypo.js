@@ -1,64 +1,4 @@
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.prototypo = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-// shim for using process in browser
-
-var process = module.exports = {};
-var queue = [];
-var draining = false;
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    draining = true;
-    var currentQueue;
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        var i = -1;
-        while (++i < len) {
-            currentQueue[i]();
-        }
-        len = queue.length;
-    }
-    draining = false;
-}
-process.nextTick = function (fun) {
-    queue.push(fun);
-    if (!draining) {
-        setTimeout(drainQueue, 0);
-    }
-};
-
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-// TODO(shtylman)
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],2:[function(_dereq_,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.prototypo = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var DepTree = function() {
   this.nodes = {}; 
 };
@@ -117,10 +57,9 @@ DepTree.prototype.resolve = function() {
 
 module.exports = DepTree;
 
-},{}],3:[function(_dereq_,module,exports){
-(function (process,global){
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.plumin = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.opentype=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof _dereq_=="function"&&_dereq_;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof _dereq_=="function"&&_dereq_;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+},{}],2:[function(require,module,exports){
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.plumin = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.opentype=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 // Run-time checking of preconditions.
 
 'use strict';
@@ -137,7 +76,7 @@ exports.argument = function (predicate, message) {
 // If not, it will throw an error.
 exports.assert = exports.argument;
 
-},{}],2:[function(_dereq_,module,exports){
+},{}],2:[function(require,module,exports){
 // Drawing utility functions.
 
 'use strict';
@@ -152,7 +91,7 @@ function line(ctx, x1, y1, x2, y2) {
 
 exports.line = line;
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],3:[function(require,module,exports){
 // Glyph encoding
 
 'use strict';
@@ -387,14 +326,14 @@ exports.CffEncoding = CffEncoding;
 exports.GlyphNames = GlyphNames;
 exports.addGlyphNames = addGlyphNames;
 
-},{}],4:[function(_dereq_,module,exports){
+},{}],4:[function(require,module,exports){
 // The Font object
 
 'use strict';
 
-var path = _dereq_('./path');
-var sfnt = _dereq_('./tables/sfnt');
-var encoding = _dereq_('./encoding');
+var path = require('./path');
+var sfnt = require('./tables/sfnt');
+var encoding = require('./encoding');
 
 // A Font represents a loaded OpenType font file.
 // It contains a set of glyphs and methods to draw text on a drawing context,
@@ -534,9 +473,9 @@ Font.prototype.forEachGlyph = function (text, x, y, fontSize, options, callback)
 // Returns a Path object.
 Font.prototype.getPath = function (text, x, y, fontSize, options) {
     var fullPath = new path.Path();
-    this.forEachGlyph(text, x, y, fontSize, options, function (glyph, x, y, fontSize) {
-        var path = glyph.getPath(x, y, fontSize);
-        fullPath.extend(path);
+    this.forEachGlyph(text, x, y, fontSize, options, function (glyph, gX, gY, gFontSize) {
+        var glyphPath = glyph.getPath(gX, gY, gFontSize);
+        fullPath.extend(glyphPath);
     });
     return fullPath;
 };
@@ -565,8 +504,8 @@ Font.prototype.draw = function (ctx, text, x, y, fontSize, options) {
 // Options is an optional object that contains:
 // - kerning - Whether to take kerning information into account. (default: true)
 Font.prototype.drawPoints = function (ctx, text, x, y, fontSize, options) {
-    this.forEachGlyph(text, x, y, fontSize, options, function (glyph, x, y, fontSize) {
-        glyph.drawPoints(ctx, x, y, fontSize);
+    this.forEachGlyph(text, x, y, fontSize, options, function (glyph, gX, gY, gFontSize) {
+        glyph.drawPoints(ctx, gX, gY, gFontSize);
     });
 };
 
@@ -583,8 +522,8 @@ Font.prototype.drawPoints = function (ctx, text, x, y, fontSize, options) {
 // Options is an optional object that contains:
 // - kerning - Whether to take kerning information into account. (default: true)
 Font.prototype.drawMetrics = function (ctx, text, x, y, fontSize, options) {
-    this.forEachGlyph(text, x, y, fontSize, options, function (glyph, x, y, fontSize) {
-        glyph.drawMetrics(ctx, x, y, fontSize);
+    this.forEachGlyph(text, x, y, fontSize, options, function (glyph, gX, gY, gFontSize) {
+        glyph.drawMetrics(ctx, gX, gY, gFontSize);
     });
 };
 
@@ -657,14 +596,14 @@ Font.prototype.download = function () {
 
 exports.Font = Font;
 
-},{"./encoding":3,"./path":8,"./tables/sfnt":23}],5:[function(_dereq_,module,exports){
+},{"./encoding":3,"./path":8,"./tables/sfnt":23}],5:[function(require,module,exports){
 // The Glyph object
 
 'use strict';
 
-var check = _dereq_('./check');
-var draw = _dereq_('./draw');
-var path = _dereq_('./path');
+var check = require('./check');
+var draw = require('./draw');
+var path = require('./path');
 
 // A Glyph is an individual mark that often corresponds to a character.
 // Some glyphs, such as ligatures, are a combination of many characters.
@@ -869,7 +808,7 @@ Glyph.prototype.drawMetrics = function (ctx, x, y, fontSize) {
 
 exports.Glyph = Glyph;
 
-},{"./check":1,"./draw":2,"./path":8}],6:[function(_dereq_,module,exports){
+},{"./check":1,"./draw":2,"./path":8}],6:[function(require,module,exports){
 // opentype.js
 // https://github.com/nodebox/opentype.js
 // (c) 2014 Frederik De Bleser
@@ -879,25 +818,25 @@ exports.Glyph = Glyph;
 
 'use strict';
 
-var encoding = _dereq_('./encoding');
-var _font = _dereq_('./font');
-var glyph = _dereq_('./glyph');
-var parse = _dereq_('./parse');
-var path = _dereq_('./path');
+var encoding = require('./encoding');
+var _font = require('./font');
+var glyph = require('./glyph');
+var parse = require('./parse');
+var path = require('./path');
 
-var cmap = _dereq_('./tables/cmap');
-var cff = _dereq_('./tables/cff');
-var glyf = _dereq_('./tables/glyf');
-var gpos = _dereq_('./tables/gpos');
-var head = _dereq_('./tables/head');
-var hhea = _dereq_('./tables/hhea');
-var hmtx = _dereq_('./tables/hmtx');
-var kern = _dereq_('./tables/kern');
-var loca = _dereq_('./tables/loca');
-var maxp = _dereq_('./tables/maxp');
-var _name = _dereq_('./tables/name');
-var os2 = _dereq_('./tables/os2');
-var post = _dereq_('./tables/post');
+var cmap = require('./tables/cmap');
+var cff = require('./tables/cff');
+var glyf = require('./tables/glyf');
+var gpos = require('./tables/gpos');
+var head = require('./tables/head');
+var hhea = require('./tables/hhea');
+var hmtx = require('./tables/hmtx');
+var kern = require('./tables/kern');
+var loca = require('./tables/loca');
+var maxp = require('./tables/maxp');
+var _name = require('./tables/name');
+var os2 = require('./tables/os2');
+var post = require('./tables/post');
 
 // File loaders /////////////////////////////////////////////////////////
 
@@ -915,7 +854,7 @@ function toArrayBuffer(buffer) {
 }
 
 function loadFromFile(path, callback) {
-    var fs = _dereq_('fs');
+    var fs = require('fs');
     fs.readFile(path, function (err, buffer) {
         if (err) {
             return callback(err.message);
@@ -1084,7 +1023,7 @@ exports.Path = path.Path;
 exports.parse = parseBuffer;
 exports.load = load;
 
-},{"./encoding":3,"./font":4,"./glyph":5,"./parse":7,"./path":8,"./tables/cff":10,"./tables/cmap":11,"./tables/glyf":12,"./tables/gpos":13,"./tables/head":14,"./tables/hhea":15,"./tables/hmtx":16,"./tables/kern":17,"./tables/loca":18,"./tables/maxp":19,"./tables/name":20,"./tables/os2":21,"./tables/post":22,"fs":undefined}],7:[function(_dereq_,module,exports){
+},{"./encoding":3,"./font":4,"./glyph":5,"./parse":7,"./path":8,"./tables/cff":10,"./tables/cmap":11,"./tables/glyf":12,"./tables/gpos":13,"./tables/head":14,"./tables/hhea":15,"./tables/hmtx":16,"./tables/kern":17,"./tables/loca":18,"./tables/maxp":19,"./tables/name":20,"./tables/os2":21,"./tables/post":22,"fs":undefined}],7:[function(require,module,exports){
 // Parsing utility functions
 
 'use strict';
@@ -1293,7 +1232,7 @@ Parser.prototype.skip = function (type, amount) {
 
 exports.Parser = Parser;
 
-},{}],8:[function(_dereq_,module,exports){
+},{}],8:[function(require,module,exports){
 // Geometric objects
 
 'use strict';
@@ -1456,14 +1395,14 @@ Path.prototype.toSVG = function (decimalPlaces) {
 
 exports.Path = Path;
 
-},{}],9:[function(_dereq_,module,exports){
+},{}],9:[function(require,module,exports){
 // Table metadata
 
 'use strict';
 
-var check = _dereq_('./check');
-var encode = _dereq_('./types').encode;
-var sizeOf = _dereq_('./types').sizeOf;
+var check = require('./check');
+var encode = require('./types').encode;
+var sizeOf = require('./types').sizeOf;
 
 function Table(tableName, fields, options) {
     var i;
@@ -1510,7 +1449,7 @@ Table.prototype.encode = function () {
 
 exports.Table = Table;
 
-},{"./check":1,"./types":24}],10:[function(_dereq_,module,exports){
+},{"./check":1,"./types":24}],10:[function(require,module,exports){
 // The `CFF` table contains the glyph outlines in PostScript format.
 // https://www.microsoft.com/typography/OTSPEC/cff.htm
 // http://download.microsoft.com/download/8/0/1/801a191c-029d-4af3-9642-555f6fe514ee/cff.pdf
@@ -1518,11 +1457,11 @@ exports.Table = Table;
 
 'use strict';
 
-var encoding = _dereq_('../encoding');
-var _glyph = _dereq_('../glyph');
-var parse = _dereq_('../parse');
-var path = _dereq_('../path');
-var table = _dereq_('../table');
+var encoding = require('../encoding');
+var _glyph = require('../glyph');
+var parse = require('../parse');
+var path = require('../path');
+var table = require('../table');
 
 // Custom equals function that can also check lists.
 function equals(a, b) {
@@ -1844,13 +1783,22 @@ function parseCFFEncoding(data, start, charset) {
 // The encoding is described in the Type 2 Charstring Format
 // https://www.microsoft.com/typography/OTSPEC/charstr2.htm
 function parseCFFCharstring(code, font, index) {
-    var p, glyph, stack, nStems, haveWidth, width, x, y, c1x, c1y, c2x, c2y, v;
+    var p, glyph, stack, nStems, haveWidth, width, open, x, y, c1x, c1y, c2x, c2y, v;
     p = new path.Path();
     stack = [];
     nStems = 0;
     haveWidth = false;
     width = font.defaultWidthX;
+    open = false;
     x = y = 0;
+
+    function newContour(x, y) {
+        if (open) {
+            p.closePath();
+        }
+        p.moveTo(x, y);
+        open = true;
+    }
 
     function parseStems() {
         var hasWidthArg;
@@ -1884,7 +1832,7 @@ function parseCFFCharstring(code, font, index) {
                     haveWidth = true;
                 }
                 y += stack.pop();
-                p.moveTo(x, y);
+                newContour(x, y);
                 break;
             case 5: // rlineto
                 while (stack.length > 0) {
@@ -1935,9 +1883,88 @@ function parseCFFCharstring(code, font, index) {
                 break;
             case 11: // return
                 return;
-            case 12: // escape
+            case 12: // flex operators
                 v = code[i];
                 i += 1;
+                var jpx, jpy, c3x, c3y, c4x, c4y, fd;
+                switch (v) {
+                case 35: // flex
+                    // |- dx1 dy1 dx2 dy2 dx3 dy3 dx4 dy4 dx5 dy5 dx6 dy6 fd flex (12 35) |-
+                    c1x = x   + stack.shift();    // dx1
+                    c1y = y   + stack.shift();    // dy1
+                    c2x = c1x + stack.shift();    // dx2
+                    c2y = c1y + stack.shift();    // dy2
+                    jpx = c2x + stack.shift();    // dx3
+                    jpy = c2y + stack.shift();    // dy3
+                    c3x = jpx + stack.shift();    // dx4
+                    c3y = jpy + stack.shift();    // dy4
+                    c4x = c3x + stack.shift();    // dx5
+                    c4y = c3y + stack.shift();    // dy5
+                    x = c4x + stack.shift();      // dx6
+                    y = c4y + stack.shift();      // dy6
+                    fd = stack.shift();           // flex depth
+                    p.curveTo(c1x, c1y, c2x, c2y, jpx, jpy);
+                    p.curveTo(c3x, c3y, c4x, c4y, x, y);
+                    break;
+                case 34: // hflex
+                    // |- dx1 dx2 dy2 dx3 dx4 dx5 dx6 hflex (12 34) |-
+                    c1x = x   + stack.shift();    // dx1
+                    c1y = y;                      // dy1
+                    c2x = c1x + stack.shift();    // dx2
+                    c2y = c1y + stack.shift();    // dy2
+                    jpx = c2x + stack.shift();    // dx3
+                    jpy = c2y;                    // dy3
+                    c3x = jpx + stack.shift();    // dx4
+                    c3y = c2y;                    // dy4
+                    c4x = c3x + stack.shift();    // dx5
+                    c4y = y;                      // dy5
+                    x = c4x + stack.shift();      // dx6
+                    // y = y;                     // dy6
+                    p.curveTo(c1x, c1y, c2x, c2y, jpx, jpy);
+                    p.curveTo(c3x, c3y, c4x, c4y, x, y);
+                    break;
+                case 36: // hflex1
+                    // |- dx1 dy1 dx2 dy2 dx3 dx4 dx5 dy5 dx6 hflex1 (12 36) |-
+                    c1x = x   + stack.shift();    // dx1
+                    c1y = y   + stack.shift();    // dy1
+                    c2x = c1x + stack.shift();    // dx2
+                    c2y = c1y + stack.shift();    // dy2
+                    jpx = c2x + stack.shift();    // dx3
+                    jpy = c2y;                    // dy3
+                    c3x = jpx + stack.shift();    // dx4
+                    c3y = c2y;                    // dy4
+                    c4x = c3x + stack.shift();    // dx5
+                    c4y = c3y + stack.shift();    // dy5
+                    x = c4x + stack.shift();      // dx6
+                    // y = y;                     // dy6
+                    p.curveTo(c1x, c1y, c2x, c2y, jpx, jpy);
+                    p.curveTo(c3x, c3y, c4x, c4y, x, y);
+                    break;
+                case 37: // flex1
+                    // |- dx1 dy1 dx2 dy2 dx3 dy3 dx4 dy4 dx5 dy5 d6 flex1 (12 37) |-
+                    c1x = x   + stack.shift();    // dx1
+                    c1y = y   + stack.shift();    // dy1
+                    c2x = c1x + stack.shift();    // dx2
+                    c2y = c1y + stack.shift();    // dy2
+                    jpx = c2x + stack.shift();    // dx3
+                    jpy = c2y + stack.shift();    // dy3
+                    c3x = jpx + stack.shift();    // dx4
+                    c3y = jpy + stack.shift();    // dy4
+                    c4x = c3x + stack.shift();    // dx5
+                    c4y = c3y + stack.shift();    // dy5
+
+                    if (Math.abs(c4x - x) > Math.abs(c4y - y)) {
+                        x = c4x + stack.shift();  // d6
+                    } else {
+                        y = c4y + stack.shift();  // d6
+                    }
+                    p.curveTo(c1x, c1y, c2x, c2y, jpx, jpy);
+                    p.curveTo(c3x, c3y, c4x, c4y, x, y);
+                    break;
+                default:
+                    console.log('Glyph ' + index + ': unknown operator ' + 1200 + v);
+                    stack.length = 0;
+                }
                 break;
             case 14: // endchar
                 if (stack.length > 0 && !haveWidth) {
@@ -1945,6 +1972,7 @@ function parseCFFCharstring(code, font, index) {
                     haveWidth = true;
                 }
                 p.closePath();
+                open = false;
                 break;
             case 18: // hstemhm
                 parseStems();
@@ -1961,7 +1989,7 @@ function parseCFFCharstring(code, font, index) {
                 }
                 y += stack.pop();
                 x += stack.pop();
-                p.moveTo(x, y);
+                newContour(x, y);
                 break;
             case 22: // hmoveto
                 if (stack.length > 1 && !haveWidth) {
@@ -1969,7 +1997,7 @@ function parseCFFCharstring(code, font, index) {
                     haveWidth = true;
                 }
                 x += stack.pop();
-                p.moveTo(x, y);
+                newContour(x, y);
                 break;
             case 23: // vstemhm
                 parseStems();
@@ -2309,7 +2337,7 @@ function glyphToOps(glyph) {
                 y1: _13 * y + _23 * cmd.y1,
                 x2: _13 * cmd.x + _23 * cmd.x1,
                 y2: _13 * cmd.y + _23 * cmd.y1
-            }
+            };
         }
 
         if (cmd.type === 'M') {
@@ -2449,15 +2477,15 @@ function makeCFFTable(glyphs, options) {
 exports.parse = parseCFFTable;
 exports.make = makeCFFTable;
 
-},{"../encoding":3,"../glyph":5,"../parse":7,"../path":8,"../table":9}],11:[function(_dereq_,module,exports){
+},{"../encoding":3,"../glyph":5,"../parse":7,"../path":8,"../table":9}],11:[function(require,module,exports){
 // The `cmap` table stores the mappings from characters to glyphs.
 // https://www.microsoft.com/typography/OTSPEC/cmap.htm
 
 'use strict';
 
-var check = _dereq_('../check');
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var check = require('../check');
+var parse = require('../parse');
+var table = require('../table');
 
 // Parse the `cmap` table. This table stores the mappings from characters to glyphs.
 // There are many available formats, but we only support the Windows format 4.
@@ -2622,16 +2650,16 @@ function makeCmapTable(glyphs) {
 exports.parse = parseCmapTable;
 exports.make = makeCmapTable;
 
-},{"../check":1,"../parse":7,"../table":9}],12:[function(_dereq_,module,exports){
+},{"../check":1,"../parse":7,"../table":9}],12:[function(require,module,exports){
 // The `glyf` table describes the glyphs in TrueType outline format.
 // http://www.microsoft.com/typography/otspec/glyf.htm
 
 'use strict';
 
-var check = _dereq_('../check');
-var _glyph = _dereq_('../glyph');
-var parse = _dereq_('../parse');
-var path = _dereq_('../path');
+var check = require('../check');
+var _glyph = require('../glyph');
+var parse = require('../parse');
+var path = require('../path');
 
 // Parse the coordinate data for a glyph.
 function parseGlyphCoordinate(p, flag, previousValue, shortVectorBitMask, sameBitMask) {
@@ -2913,14 +2941,14 @@ function parseGlyfTable(data, start, loca, font) {
 
 exports.parse = parseGlyfTable;
 
-},{"../check":1,"../glyph":5,"../parse":7,"../path":8}],13:[function(_dereq_,module,exports){
+},{"../check":1,"../glyph":5,"../parse":7,"../path":8}],13:[function(require,module,exports){
 // The `GPOS` table contains kerning pairs, among other things.
 // https://www.microsoft.com/typography/OTSPEC/gpos.htm
 
 'use strict';
 
-var check = _dereq_('../check');
-var parse = _dereq_('../parse');
+var check = require('../check');
+var parse = require('../parse');
 
 // Parse ScriptList and FeatureList tables of GPOS, GSUB, GDEF, BASE, JSTF tables.
 // These lists are unused by now, this function is just the basis for a real parsing.
@@ -3012,7 +3040,7 @@ function parsePairPosSubTable(data, start) {
     // This part is common to format 1 and format 2 subtables
     format = p.parseUShort();
     coverageOffset = p.parseUShort();
-    coverage = parseCoverageTable(data, start+coverageOffset);
+    coverage = parseCoverageTable(data, start + coverageOffset);
     // valueFormat 4: XAdvance only, 1: XPlacement only, 0: no ValueRecord for second glyph
     // Only valueFormat1=4 and valueFormat2=0 is supported.
     valueFormat1 = p.parseUShort();
@@ -3084,7 +3112,7 @@ function parsePairPosSubTable(data, start) {
             var class1 = getClass1(leftGlyph),
                 class2 = getClass2(rightGlyph),
                 kerningRow = kerningMatrix[class1];
-                
+
             if (kerningRow) {
                 return kerningRow[class2];
             }
@@ -3153,15 +3181,15 @@ function parseGposTable(data, start, font) {
 
 exports.parse = parseGposTable;
 
-},{"../check":1,"../parse":7}],14:[function(_dereq_,module,exports){
+},{"../check":1,"../parse":7}],14:[function(require,module,exports){
 // The `head` table contains global information about the font.
 // https://www.microsoft.com/typography/OTSPEC/head.htm
 
 'use strict';
 
-var check = _dereq_('../check');
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var check = require('../check');
+var parse = require('../parse');
+var table = require('../table');
 
 // Parse the header `head` table
 function parseHeadTable(data, start) {
@@ -3213,14 +3241,14 @@ function makeHeadTable(options) {
 exports.parse = parseHeadTable;
 exports.make = makeHeadTable;
 
-},{"../check":1,"../parse":7,"../table":9}],15:[function(_dereq_,module,exports){
+},{"../check":1,"../parse":7,"../table":9}],15:[function(require,module,exports){
 // The `hhea` table contains information for horizontal layout.
 // https://www.microsoft.com/typography/OTSPEC/hhea.htm
 
 'use strict';
 
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var parse = require('../parse');
+var table = require('../table');
 
 // Parse the horizontal header `hhea` table
 function parseHheaTable(data, start) {
@@ -3268,14 +3296,14 @@ function makeHheaTable(options) {
 exports.parse = parseHheaTable;
 exports.make = makeHheaTable;
 
-},{"../parse":7,"../table":9}],16:[function(_dereq_,module,exports){
+},{"../parse":7,"../table":9}],16:[function(require,module,exports){
 // The `hmtx` table contains the horizontal metrics for all glyphs.
 // https://www.microsoft.com/typography/OTSPEC/hmtx.htm
 
 'use strict';
 
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var parse = require('../parse');
+var table = require('../table');
 
 // Parse the `hmtx` table, which contains the horizontal metrics for all glyphs.
 // This function augments the glyph array, adding the advanceWidth and leftSideBearing to each glyph.
@@ -3312,15 +3340,15 @@ exports.make = makeHmtxTable;
 
 
 
-},{"../parse":7,"../table":9}],17:[function(_dereq_,module,exports){
+},{"../parse":7,"../table":9}],17:[function(require,module,exports){
 // The `kern` table contains kerning pairs.
 // Note that some fonts use the GPOS OpenType layout table to specify kerning.
 // https://www.microsoft.com/typography/OTSPEC/kern.htm
 
 'use strict';
 
-var check = _dereq_('../check');
-var parse = _dereq_('../parse');
+var check = require('../check');
+var parse = require('../parse');
 
 // Parse the `kern` table which contains kerning pairs.
 function parseKernTable(data, start) {
@@ -3350,13 +3378,13 @@ function parseKernTable(data, start) {
 
 exports.parse = parseKernTable;
 
-},{"../check":1,"../parse":7}],18:[function(_dereq_,module,exports){
+},{"../check":1,"../parse":7}],18:[function(require,module,exports){
 // The `loca` table stores the offsets to the locations of the glyphs in the font.
 // https://www.microsoft.com/typography/OTSPEC/loca.htm
 
 'use strict';
 
-var parse = _dereq_('../parse');
+var parse = require('../parse');
 
 // Parse the `loca` table. This table stores the offsets to the locations of the glyphs in the font,
 // relative to the beginning of the glyphData table.
@@ -3384,15 +3412,15 @@ function parseLocaTable(data, start, numGlyphs, shortVersion) {
 
 exports.parse = parseLocaTable;
 
-},{"../parse":7}],19:[function(_dereq_,module,exports){
+},{"../parse":7}],19:[function(require,module,exports){
 // The `maxp` table establishes the memory requirements for the font.
 // We need it just to get the number of glyphs in the font.
 // https://www.microsoft.com/typography/OTSPEC/maxp.htm
 
 'use strict';
 
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var parse = require('../parse');
+var table = require('../table');
 
 // Parse the maximum profile `maxp` table.
 function parseMaxpTable(data, start) {
@@ -3428,15 +3456,15 @@ function makeMaxpTable(numGlyphs) {
 exports.parse = parseMaxpTable;
 exports.make = makeMaxpTable;
 
-},{"../parse":7,"../table":9}],20:[function(_dereq_,module,exports){
+},{"../parse":7,"../table":9}],20:[function(require,module,exports){
 // The `name` naming table.
 // https://www.microsoft.com/typography/OTSPEC/name.htm
 
 'use strict';
 
-var encode = _dereq_('../types').encode;
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var encode = require('../types').encode;
+var parse = require('../parse');
+var table = require('../table');
 
 // NameIDs for the name table.
 var nameTableNames = [
@@ -3579,14 +3607,14 @@ function makeNameTable(options) {
 exports.parse = parseNameTable;
 exports.make = makeNameTable;
 
-},{"../parse":7,"../table":9,"../types":24}],21:[function(_dereq_,module,exports){
+},{"../parse":7,"../table":9,"../types":24}],21:[function(require,module,exports){
 // The `OS/2` table contains metrics required in OpenType fonts.
 // https://www.microsoft.com/typography/OTSPEC/os2.htm
 
 'use strict';
 
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var parse = require('../parse');
+var table = require('../table');
 
 // Parse the OS/2 and Windows metrics `OS/2` table
 function parseOS2Table(data, start) {
@@ -3693,15 +3721,15 @@ function makeOS2Table(options) {
 exports.parse = parseOS2Table;
 exports.make = makeOS2Table;
 
-},{"../parse":7,"../table":9}],22:[function(_dereq_,module,exports){
+},{"../parse":7,"../table":9}],22:[function(require,module,exports){
 // The `post` table stores additional PostScript information, such as glyph names.
 // https://www.microsoft.com/typography/OTSPEC/post.htm
 
 'use strict';
 
-var encoding = _dereq_('../encoding');
-var parse = _dereq_('../parse');
-var table = _dereq_('../table');
+var encoding = require('../encoding');
+var parse = require('../parse');
+var table = require('../table');
 
 // Parse the PostScript `post` table
 function parsePostTable(data, start) {
@@ -3763,7 +3791,7 @@ function makePostTable() {
 exports.parse = parsePostTable;
 exports.make = makePostTable;
 
-},{"../encoding":3,"../parse":7,"../table":9}],23:[function(_dereq_,module,exports){
+},{"../encoding":3,"../parse":7,"../table":9}],23:[function(require,module,exports){
 // The `sfnt` wrapper provides organization for the tables in the font.
 // It is the top-level data structure in a font.
 // https://www.microsoft.com/typography/OTSPEC/otff.htm
@@ -3772,18 +3800,18 @@ exports.make = makePostTable;
 
 'use strict';
 
-var check = _dereq_('../check');
-var table = _dereq_('../table');
+var check = require('../check');
+var table = require('../table');
 
-var cmap = _dereq_('./cmap');
-var cff = _dereq_('./cff');
-var head = _dereq_('./head');
-var hhea = _dereq_('./hhea');
-var hmtx = _dereq_('./hmtx');
-var maxp = _dereq_('./maxp');
-var _name = _dereq_('./name');
-var os2 = _dereq_('./os2');
-var post = _dereq_('./post');
+var cmap = require('./cmap');
+var cff = require('./cff');
+var head = require('./head');
+var hhea = require('./hhea');
+var hmtx = require('./hmtx');
+var maxp = require('./maxp');
+var _name = require('./name');
+var os2 = require('./os2');
+var post = require('./post');
 
 function log2(v) {
     return Math.log(v) / Math.log(2) | 0;
@@ -4043,7 +4071,7 @@ exports.computeCheckSum = computeCheckSum;
 exports.make = makeSfntTable;
 exports.fontToTable = fontToSfntTable;
 
-},{"../check":1,"../table":9,"./cff":10,"./cmap":11,"./head":14,"./hhea":15,"./hmtx":16,"./maxp":19,"./name":20,"./os2":21,"./post":22}],24:[function(_dereq_,module,exports){
+},{"../check":1,"../table":9,"./cff":10,"./cmap":11,"./head":14,"./hhea":15,"./hmtx":16,"./maxp":19,"./name":20,"./os2":21,"./post":22}],24:[function(require,module,exports){
 // Data types used in the OpenType font file.
 // All OpenType fonts use Motorola-style byte ordering (Big Endian)
 
@@ -4051,7 +4079,7 @@ exports.fontToTable = fontToSfntTable;
 
 'use strict';
 
-var check = _dereq_('./check');
+var check = require('./check');
 
 var LIMIT16 = 32768; // The limit at which a 16-bit number switches signs == 2^15
 var LIMIT32 = 2147483648; // The limit at which a 32-bit number switches signs == 2 ^ 31
@@ -4415,8 +4443,7 @@ exports.sizeOf = sizeOf;
 
 },{"./check":1}]},{},[6])(6)
 });
-
-},{}],2:[function(_dereq_,module,exports){
+},{}],2:[function(require,module,exports){
 /*!
  * Paper.js v0.9.22 - The Swiss Army Knife of Vector Graphics Scripting.
  * http://paperjs.org/
@@ -17196,7 +17223,7 @@ if (typeof define === 'function' && define.amd) {
 return paper;
 };
 
-},{}],3:[function(_dereq_,module,exports){
+},{}],3:[function(require,module,exports){
 function Collection( args ) {
 	// already a Collection? Job's done
 	if ( arguments.length === 1 && args instanceof Collection ) {
@@ -17558,9 +17585,9 @@ Collection.proxy = function( paper ) {
 
 module.exports = Collection;
 
-},{}],4:[function(_dereq_,module,exports){
-var opentype = _dereq_('../node_modules/opentype.js/dist/opentype.js'),
-	Glyph = _dereq_('./Glyph.js');
+},{}],4:[function(require,module,exports){
+var opentype = require('../node_modules/opentype.js/dist/opentype.js'),
+	Glyph = require('./Glyph.js');
 
 function Font( args ) {
 	if ( !args ) {
@@ -17740,9 +17767,9 @@ Font.prototype.interpolate = function( font0, font1, coef, set ) {
 };
 
 Font.prototype.updateSVGData = function( set ) {
-	this.svgData = this.getGlyphSubset( set ).map(function( glyph ) {
+	this.getGlyphSubset( set ).map(function( glyph ) {
 		return glyph.updateSVGData();
-	}).join(' ');
+	});
 
 	return this;
 };
@@ -17843,9 +17870,9 @@ Font.normalizeSubset = function( set ) {
 
 module.exports = Font;
 
-},{"../node_modules/opentype.js/dist/opentype.js":1,"./Glyph.js":5}],5:[function(_dereq_,module,exports){
-var opentype = _dereq_('../node_modules/opentype.js/dist/opentype.js'),
-	paper = _dereq_('../node_modules/paper/dist/paper-core.js');
+},{"../node_modules/opentype.js/dist/opentype.js":1,"./Glyph.js":5}],5:[function(require,module,exports){
+var opentype = require('../node_modules/opentype.js/dist/opentype.js'),
+	paper = require('../node_modules/paper/dist/paper-core.js');
 
 function Glyph( args ) {
 	paper.CompoundPath.prototype.constructor.apply( this );
@@ -18085,8 +18112,8 @@ Glyph.prototype.importOT = function( otGlyph ) {
 
 module.exports = Glyph;
 
-},{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2}],6:[function(_dereq_,module,exports){
-var paper = _dereq_('../node_modules/paper/dist/paper-core.js');
+},{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2}],6:[function(require,module,exports){
+var paper = require('../node_modules/paper/dist/paper-core.js');
 
 Object.defineProperty( paper.Segment.prototype, 'x', {
 	get: function() {
@@ -18108,11 +18135,11 @@ Object.defineProperty( paper.Segment.prototype, 'y', {
 
 module.exports = paper.Segment;
 
-},{"../node_modules/paper/dist/paper-core.js":2}],7:[function(_dereq_,module,exports){
+},{"../node_modules/paper/dist/paper-core.js":2}],7:[function(require,module,exports){
 /* Extend the Path prototype to add OpenType conversion
  * and alias *segments methods and properties to *nodes
  */
-var paper = _dereq_('../node_modules/paper/dist/paper-core.js');
+var paper = require('../node_modules/paper/dist/paper-core.js');
 
 var proto = paper.PaperScope.prototype.Path.prototype;
 
@@ -18201,14 +18228,14 @@ proto.updateSVGData = function( path ) {
 
 module.exports = paper.Path;
 
-},{"../node_modules/paper/dist/paper-core.js":2}],8:[function(_dereq_,module,exports){
-var opentype = _dereq_('../node_modules/opentype.js/dist/opentype.js'),
-	paper = _dereq_('../node_modules/paper/dist/paper-core.js'),
-	Font = _dereq_('./Font.js'),
-	Glyph = _dereq_('./Glyph.js'),
-	Path = _dereq_('./Path.js'),
-	Node = _dereq_('./Node.js'),
-	Collection = _dereq_('./Collection.js');
+},{"../node_modules/paper/dist/paper-core.js":2}],8:[function(require,module,exports){
+var opentype = require('../node_modules/opentype.js/dist/opentype.js'),
+	paper = require('../node_modules/paper/dist/paper-core.js'),
+	Font = require('./Font.js'),
+	Glyph = require('./Glyph.js'),
+	Path = require('./Path.js'),
+	Node = require('./Node.js'),
+	Collection = require('./Collection.js');
 
 paper.PaperScope.prototype.Font = Font;
 paper.PaperScope.prototype.Glyph = Glyph;
@@ -18237,13 +18264,10 @@ module.exports = plumin;
 });
 
 
-
 //# sourceMappingURL=plumin.js.map
-}).call(this,_dereq_('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
-},{"_process":1}],4:[function(_dereq_,module,exports){
-var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
-	DepTree = _dereq_('../node_modules/deptree/index.js');
+},{}],3:[function(require,module,exports){
+var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
+	DepTree = require('../node_modules/deptree/index.js');
 
 var paper = plumin.paper,
 	Utils = {};
@@ -18752,9 +18776,9 @@ Utils.normalizeAngle = function( angle ) {
 
 module.exports = Utils;
 
-},{"../node_modules/deptree/index.js":2,"../node_modules/plumin.js/dist/plumin.js":3}],5:[function(_dereq_,module,exports){
-var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
-	Utils = _dereq_('./Utils.js');
+},{"../node_modules/deptree/index.js":1,"../node_modules/plumin.js/dist/plumin.js":2}],4:[function(require,module,exports){
+var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
+	Utils = require('./Utils.js');
 
 var paper = plumin.paper,
 	naive = {};
@@ -19151,11 +19175,11 @@ Utils.expandables.push([ rexpandedTo, function( dep ) {
 
 module.exports = naive;
 
-},{"../node_modules/plumin.js/dist/plumin.js":3,"./Utils.js":4}],6:[function(_dereq_,module,exports){
+},{"../node_modules/plumin.js/dist/plumin.js":2,"./Utils.js":3}],5:[function(require,module,exports){
 /*jshint -W098 */
-var plumin = _dereq_('../node_modules/plumin.js/dist/plumin.js'),
-	Utils = _dereq_('./Utils.js'),
-	naive = _dereq_('./naive.js');
+var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
+	Utils = require('./Utils.js'),
+	naive = require('./naive.js');
 
 var paper = plumin.paper;
 
@@ -19321,9 +19345,8 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 
 module.exports = plumin;
 
-},{"../node_modules/plumin.js/dist/plumin.js":3,"./Utils.js":4,"./naive.js":5}]},{},[6])(6)
+},{"../node_modules/plumin.js/dist/plumin.js":2,"./Utils.js":3,"./naive.js":4}]},{},[5])(5)
 });
-
 
 
 //# sourceMappingURL=prototypo.js.map

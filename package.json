@@ -8,16 +8,15 @@
     "browserify": "^9.0.3",
     "chai": "^2.1.1",
     "deptree": "^0.1.0",
-    "derequire": "^2.0.0",
     "eslint": "^0.16.2",
     "exorcist": "^0.1.6",
     "gulp": "^3.8.11",
     "gulp-shell": "^0.4.0",
     "jscs": "^1.11.3",
     "mocha": "^2.2.1",
-    "opener": "^1.4.0",
-    "plumin.js": "^0.8.0",
+    "plumin.js": "^0.8.3",
     "uglify-js": "^2.4.17",
+    "vinyl-source-stream": "^1.1.0",
     "watchify": "^2.4.0"
   },
   "engines": {
