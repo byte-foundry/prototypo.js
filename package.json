@@ -14,7 +14,7 @@
     "gulp-shell": "^0.4.0",
     "jscs": "^1.11.3",
     "mocha": "^2.2.1",
-    "plumin.js": "^0.8.3",
+    "plumin.js": "^0.8.1",
     "uglify-js": "^2.4.17",
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^2.4.0"
