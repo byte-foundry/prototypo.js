@@ -43,8 +43,10 @@
     "url": "https://github.com/byte-foundry/prototypo-js/issues"
   },
   "config": {
-    "pre-commit": "npm run gulp -- build",
-    "post-merge": "npm install",
-    "post-rebase": "npm install"
+    "ghooks": {
+      "pre-commit": "npm run gulp -- build",
+      "post-merge": "npm install",
+      "post-rebase": "npm install"
+    }
   }
 }
