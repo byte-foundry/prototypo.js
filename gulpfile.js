@@ -11,21 +11,21 @@ function d( description, fn ) {
 	return fn;
 }
 
-function noop(done) {
-	return done();
-}
-
 function _browserify() {
 	return browserify({
 		entries: require.resolve('./src/prototypo.js'),
-		detectGlobals: false,
-		debug: true,
 		standalone: 'prototypo',
+		// we dont need to detect globals -> faster build
+		detectGlobals: false,
+		// we want a source-map
+		debug: true,
+		// don't parse big deps -> faster build, no need to derequire them
 		noParse: [
 			path.join(
 				__dirname, 'node_modules/plumin.js/dist/plumin.js'
 			)
 		],
+		// required by watchify
 		cache: {},
 		packageCache: {}
 	});
@@ -58,7 +58,14 @@ gulp.task('browserify', d('Build standalone prototypo.js in dist/',
 ));
 
 gulp.task('uglify', d('Minimize dist file using Uglify', shell.task([
-	'uglifyjs dist/prototypo.js > dist/prototypo.min.js'
+	'uglifyjs dist/prototypo.js ' +
+		'-o dist/prototypo.min.js ' +
+		'--in-source-map dist/prototypo.js.map ' +
+		'--source-map dist/prototypo.min.js.map '
+])));
+
+gulp.task('dist', d('Generate all dist files', shell.task([
+	'gulp browserify && gulp uglify'
 ])));
 
 gulp.task('watchify', d('Update dist/prototypo.js on source change',
@@ -78,24 +85,18 @@ gulp.task('browsersync', d('Live-reload using browsersync', shell.task([
 ])));
 
 // high level tasks
-gulp.task('build', [ 'browserify', 'uglify' ],
-	d('Build standalone prototypo.js and prototypo.min.js in dist', noop)
-);
+gulp.task('build', d('Lint code, generate dist files and test them',
+	shell.task([ 'gulp jscs && gulp eslint && gulp dist && gulp mocha' ])
+));
 
-gulp.task('test', [ 'jscs', 'eslint', 'mocha' ],
-	d('Lint + Unit tests', noop)
-);
-
-gulp.task('serve', [ 'watchify', 'browsersync' ],
-	d('Opens index.html and live-reload on changes', noop)
-);
+gulp.task('serve', d('Opens index.html and live-reload on changes', shell.task([
+	'gulp watchify & gulp browsersync'
+])));
 
 gulp.task('debug',
-	d(
-		'Debug prototypo.js using node-inspector (required as global module)',
+	d('Debug prototypo.js using node-inspector (required as global module)',
 		shell.task([
 			'node-inspector --no-preload --web-port=8081 ' +
 			'& mocha --debug-brk -w test/*.js'
-		])
-	)
+		]))
 );

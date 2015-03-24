@@ -10,6 +10,7 @@
     "deptree": "^0.1.0",
     "eslint": "^0.16.2",
     "exorcist": "^0.1.6",
+    "ghooks": "^0.3.0",
     "gulp": "^3.8.11",
     "gulp-shell": "^0.4.0",
     "jscs": "^1.11.3",
@@ -29,8 +30,8 @@
   "scripts": {
     "gulp": "gulp",
     "help": "gulp --tasks",
-    "test": "gulp test",
-    "prepublish": "gulp jscs && gulp eslint && gulp build && gulp mocha"
+    "test": "gulp build",
+    "prepublish": "gulp build"
   },
   "repository": {
     "type": "git",
@@ -41,9 +42,9 @@
   "bugs": {
     "url": "https://github.com/byte-foundry/prototypo-js/issues"
   },
-  "browserify": {
-    "noParse": [
-      "node_modules/plumins.js/dist/plumin.js"
-    ]
+  "config": {
+    "pre-commit": "npm run gulp -- build",
+    "post-merge": "npm install",
+    "post-rebase": "npm install"
   }
 }
