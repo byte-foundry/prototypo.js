@@ -112,7 +112,7 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 				// 3. calculate the position of handles
 				naive.updateContour( contour, params );
 			}
-		});
+		}, this);
 
 		// 4. transform contours
 		this.contours.forEach(function(contour) {

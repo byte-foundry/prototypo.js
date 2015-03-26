@@ -25,7 +25,6 @@ naive.expandSkeletons = function( glyph ) {
 		contour.visible = false;
 
 		contour.nodes.forEach(function( node, j ) {
-			// TODO: a node should be able to specify two arbitrary expanded
 			// nodes
 			var left = new paper.Node(),
 				right = new paper.Node();
@@ -48,26 +47,26 @@ naive.expandSkeletons = function( glyph ) {
 				};
 				node.src.expandedTo = [ left.src, right.src ];
 
+				// This will copy properties such as types, directions and tensions
+				// to the expanded node.
+				// This should be the last updated property of this node.
+				// We rely on the fact that javascript interpreters currently enumerate
+				// properties in insertion order, but this behavior isn't in the specs.
+				node.src.copier = {
+					// We depend on .expand.angle, but we don't specify it, otherwise
+					// copier would be executed right after .expand, but before the other
+					// properties.
+					_dependencies: [],
+					_parameters: [],
+					_updater: naive.skeletonCopier
+				};
+
 			// the expanded node might have been defined explicitely
 			} else if ( node.src.expandedTo[0] && !node.src.expandedTo[0]._updater ) {
 				node.src.expandedTo.forEach(function( src, k ) {
 					Utils.mergeStatic( node.expandedTo[k], src );
 				});
 			}
-
-			// This will copy properties such as types, directions and tensions
-			// to the expanded node.
-			// This should be the last updated property of this node.
-			// We rely on the fact that javascript interpreters currently enumerate
-			// properties in insertion order, but this behavior isn't in the specs.
-			node.src.copier = {
-				// We depend on .expand.angle, but we don't specify it, otherwise
-				// copier would be executed right after .expand, but before the other
-				// properties.
-				_dependencies: [],
-				_parameters: [],
-				_updater: naive.skeletonCopier
-			};
 
 		});
 
@@ -296,8 +295,8 @@ naive.updateContour = function( path, params ) {
 			// endCtrl.y = 0;
 			var angle = Utils.lineAngle( start._point, end._point ),
 				middle = {
-					x: Math.abs( start._point.x - end._point.x ) / 2 + start._point.x,
-					y: Math.abs( start._point.y - end._point.y ) / 2 + start._point.y
+					x: ( end._point.x - start._point.x ) / 2 + start._point.x,
+					y: ( end._point.y - start._point.y ) / 2 + start._point.y
 				},
 				p0 = Utils.rayRayIntersection( start._point, startDir, middle, angle - Math.PI / 2 ),
 				p1 = Utils.rayRayIntersection( middle, angle + Math.PI / 2, end._point, endDir );
