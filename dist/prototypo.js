@@ -19962,10 +19962,12 @@ module.exports = plumin;
 },{}],19:[function(require,module,exports){
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	DepTree = require('../node_modules/deptree/index.js'),
-	updateUtils = require('./updateUtils.js');
+	updateUtils = require('./updateUtils.js'),
+	merge = require('lodash.merge');
 
 var paper = plumin.paper,
-	Utils = updateUtils;
+	Utils = updateUtils,
+	_ = { merge: merge };
 
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
@@ -20012,15 +20014,16 @@ Utils.ufoToPaper = function( src ) {
 
 // create Glyph instance and all its child items: anchors, contours
 // and components
-Utils.glyphFromSrc = function( glyphSrc, fontSrc, naive, embed ) {
+Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	var glyph = new paper.Glyph({
-		name: glyphSrc.name,
-		unicode: glyphSrc.unicode
+		name: src.name,
+		unicode: src.unicode
 	});
-	glyph.src = glyphSrc;
-	Utils.mergeStatic( glyph, glyphSrc );
+	// Clone glyph src to allow altering it without impacnting components srcs.
+	glyph.src = _.merge( {}, src );
+	Utils.mergeStatic( glyph, glyph.src );
 
-	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
+	(glyph.src.anchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();
 		anchor.src = anchorSrc;
 		Utils.mergeStatic( anchor, anchorSrc );
@@ -20028,7 +20031,7 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc, naive, embed ) {
 		glyph.addAnchor( anchor );
 	});
 
-	(glyphSrc.contours || []).forEach(function(contourSrc) {
+	(glyph.src.contours || []).forEach(function(contourSrc) {
 		var contour = new paper.Path();
 		contour.src = contourSrc;
 		Utils.mergeStatic( contour, contourSrc );
@@ -20045,14 +20048,14 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc, naive, embed ) {
 		});
 	});
 
-	if ( !glyphSrc.components ) {
+	if ( !glyph.src.components ) {
 		return glyph;
 	}
 
 	// components can only be embedded once all glyphs have been generated
 	// from source
 	glyph.embedComponents = function() {
-		glyphSrc.components.forEach(function(componentSrc) {
+		glyph.src.components.forEach(function(componentSrc) {
 			// components are glyphs, quite simply
 			var component = Utils.glyphFromSrc(
 					fontSrc.glyphs[componentSrc.base],
@@ -20120,7 +20123,7 @@ Utils.mergeStatic = function( obj, src ) {
 		// props that have empty dependencies and params are static
 		} else if ( src[i]._dependencies && src[i]._dependencies.length === 0 &&
 				src[i]._parameters.length === 0 ) {
-console.log(i, src[i]);
+
 			obj[i] = src[i]._updaters[0].apply(
 				obj,
 				[ null, null, null, null, Utils ]
@@ -20188,7 +20191,12 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 		if ( typeof leafSrc === 'object' ) {
 			// objects with updater functions have dependencies
 			if ( leafSrc._updaters && leafSrc._updaters.length ) {
-				depTree.add( currCursor, leafSrc._dependencies );
+				depTree.add( currCursor,
+					leafSrc._dependencies.filter(function(dep) {
+						// parentAnchors are always here when you need them
+						return !/^parentAnchors/.test(dep);
+					})
+				);
 			}
 
 			if ( !leafSrc._operation ) {
@@ -20375,7 +20383,7 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 module.exports = Utils;
 
-},{"../node_modules/deptree/index.js":1,"../node_modules/plumin.js/dist/plumin.js":18,"./updateUtils.js":22}],20:[function(require,module,exports){
+},{"../node_modules/deptree/index.js":1,"../node_modules/plumin.js/dist/plumin.js":18,"./updateUtils.js":22,"lodash.merge":2}],20:[function(require,module,exports){
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	Utils = require('./Utils.js'),
 	merge = require('lodash.merge');
@@ -20516,7 +20524,9 @@ naive.annotator = function( glyph ) {
 		contour.nodes.forEach(function( node, j ) {
 
 			var left = new paper.Node(),
-				right = new paper.Node();
+				right = new paper.Node(),
+				leftSrc,
+				rightSrc;
 
 			leftNodes.push(left);
 			rightNodes.unshift(right);
@@ -20525,10 +20535,10 @@ naive.annotator = function( glyph ) {
 
 			if ( !node.src.expandedTo ) {
 				// annotate nodes+points that are automatically expanded
-				leftNodesSrc.push(
+				leftSrc = leftNodesSrc.push(
 					autoExpandedNodeSrc( node, i, j, 0, contour.closed )
 				);
-				rightNodesSrc.push(
+				rightSrc = rightNodesSrc.push(
 					autoExpandedNodeSrc( node, i, j, 1, contour.closed )
 				);
 
@@ -20540,23 +20550,30 @@ naive.annotator = function( glyph ) {
 				});
 
 				// annotate nodes+points that are explicitely expanded
-				_.merge( node.src.expandedTo[0],
+				leftSrc = _.merge( node.src.expandedTo[0],
 					explicitExpandedNodeSrc( i, j, 0, contour.closed )
 				);
-				_.merge( node.src.expandedTo[1],
+				rightSrc = _.merge( node.src.expandedTo[1],
 					explicitExpandedNodeSrc( i, j, 1, contour.closed )
 				);
 
-				// There should never be two ways to access a source leaf,
-				// otherwise this might introduce redundant operations in the
-				// solving order and all dependencies will be a lot harder to
-				// represent mentally.
-				// Move them to the appropriate *NodesSrc so that node sources
-				// in the glyph source tree are only accessible from contours
-				// and expanded contours, not from expanded nodes.
-				leftNodesSrc.push( node.src.expandedTo[0] );
-				rightNodesSrc.push( node.src.expandedTo[1] );
-				delete node.src.expandedTo;
+				// A leaf shouldn't appear twice during the recursive
+				// dependency-tree building. Make the expanded nodes accessible
+				// from expanded contours, and provide accessors on the
+				// .expandedFrom node.
+				leftNodesSrc.push( leftSrc );
+				rightNodesSrc.push( rightSrc );
+			}
+
+			if ( leftSrc ) {
+				Object.defineProperties( node.src.expandedTo = {}, {
+					0: { get: function() {
+						return leftSrc;
+					}},
+					1: { get: function() {
+							return rightSrc;
+					}}
+				});
 			}
 		});
 

@@ -1,9 +1,11 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	DepTree = require('../node_modules/deptree/index.js'),
-	updateUtils = require('./updateUtils.js');
+	updateUtils = require('./updateUtils.js'),
+	merge = require('lodash.merge');
 
 var paper = plumin.paper,
-	Utils = updateUtils;
+	Utils = updateUtils,
+	_ = { merge: merge };
 
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
@@ -50,15 +52,16 @@ Utils.ufoToPaper = function( src ) {
 
 // create Glyph instance and all its child items: anchors, contours
 // and components
-Utils.glyphFromSrc = function( glyphSrc, fontSrc, naive, embed ) {
+Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	var glyph = new paper.Glyph({
-		name: glyphSrc.name,
-		unicode: glyphSrc.unicode
+		name: src.name,
+		unicode: src.unicode
 	});
-	glyph.src = glyphSrc;
-	Utils.mergeStatic( glyph, glyphSrc );
+	// Clone glyph src to allow altering it without impacnting components srcs.
+	glyph.src = _.merge( {}, src );
+	Utils.mergeStatic( glyph, glyph.src );
 
-	(glyphSrc.anchors || []).forEach(function(anchorSrc) {
+	(glyph.src.anchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();
 		anchor.src = anchorSrc;
 		Utils.mergeStatic( anchor, anchorSrc );
@@ -66,7 +69,7 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc, naive, embed ) {
 		glyph.addAnchor( anchor );
 	});
 
-	(glyphSrc.contours || []).forEach(function(contourSrc) {
+	(glyph.src.contours || []).forEach(function(contourSrc) {
 		var contour = new paper.Path();
 		contour.src = contourSrc;
 		Utils.mergeStatic( contour, contourSrc );
@@ -83,14 +86,14 @@ Utils.glyphFromSrc = function( glyphSrc, fontSrc, naive, embed ) {
 		});
 	});
 
-	if ( !glyphSrc.components ) {
+	if ( !glyph.src.components ) {
 		return glyph;
 	}
 
 	// components can only be embedded once all glyphs have been generated
 	// from source
 	glyph.embedComponents = function() {
-		glyphSrc.components.forEach(function(componentSrc) {
+		glyph.src.components.forEach(function(componentSrc) {
 			// components are glyphs, quite simply
 			var component = Utils.glyphFromSrc(
 					fontSrc.glyphs[componentSrc.base],
@@ -226,7 +229,12 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 		if ( typeof leafSrc === 'object' ) {
 			// objects with updater functions have dependencies
 			if ( leafSrc._updaters && leafSrc._updaters.length ) {
-				depTree.add( currCursor, leafSrc._dependencies );
+				depTree.add( currCursor,
+					leafSrc._dependencies.filter(function(dep) {
+						// parentAnchors are always here when you need them
+						return !/^parentAnchors/.test(dep);
+					})
+				);
 			}
 
 			if ( !leafSrc._operation ) {

@@ -138,7 +138,9 @@ naive.annotator = function( glyph ) {
 		contour.nodes.forEach(function( node, j ) {
 
 			var left = new paper.Node(),
-				right = new paper.Node();
+				right = new paper.Node(),
+				leftSrc,
+				rightSrc;
 
 			leftNodes.push(left);
 			rightNodes.unshift(right);
@@ -147,10 +149,10 @@ naive.annotator = function( glyph ) {
 
 			if ( !node.src.expandedTo ) {
 				// annotate nodes+points that are automatically expanded
-				leftNodesSrc.push(
+				leftSrc = leftNodesSrc.push(
 					autoExpandedNodeSrc( node, i, j, 0, contour.closed )
 				);
-				rightNodesSrc.push(
+				rightSrc = rightNodesSrc.push(
 					autoExpandedNodeSrc( node, i, j, 1, contour.closed )
 				);
 
@@ -162,23 +164,30 @@ naive.annotator = function( glyph ) {
 				});
 
 				// annotate nodes+points that are explicitely expanded
-				_.merge( node.src.expandedTo[0],
+				leftSrc = _.merge( node.src.expandedTo[0],
 					explicitExpandedNodeSrc( i, j, 0, contour.closed )
 				);
-				_.merge( node.src.expandedTo[1],
+				rightSrc = _.merge( node.src.expandedTo[1],
 					explicitExpandedNodeSrc( i, j, 1, contour.closed )
 				);
 
-				// There should never be two ways to access a source leaf,
-				// otherwise this might introduce redundant operations in the
-				// solving order and all dependencies will be a lot harder to
-				// represent mentally.
-				// Move them to the appropriate *NodesSrc so that node sources
-				// in the glyph source tree are only accessible from contours
-				// and expanded contours, not from expanded nodes.
-				leftNodesSrc.push( node.src.expandedTo[0] );
-				rightNodesSrc.push( node.src.expandedTo[1] );
-				delete node.src.expandedTo;
+				// A leaf shouldn't appear twice during the recursive
+				// dependency-tree building. Make the expanded nodes accessible
+				// from expanded contours, and provide accessors on the
+				// .expandedFrom node.
+				leftNodesSrc.push( leftSrc );
+				rightNodesSrc.push( rightSrc );
+			}
+
+			if ( leftSrc ) {
+				Object.defineProperties( node.src.expandedTo = {}, {
+					0: { get: function() {
+						return leftSrc;
+					}},
+					1: { get: function() {
+							return rightSrc;
+					}}
+				});
 			}
 		});
 
