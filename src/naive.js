@@ -1,16 +1,125 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
-	Utils = require('./Utils.js');
+	Utils = require('./Utils.js'),
+	merge = require('lodash.merge');
 
 var paper = plumin.paper,
-	naive = {};
+	naive = {},
+	_ = { merge: merge };
+
+function autoExpandedNodeSrc( node, i, j, side, isClosed ) {
+	return {
+		point: {
+			_dependencies: [
+				Utils.cursor( i, j, 'x' ),
+				Utils.cursor( i, j, 'y' ),
+				Utils.cursor( i, j, 'expand' )
+			],
+			_parameters: [ 'width' ],
+			_updaters: [ function() {
+				var width = arguments[
+						arguments.length - 1
+					];
+
+				naive.expandedNodeUpdater(
+					node.expandedTo[side], side === 0, width
+				);
+
+				naive.skeletonCopier( node );
+			} ]
+		},
+		_dependencies: [
+			Utils.cursor( 'contours', i, 'expandedTo',
+				( isClosed ? side : 0 ), 'points' )
+		]
+	};
+}
+
+function explicitExpandedNodeSrc( i, j, side, isClosed ) {
+	return {
+		point: {
+			_dependencies: [
+				Utils.cursor( i, j, 'expandedTo', side, 'x' ),
+				Utils.cursor( i, j, 'expandedTo', side, 'y' )
+			]
+		},
+		_dependencies: [
+			Utils.cursor( 'contours', i, 'expandedTo',
+				( isClosed ? side : 0 ), 'points' )
+		]
+	};
+}
+
+function expandedContourSrc( contour, i, side, nodesSrc ) {
+	return {
+		points: {
+			_dependencies: contour.nodes.map(function(node, j) {
+				return Utils.cursor(
+					'contours', i, 'expandedTo', side, 'nodes', j, 'point'
+				);
+			}),
+			_parameters: [ 'curviness' ],
+			_updaters: [ function() {
+				var curviness = arguments[ arguments.length - 1 ];
+
+				naive.prepareContour( contour );
+				naive.updateContour( contour, curviness );
+			} ]
+		},
+		nodes: nodesSrc,
+		_dependencies: [
+			Utils.cursor( 'contours', i, 'expandedTo', side, 'points' )
+		]
+	};
+}
+
+function nodeSrc( i, j ) {
+	return {
+		point: {
+			_dependencies: [
+				Utils.cursor( i, j, 'x' ),
+				Utils.cursor( i, j, 'y' )
+			]
+		},
+		_dependencies: [
+			Utils.cursor( 'contours', i, 'points' )
+		]
+	};
+}
+
+function contourSrc( contour, i ) {
+	return {
+		points: {
+			_dependencies: contour.nodes.map(function( node, j ) {
+				return Utils.cursor( i, j, 'point' );
+			}),
+			_parameters: [ 'curviness' ],
+			_updaters: [ function() {
+				var curviness = arguments[ arguments.length - 1 ];
+
+				naive.prepareContour( contour );
+				naive.updateContour( contour, curviness );
+			} ]
+		},
+		_dependencies: contour.nodes.map(function( node, j ) {
+			return Utils.cursor( i, j );
+		})
+	};
+}
 
 // default method to expand skeletons:
 // derives two additional node from every node with an .expand object
-naive.expandSkeletons = function( glyph ) {
+naive.annotator = function( glyph ) {
 	var additionalContours = [];
 
 	glyph.contours.forEach(function( contour, i ) {
 		if ( contour.skeleton !== true ) {
+			// annotate nodes+points that aren't in a skeleton
+			contour.nodes.forEach(function( node, j ) {
+				_.merge( node.src, nodeSrc( i, j ) );
+			});
+
+			_.merge( contour.src, contourSrc( contour, i ) );
+
 			return;
 		}
 
@@ -18,6 +127,8 @@ naive.expandSkeletons = function( glyph ) {
 			rightContour,
 			leftNodes = [],
 			rightNodes = [],
+			leftNodesSrc = [],
+			rightNodesSrc = [],
 			firstNode,
 			lastNode;
 
@@ -25,8 +136,6 @@ naive.expandSkeletons = function( glyph ) {
 		contour.visible = false;
 
 		contour.nodes.forEach(function( node, j ) {
-			// TODO: a node should be able to specify two arbitrary expanded
-			// nodes
 			var left = new paper.Node(),
 				right = new paper.Node();
 
@@ -36,41 +145,44 @@ naive.expandSkeletons = function( glyph ) {
 			left.expandedFrom = right.expandedFrom = node;
 
 			if ( !node.src.expandedTo ) {
-				left.src = {
-					_dependencies: [ 'contours.' + i + '.nodes.' + j ],
-					_parameters: [ 'width' ],
-					_updater: naive.expandedNodeUpdater
-				};
-				right.src = {
-					_dependencies: [ 'contours.' + i + '.nodes.' + j ],
-					_parameters: [ 'width' ],
-					_updater: naive.expandedNodeUpdater
-				};
-				node.src.expandedTo = [ left.src, right.src ];
+				// annotate nodes+points that are automatically expanded
+				leftNodesSrc.push(
+					autoExpandedNodeSrc( node, i, j, 0, contour.closed )
+				);
+				rightNodesSrc.push(
+					autoExpandedNodeSrc( node, i, j, 1, contour.closed )
+				);
+				// node.src.expandedTo = [
+				// 	autoExpandedNodeSrc( node, i, j, 0, contour.closed ),
+				// 	autoExpandedNodeSrc( node, i, j, 1, contour.closed )
+				// ];
 
 			// the expanded node might have been defined explicitely
 			} else if ( node.src.expandedTo[0] &&
-					!node.src.expandedTo[0]._updater ) {
+					!node.src.expandedTo[0]._updaters ) {
 				node.src.expandedTo.forEach(function( src, k ) {
 					Utils.mergeStatic( node.expandedTo[k], src );
 				});
+
+				// annotate nodes+points that are explicitely expanded
+				_.merge( node.src.expandedTo[0],
+					explicitExpandedNodeSrc( i, j, 0, contour.closed )
+				);
+				_.merge( node.src.expandedTo[1],
+					explicitExpandedNodeSrc( i, j, 1, contour.closed )
+				);
+
+				// There should never be two ways to access a source leaf,
+				// otherwise this might introduce redundant operations in the
+				// solving order and all dependencies will be a lot harder to
+				// represent mentally.
+				// Move them to the appropriate *NodesSrc so that node sources
+				// in the glyph source tree are only accessible from contours
+				// and expanded contours, not from expanded nodes.
+				leftNodesSrc.push( node.src.expandedTo[0] );
+				rightNodesSrc.push( node.src.expandedTo[1] );
+				delete node.src.expandedTo;
 			}
-
-			// This will copy properties such as types, directions and tensions
-			// to the expanded node.
-			// This should be the last updated property of this node.
-			// We rely on the fact that javascript interpreters currently
-			// enumerate properties in insertion order, but this behavior isn't
-			// in the specs.
-			node.src.copier = {
-				// We depend on .expand.angle, but we don't specify it,
-				// otherwise copier would be executed right after .expand, but
-				// before the other properties.
-				_dependencies: [],
-				_parameters: [],
-				_updater: naive.skeletonCopier
-			};
-
 		});
 
 		if ( !contour.expandedTo && !contour.closed ) {
@@ -79,6 +191,11 @@ naive.expandSkeletons = function( glyph ) {
 				segments: leftNodes.concat(rightNodes)
 			});
 			contour.expandedTo = [ leftContour ];
+			contour.src.expandedTo = [
+				expandedContourSrc( leftContour, i, 0,
+					leftNodesSrc.concat( rightNodesSrc )
+				)
+			];
 			leftContour.expandedFrom = contour;
 			additionalContours.push( leftContour );
 
@@ -114,6 +231,10 @@ naive.expandSkeletons = function( glyph ) {
 				leftContour,
 				rightContour
 			];
+			contour.src.expandedTo = [
+				expandedContourSrc( leftContour, i, 0, leftNodesSrc ),
+				expandedContourSrc( rightContour, i, 1, rightNodesSrc )
+			];
 			leftContour.expandedFrom = rightContour.expandedFrom = contour;
 		}
 	});
@@ -122,12 +243,8 @@ naive.expandSkeletons = function( glyph ) {
 };
 
 // Calculate expanded node position
-naive.expandedNodeUpdater = function(
-	propName, contours, anchors, parentAnchors, _Utils, _width
-) {
-	var node = this[propName],
-		isLeft = +propName === 0,
-		origin = node.expandedFrom,
+naive.expandedNodeUpdater = function( node, isLeft, _width ) {
+	var origin = node.expandedFrom,
 		expand = origin.expand,
 		width = expand && expand.width !== undefined ?
 			expand.width : _width,
@@ -137,7 +254,7 @@ naive.expandedNodeUpdater = function(
 		angle = ( isLeft ? Math.PI : 0 ) +
 			( expand && expand.angle !== undefined ?
 				expand.angle :
-				// TWe resort to using directions.
+				// We resort to using directions.
 				// This is wrong, directions are not included in the
 				// dependencies of the updater and might not be ready yet.
 				// TODO: Fix this (always require angle to be specified?)
@@ -154,9 +271,8 @@ naive.expandedNodeUpdater = function(
 
 // copy skeleton properties such as types, directions and tensions to expanded
 // nodes
-naive.skeletonCopier = function() {
-	var node = this,
-		angle = node.expand && node.expand.angle || 0,
+naive.skeletonCopier = function( node ) {
+	var angle = node.expand && node.expand.angle || 0,
 		left = node.expandedTo[0],
 		right = node.expandedTo[1];
 
@@ -220,8 +336,8 @@ naive.prepareContour = function( path ) {
 			node.previous.typeOut = 'line';
 
 			if ( node.type === 'smooth' ) {
-				node._dirIn = node.point.getAngleInRadians(
-					node.previous.point
+				node._dirIn = Utils.lineAngle(
+					node.point, node.previous.point
 				);
 				node._dirOut = node._dirIn + Math.PI;
 			}
@@ -231,7 +347,9 @@ naive.prepareContour = function( path ) {
 			node.next.typeIn = 'line';
 
 			if ( node.type === 'smooth' ) {
-				node._dirOut = node.point.getAngleInRadians( node.next.point );
+				node._dirOut = Utils.lineAngle(
+					node.point, node.next.point
+				);
 				node._dirIn = node._dirOut + Math.PI;
 			}
 		}
@@ -240,8 +358,10 @@ naive.prepareContour = function( path ) {
 
 // sets the position of control points
 // can be renamed #updateControls if no other operation is added
-naive.updateContour = function( path, params ) {
-	var curviness = params.curviness !== undefined ? params.curviness : 2 / 3;
+naive.updateContour = function( path, curviness ) {
+	if ( curviness === undefined ) {
+		curviness = 2 / 3;
+	}
 
 	path.nodes.forEach(function(node) {
 		var start = node,
@@ -299,10 +419,6 @@ naive.updateContour = function( path, params ) {
 
 		// direction of handles is parallel
 		if ( rri === null ) {
-			// startCtrl.x = 0;
-			// startCtrl.y = 0;
-			// endCtrl.x = 0;
-			// endCtrl.y = 0;
 			var angle = Utils.lineAngle( start._point, end._point ),
 				middle = {
 					x: Math.abs( start._point.x - end._point.x ) / 2 +
@@ -379,19 +495,5 @@ Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
 		}
 	}
 });
-
-var rexpandedTo = /\.expandedTo\.\d+(?:\.point)?$/;
-Utils.expandables.push([ rexpandedTo, function( dep ) {
-	dep = dep.replace(rexpandedTo, '');
-
-	return [
-		dep + '.x',
-		dep + '.y',
-		dep + '.expand',
-		// let's assume both expanded to will always be calculated toegether
-		dep + '.expandedTo.0',
-		dep + '.expandedTo.1'
-	];
-} ]);
 
 module.exports = naive;

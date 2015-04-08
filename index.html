@@ -48,7 +48,7 @@
 			xhr.send();
 
 			font = prototypo.ParametricFont( fontSrc );
-			glyph = font.glyphMap.J;
+			glyph = font.glyphMap.L;
 			glyph.update({ width: 10, thickness: 10, xHeight: 400 }, font);
 
 			glyph.visible = true;
@@ -73,7 +73,7 @@
 			prototypo.paper.view.update();
 
 			// console.log(glyph.solvingOrder.map(path => path.join('.')));
-			console.log(font);
+			console.log(glyph);
 			// console.log(glyph.contours[3].exportSVG());
 		</script>
 

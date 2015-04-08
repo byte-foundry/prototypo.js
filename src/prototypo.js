@@ -5,7 +5,11 @@ var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 
 var paper = plumin.paper;
 
-function ParametricFont( src ) {
+function splitCursor( cursor ) {
+	return cursor.split('.');
+}
+
+function parametricFont( src ) {
 	var font,
 		name,
 		glyphSrc,
@@ -26,18 +30,19 @@ function ParametricFont( src ) {
 
 		Utils.ufoToPaper( glyphSrc );
 
+		// turn ._operation strings to ._updaters functions
 		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
 
-		glyph = Utils.glyphFromSrc( glyphSrc, src );
+		glyph = Utils.glyphFromSrc( glyphSrc, src, naive );
 
 		font.addGlyph( glyph );
 
-		naive.expandSkeletons( glyph );
+		// Create additional paths for skeletons and set ._dependencies
+		// appropriately
+		naive.annotator( glyph );
 
-		glyph.solvingOrder = Utils.solveDependencyTree( glyphSrc )
-			.map(function(path) {
-				return path.split('.');
-			});
+		glyph.solvingOrder =
+			Utils.solveDependencyTree( glyph ).map( splitCursor );
 	}
 
 	// all glyphs are ready, embed components now
@@ -50,7 +55,7 @@ function ParametricFont( src ) {
 	return font;
 }
 
-plumin.ParametricFont = ParametricFont;
+plumin.parametricFont = parametricFont;
 plumin.Utils = Utils;
 plumin.Utils.naive = naive;
 
@@ -64,26 +69,29 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 0. before running, nodes have already been created by ParametricFont
  *   (including expanded ones thanks to naive.expandSkeletons). And static
  *   properties have been copied over to those nodes
- * 1. We use the solving order to calculate all node properties except
- *    handle positions.
- * 2. We make sure 'line' types are set on both node of bezier curve,
- *    when present.
- *    And we make smooth nodes... smooth.
- * 3. Calculate the position of handles.
+ * 1. We use the solving order to calculate all node properties
+ * // 2. and 3. are now done during 1.
+ * // 2. We make sure 'line' types are set on both node of bezier curve,
+ * //    when present.
+ * //    And we make smooth nodes... smooth.
+ * // 3. Calculate the position of handles.
  * 4. transform contours
  * 5. Update components and transform them
  */
 paper.PaperScope.prototype.Glyph.prototype.update =
 	function( params, font, solvingOrder ) {
+		var glyph = this;
+
 		// 1. calculate node properties
-		( solvingOrder || this.solvingOrder || [] ).forEach(function(path) {
-			var propName = path[path.length - 1],
-				src = Utils.propFromPath( path, path.length, this.src ),
-				obj = Utils.propFromPath( path, path.length - 1, this ),
-				result = src && src._updater.apply( obj,
+		( solvingOrder || glyph.solvingOrder || [] ).forEach(function(cursor) {
+			var propName = cursor[ cursor.length - 1 ],
+				src = Utils.propFromCursor( cursor, glyph.src ),
+				obj = Utils.propFromCursor( cursor, glyph, cursor.length - 1 ),
+				// TODO: one day we could allow multiple _updaters
+				result = src && src._updaters && src._updaters[0].apply( obj,
 					[
-						propName, this.contours, this.anchors,
-						this.parentAnchors, Utils
+						propName, glyph.contours, glyph.anchors,
+						glyph.parentAnchors, Utils
 					].concat(
 						src._parameters.map(function(name) {
 							return params[name];
@@ -97,22 +105,6 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 				obj[propName] = result;
 			}
 		}, this);
-
-		this.contours.forEach(function(contour) {
-			// prepare and update outlines and expanded contours, but not
-			// skeletons
-			if ( contour.skeleton !== true ) {
-				// Previously prepareContour was only executed on outlines and
-				// skeletons but not on expanded contours.
-				// I have no idea why but I might rediscover it later.
-				// TODO: it might be possible to do 2. and 3. at the same time
-
-				// 2. check 'line' curves and smooth nodes
-				naive.prepareContour( contour );
-				// 3. calculate the position of handles
-				naive.updateContour( contour, params );
-			}
-		});
 
 		// 4. transform contours
 		this.contours.forEach(function(contour) {

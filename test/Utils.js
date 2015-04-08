@@ -10,145 +10,44 @@ describe('Utils', function() {
 		});
 	});
 
-	describe('#solveDependencyTree', function() {
+	describe('#dependencyTree', function() {
 
 		it('should solve a simple dependency tree', function() {
-			var solved = Utils.solveDependencyTree({
-				a: {
-					_dependencies: ['b', 'c.0']
-				},
-				b: 2,
-				c: [3],
-				d: {
-					_dependencies: ['a']
-				}
-			});
+			var glyph = { src: {
+					a: {
+						_dependencies: [ 'b', 'c.0' ],
+						_updaters: [ function() {} ]
+					},
+					b: 2,
+					c: [ 3 ],
+					d: {
+						_dependencies: [ 'a' ],
+						_updaters: [ function() {} ]
+					}
+				} },
+				depTree = Utils.dependencyTree( glyph.src, null ),
+				order = depTree.resolve();
 
-			expect(solved).to.deep.equal(['a', 'd']);
+			expect(order).to.deep.equal([ 'b', 'c.0', 'a', 'd' ]);
 		});
 
-	});
-
-	describe('#expandDependencies', function() {
-
-		it('should expand point, nodes ad expandedTo into their properties', function() {
-			var expanded = Utils.expandDependencies([
-				'contours.0.nodes.1.point',
-				'contours.1.nodes.23',
-				'contours.2.nodes.7.expandedTo.0.point'
-			], []);
-
-			expect(expanded).to.deep.equal([
-				'contours.0.nodes.1.x',
-				'contours.0.nodes.1.y',
-				'contours.1.nodes.23.x',
-				'contours.1.nodes.23.y',
-				'contours.1.nodes.23.expand',
-				'contours.2.nodes.7.x',
-				'contours.2.nodes.7.y',
-				'contours.2.nodes.7.expand',
-				'contours.2.nodes.7.expandedTo.0',
-				'contours.2.nodes.7.expandedTo.1'
-			]);
-		});
-	});
-
-	describe('#rayRayIntersection', function() {
-		it('should return an array with the coordinates of the intersection', function() {
-			var rri;
-
-			// first quadrant
-			rri = Utils.rayRayIntersection(
-					{x: 110, y: 10},
-					Math.PI / 2,
-					{x: 10, y: 110},
-					0
-				);
-
-			expect(Math.round(rri[0])).to.equal(110);
-			expect(rri[1]).to.equal(110);
-
-			// second quadrant
-			rri = Utils.rayRayIntersection(
-					{x: 110, y: 110},
-					-Math.PI,
-					{x: 10, y: 10},
-					Math.PI / 2
-				);
-
-			expect(Math.round(rri[0])).to.equal(10);
-			expect(rri[1]).to.equal(110);
-
-			// third quadrant
-			rri = Utils.rayRayIntersection(
-					{x: 10, y: 110},
-					-Math.PI / 2,
-					{x: 110, y: 10},
-					-Math.PI
-				);
-
-			expect(Math.round(rri[0])).to.equal(10);
-			expect(Math.round(rri[1])).to.equal(10);
-
-			// fourth quadrant
-			rri = Utils.rayRayIntersection(
-					{x: 10, y: 10},
-					0,
-					{x: 110, y: 110},
-					-Math.PI / 2
-				);
-
-			expect(Math.round(rri[0])).to.equal(110);
-			expect(rri[1]).to.equal(10);
-		});
-
-		it('should return null when rays don\'t intersect', function() {
-			var rri = Utils.rayRayIntersection(
-					{x: 0, y: 0},
-					0,
-					{x: 0, y: 100},
-					Math.PI
-				);
-
-			expect(rri).to.equal(null);
-		});
-	});
-
-	describe('#onLine', function() {
-		it('should find y, given x and two points', function() {
-			var y = Utils.onLine({
-				x: 20,
-				on: [ {x: 0, y: 0}, {x: 100, y: 50} ]
-			});
-
-			expect(y).to.equal(10);
-		});
-
-		it('should find x, given y and two points', function() {
-			var x = Utils.onLine({
-				y: 20,
-				on: [ {x: 0, y: 0}, {x: 100, y: 50} ]
-			});
-
-			expect(x).to.equal(40);
-		});
 	});
 
 	describe('#transformsToMatrix', function() {
 		it('should compute a list of transforms correctly', function() {
 			var matrix = Utils.transformsToMatrix([
-					['translateX', 10],
-					['translateY', 20],
-					['rotate', '3deg'],
-					['translate', 4, 5],
-					['scaleX', 1.3],
-					['scaleY', 0.9],
-					['translate', 9],
-					['scale', 0.7],
-					['translate', 10, 11],
-					['scale', 0.6, 1.1],
-					['skewX', '2deg'],
-					['skewY', '3deg']
+					[ 'translateX', 10 ],
+					[ 'translateY', 20 ],
+					[ 'rotate', '3deg' ],
+					[ 'translate', 4, 5 ],
+					[ 'scaleX', 1.3 ],
+					[ 'scaleY', 0.9 ],
+					[ 'translate', 9 ],
+					[ 'scale', 0.7 ],
+					[ 'translate', 10, 11 ],
+					[ 'scale', 0.6, 1.1 ],
+					[ 'skewX', '2deg' ],
+					[ 'skewY', '3deg' ]
 				]),
 				precision = 0.0001;
 
@@ -163,9 +62,10 @@ describe('Utils', function() {
 		});
 	});
 
-	describe('#normalizeAngle', function() {
-		it('should normalize angles, ffs', function() {
-			expect(Utils.normalizeAngle( - Math.PI * 3 / 2 )).to.equal( Math.PI / 2 );
-		});
-	});
+	// describe('#normalizeAngle', function() {
+	// 	it('should normalize angles, ffs', function() {
+	// 		expect(Utils.normalizeAngle( -Math.PI * 3 / 2 ))
+	// 			.to.equal( Math.PI / 2 );
+	// 	});
+	// });
 });
