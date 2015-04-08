@@ -136,6 +136,7 @@ naive.annotator = function( glyph ) {
 		contour.visible = false;
 
 		contour.nodes.forEach(function( node, j ) {
+
 			var left = new paper.Node(),
 				right = new paper.Node();
 
@@ -152,10 +153,6 @@ naive.annotator = function( glyph ) {
 				rightNodesSrc.push(
 					autoExpandedNodeSrc( node, i, j, 1, contour.closed )
 				);
-				// node.src.expandedTo = [
-				// 	autoExpandedNodeSrc( node, i, j, 0, contour.closed ),
-				// 	autoExpandedNodeSrc( node, i, j, 1, contour.closed )
-				// ];
 
 			// the expanded node might have been defined explicitely
 			} else if ( node.src.expandedTo[0] &&
@@ -421,10 +418,8 @@ naive.updateContour = function( path, curviness ) {
 		if ( rri === null ) {
 			var angle = Utils.lineAngle( start._point, end._point ),
 				middle = {
-					x: Math.abs( start._point.x - end._point.x ) / 2 +
-						start._point.x,
-					y: Math.abs( start._point.y - end._point.y ) / 2 +
-						start._point.y
+					x: ( end._point.x - start._point.x ) / 2 + start._point.x,
+					y: ( end._point.y - start._point.y ) / 2 + start._point.y
 				},
 				p0 = Utils.rayRayIntersection(
 					start._point, startDir, middle, angle - Math.PI / 2
