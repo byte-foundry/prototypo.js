@@ -110,4 +110,9 @@ Utils.onLine = function( params ) {
 		( params.y - origin.y ) / vector[1] * vector[0] + origin.x;
 };
 
+Utils.log = function() {
+	console.log.apply( console, arguments );
+	return arguments[0];
+};
+
 module.exports = Utils;

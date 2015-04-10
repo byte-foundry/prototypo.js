@@ -5,35 +5,26 @@ var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 
 var paper = plumin.paper;
 
-function splitCursor( cursor ) {
-	return cursor.split('.');
-}
-
 function parametricFont( src ) {
-	var font,
-		name,
-		glyphSrc,
-		glyph;
-
 	// TODO: this, block is only here for backward compat
 	// and should be removed at some point in the future
 	if ( !src.fontinfo ) {
 		src.fontinfo = src.info;
 	}
 
-	font = new paper.Font( src.fontinfo );
+	var font = new paper.Font( src.fontinfo );
 
 	font.src = src;
 
-	for ( name in src.glyphs ) {
-		glyphSrc = src.glyphs[name];
+	Object.keys( src.glyphs ).forEach(function( name ) {
+		var glyphSrc = src.glyphs[name];
 
 		Utils.ufoToPaper( glyphSrc );
 
 		// turn ._operation strings to ._updaters functions
 		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
 
-		glyph = Utils.glyphFromSrc( glyphSrc, src, naive );
+		var glyph = Utils.glyphFromSrc( glyphSrc, src, naive );
 
 		font.addGlyph( glyph );
 
@@ -42,8 +33,10 @@ function parametricFont( src ) {
 		naive.annotator( glyph );
 
 		glyph.solvingOrder =
-			Utils.solveDependencyTree( glyph ).map( splitCursor );
-	}
+			Utils.solveDependencyTree( glyph ).map(function( cursor ) {
+				return cursor.split('.');
+			});
+	});
 
 	// all glyphs are ready, embed components now
 	font.glyphs.forEach(function( _glyph ) {

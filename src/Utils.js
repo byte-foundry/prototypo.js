@@ -166,6 +166,8 @@ Utils.mergeStatic = function( obj, src ) {
 				obj,
 				[ null, null, null, null, Utils ]
 			);
+
+			delete src[i];
 		}
 	}
 };
@@ -180,14 +182,18 @@ Utils.createUpdaters = function( leaf, path ) {
 				]
 				.concat( leaf._parameters || [] )
 				.concat(
-					( typeof leaf._operation === 'string' ?
-						'return ' + leaf._operation :
-						// In which case is the operation a function?
-						// I can't remember, maybe I thought it could be useful
-						// someday...
-						leaf._operation.toString()
-							.replace(/function\s*()\s*\{(.*?)\}$/, '$1').trim()
+					( typeof leaf._operation === 'string' &&
+							leaf._operation.indexOf('return ') === -1 ?
+						'return ' : ''
 					) +
+					// The operation might be wrapped in a function (e.g. multi-
+					// line code for debugging purpose). In this case, return
+					// must be explicit
+					leaf._operation.toString()
+						// [\s\S] need to be used instead of . because
+						// javascript doesn't have a dotall flag (s)
+						.replace(/function\s*\(\)\s*\{([\s\S]*?)\}$/, '$1')
+						.trim() +
 					// add sourceURL pragma to help debugging
 					'\n\n//# sourceURL=' + path
 				);
@@ -223,23 +229,27 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 	}
 
 	Object.keys( parentSrc ).forEach(function( i ) {
+		// don't inspect private properties or non-object
+		if ( i.indexOf('_') === 0 || typeof parentSrc[i] !== 'object' ) {
+			return;
+		}
+
 		var leafSrc = parentSrc[i],
 			currCursor = cursor ? cursor + '.' + i : i;
 
-		if ( typeof leafSrc === 'object' ) {
-			// objects with updater functions have dependencies
-			if ( leafSrc._updaters && leafSrc._updaters.length ) {
-				depTree.add( currCursor,
-					leafSrc._dependencies.filter(function(dep) {
-						// parentAnchors are always here when you need them
-						return !/^parentAnchors/.test(dep);
-					})
-				);
-			}
+		if ( ( leafSrc._updaters && leafSrc._updaters.length ) ||
+				( leafSrc._dependencies && leafSrc._dependencies.length ) ) {
 
-			if ( !leafSrc._operation ) {
-				Utils.dependencyTree( leafSrc, currCursor, depTree );
-			}
+			depTree.add( currCursor,
+				leafSrc._dependencies.filter(function(dep) {
+					// parentAnchors are always here when you need them
+					return !/^parentAnchors/.test(dep);
+				})
+			);
+		}
+
+		if ( !leafSrc._operation ) {
+			Utils.dependencyTree( leafSrc, currCursor, depTree );
 		}
 	});
 
