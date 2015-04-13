@@ -63,13 +63,8 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  *   (including expanded ones thanks to naive.expandSkeletons). And static
  *   properties have been copied over to those nodes
  * 1. We use the solving order to calculate all node properties
- * // 2. and 3. are now done during 1.
- * // 2. We make sure 'line' types are set on both node of bezier curve,
- * //    when present.
- * //    And we make smooth nodes... smooth.
- * // 3. Calculate the position of handles.
- * 4. transform contours
- * 5. Update components and transform them
+ * 2. transform contours
+ * 3. Update components and transform them
  */
 paper.PaperScope.prototype.Glyph.prototype.update =
 	function( params, font, solvingOrder ) {
@@ -99,7 +94,7 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 			}
 		}, this);
 
-		// 4. transform contours
+		// 2. transform contours
 		this.contours.forEach(function(contour) {
 			// a. transform the contour
 			// prepare and update outlines and expanded contours, but not
@@ -142,7 +137,7 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 			});
 		});
 
-		// 5. TODO: update components and transform components
+		// 3. TODO: update components and transform components
 		this.components.forEach(function(component) {
 			component.update(
 				params, font, font.glyphMap[component.name].solvingOrder

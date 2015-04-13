@@ -98,6 +98,7 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 			var component = Utils.glyphFromSrc(
 					fontSrc.glyphs[componentSrc.base],
 					fontSrc,
+					naive,
 					// components' subcomponents can be embedded immediatly
 					true
 				);

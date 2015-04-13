@@ -1,6 +1,7 @@
 var expect = require('../node_modules/chai').expect,
 	prototypo = require('../src/prototypo'),
-	Utils = require('../src/Utils.js');
+	Utils = require('../src/Utils.js'),
+	fixture = require('test.ptf');
 
 describe('Utils', function() {
 	before(function() {
@@ -59,6 +60,21 @@ describe('Utils', function() {
 			expect(matrix._d).to.be.closeTo(0.693048, precision);
 			expect(matrix._tx).to.be.closeTo(34.1416, precision);
 			expect(matrix._ty).to.be.closeTo(33.2116, precision);
+		});
+	});
+
+	describe('#glyphFromSrc', function() {
+		it('should embed components recursively', function() {
+			var font = prototypo.parametricFont( fixture );
+
+			expect( font.glyphMap.N.components.length )
+				.to.equal(1);
+			expect( font.glyphMap.N.components[0].name )
+				.to.equal('O');
+			expect( font.glyphMap.N.components[0].components.length )
+				.to.equal(1);
+			expect( font.glyphMap.N.components[0].components[0].name )
+				.to.equal('P');
 		});
 	});
 
