@@ -1,6 +1,6 @@
 {
   "name": "prototypo.js",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "parametric-glyph engine",
   "dependencies": {},
   "//devDependencies": "test.ptf isn't available on npm, must be linked manually",
