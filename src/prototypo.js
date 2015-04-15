@@ -81,7 +81,7 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 						propName, glyph.contours, glyph.anchors,
 						glyph.parentAnchors, Utils
 					].concat(
-						src._parameters.map(function(name) {
+						( src._parameters || [] ).map(function(name) {
 							return params[name];
 						})
 					)

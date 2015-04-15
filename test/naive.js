@@ -47,7 +47,7 @@ describe('naive', function() {
 
 			expect(glyph.src.contours[0].nodes[0]._dependencies)
 				.to.deep.equal([
-					'contours.0.points'
+					'contours.0.all'
 				]);
 		});
 
@@ -67,7 +67,7 @@ describe('naive', function() {
 			naive.annotator( glyph );
 
 			expect(
-				glyph.src.contours[0].expandedTo[0].nodes[0].point._dependencies
+				glyph.src.contours[0].nodes[0].expandedTo[0].point._dependencies
 			).to.deep.equal([
 				'contours.0.nodes.0.x',
 				'contours.0.nodes.0.y',
@@ -75,7 +75,7 @@ describe('naive', function() {
 			]);
 
 			expect(
-				glyph.src.contours[0].expandedTo[0].nodes[1].point._dependencies
+				glyph.src.contours[0].nodes[0].expandedTo[1].point._dependencies
 			).to.deep.equal([
 				'contours.0.nodes.0.x',
 				'contours.0.nodes.0.y',
@@ -99,15 +99,15 @@ describe('naive', function() {
 			naive.annotator( glyph );
 
 			expect(
-				glyph.src.contours[0].expandedTo[0].nodes[0]._dependencies
+				glyph.src.contours[0].nodes[0].expandedTo[0]._dependencies
 			).to.deep.equal([
-				'contours.0.expandedTo.0.points'
+				'contours.0.expandedTo.0.all'
 			]);
 
 			expect(
-				glyph.src.contours[0].expandedTo[0].nodes[1]._dependencies
+				glyph.src.contours[0].nodes[0].expandedTo[1]._dependencies
 			).to.deep.equal([
-				'contours.0.expandedTo.0.points'
+				'contours.0.expandedTo.0.all'
 			]);
 		});
 
@@ -127,15 +127,15 @@ describe('naive', function() {
 			naive.annotator( glyph );
 
 			expect(
-				glyph.src.contours[0].expandedTo[0].nodes[0]._dependencies
+				glyph.src.contours[0].nodes[0].expandedTo[0]._dependencies
 			).to.deep.equal([
-				'contours.0.expandedTo.0.points'
+				'contours.0.expandedTo.0.all'
 			]);
 
 			expect(
-				glyph.src.contours[0].expandedTo[1].nodes[0]._dependencies
+				glyph.src.contours[0].nodes[0].expandedTo[1]._dependencies
 			).to.deep.equal([
-				'contours.0.expandedTo.1.points'
+				'contours.0.expandedTo.1.all'
 			]);
 		});
 
@@ -161,14 +161,14 @@ describe('naive', function() {
 
 			naive.annotator( glyph );
 
-			expect( glyph.src.contours[0].expandedTo[0].nodes[0]
+			expect( glyph.src.contours[0].nodes[0].expandedTo[0]
 						.point._dependencies
 			).to.deep.equal([
 				'contours.0.nodes.0.expandedTo.0.x',
 				'contours.0.nodes.0.expandedTo.0.y'
 			]);
 
-			expect( glyph.src.contours[0].expandedTo[0].nodes[1]
+			expect( glyph.src.contours[0].nodes[0].expandedTo[1]
 						.point._dependencies
 			).to.deep.equal([
 				'contours.0.nodes.0.expandedTo.1.x',
@@ -192,10 +192,10 @@ describe('naive', function() {
 
 			naive.annotator( glyph );
 
-			expect(glyph.src.contours[0].points._dependencies)
+			expect(glyph.src.contours[0].all._dependencies)
 				.to.deep.equal([
-					'contours.0.nodes.0.point',
-					'contours.0.nodes.1.point'
+					'contours.0.nodes.0.all',
+					'contours.0.nodes.1.all'
 				]);
 
 			expect(glyph.src.contours[0]._dependencies)
@@ -223,17 +223,17 @@ describe('naive', function() {
 
 			naive.annotator( glyph );
 
-			expect(glyph.src.contours[0].expandedTo[0].points._dependencies)
+			expect(glyph.src.contours[0].expandedTo[0].all._dependencies)
 				.to.deep.equal([
-					'contours.0.expandedTo.0.nodes.0.point',
-					'contours.0.expandedTo.0.nodes.1.point',
-					'contours.0.expandedTo.0.nodes.2.point',
-					'contours.0.expandedTo.0.nodes.3.point'
+					'contours.0.nodes.0.expandedTo.0.all',
+					'contours.0.nodes.1.expandedTo.0.all',
+					'contours.0.nodes.0.expandedTo.1.all',
+					'contours.0.nodes.1.expandedTo.1.all'
 				]);
 
 			expect(glyph.src.contours[0].expandedTo[0]._dependencies)
 				.to.deep.equal([
-					'contours.0.expandedTo.0.points'
+					'contours.0.expandedTo.0.all'
 				]);
 		});
 
@@ -255,26 +255,26 @@ describe('naive', function() {
 
 			naive.annotator( glyph );
 
-			expect(glyph.src.contours[0].expandedTo[0].points._dependencies)
+			expect(glyph.src.contours[0].expandedTo[0].all._dependencies)
 				.to.deep.equal([
-					'contours.0.expandedTo.0.nodes.0.point',
-					'contours.0.expandedTo.0.nodes.1.point'
+					'contours.0.nodes.0.expandedTo.0.all',
+					'contours.0.nodes.1.expandedTo.0.all'
 				]);
 
-			expect(glyph.src.contours[0].expandedTo[1].points._dependencies)
+			expect(glyph.src.contours[0].expandedTo[1].all._dependencies)
 				.to.deep.equal([
-					'contours.0.expandedTo.1.nodes.0.point',
-					'contours.0.expandedTo.1.nodes.1.point'
+					'contours.0.nodes.0.expandedTo.1.all',
+					'contours.0.nodes.1.expandedTo.1.all'
 				]);
 
 			expect(glyph.src.contours[0].expandedTo[0]._dependencies)
 				.to.deep.equal([
-					'contours.0.expandedTo.0.points'
+					'contours.0.expandedTo.0.all'
 				]);
 
 			expect(glyph.src.contours[0].expandedTo[1]._dependencies)
 				.to.deep.equal([
-					'contours.0.expandedTo.1.points'
+					'contours.0.expandedTo.1.all'
 				]);
 		});
 
@@ -404,10 +404,12 @@ describe('naive', function() {
 						nodes: [ {
 							x: 10,
 							y: 10,
-							type: 'a'
+							type: 'a',
+							typeOut: 'line'
 						}, {
 							x: 200,
-							y: 400
+							y: 400,
+							typeOut: 'line'
 						} ]
 					} ]
 				},
@@ -446,10 +448,14 @@ describe('naive', function() {
 						nodes: [ {
 							x: 10,
 							y: 10,
+							dirOut: 0,
+							type: 'smooth',
 							typeIn: 'a'
 						}, {
 							x: 200,
 							y: 400,
+							dirIn: Math.PI,
+							type: 'smooth',
 							typeOut: 'b'
 						} ]
 					} ]
@@ -594,11 +600,13 @@ describe('naive', function() {
 						nodes: [ {
 							x: 10,
 							y: 10,
+							typeOut: 'line',
 							tensionIn: 2,
 							tension: 3
 						}, {
 							x: 200,
 							y: 400,
+							typeOut: 'line',
 							tensionOut: 4,
 							tension: 5
 						} ]
