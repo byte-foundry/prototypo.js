@@ -433,10 +433,10 @@ naive.updateContour = function( path, curviness ) {
 
 		startDir = start._dirOut !== undefined ?
 			start._dirOut :
-			start.type === 'smooth' ? start._dirIn + Math.PI : 0;
+			( start.type === 'smooth' ? start._dirIn + Math.PI : 0 );
 		endDir = end._dirIn !== undefined ?
 			end._dirIn :
-			end.type === 'smooth' ? end._dirOut - Math.PI : 0;
+			( end.type === 'smooth' ? end._dirOut - Math.PI : 0 );
 
 		rri = Utils.rayRayIntersection(
 			start._point,
