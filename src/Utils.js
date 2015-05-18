@@ -270,9 +270,13 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 		curr = new Float32Array(6),
 		rslt = new Float32Array([ 1, 0, 0, 1, 0, 0 ]);
 
-	if ( origin ) {
+	if ( origin && Array.isArray( origin ) ) {
 		transforms.unshift([ 'translate', origin[0], origin[1] ]);
 		transforms.push([ 'translate', -origin[0], -origin[1] ]);
+
+	} else if ( origin ) {
+		transforms.unshift([ 'translate', origin.x, origin.y ]);
+		transforms.push([ 'translate', -origin.x, -origin.y ]);
 	}
 
 	transforms.forEach(function( transform ) {

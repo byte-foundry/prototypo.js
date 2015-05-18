@@ -137,11 +137,19 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 			});
 		});
 
-		// 3. TODO: update components and transform components
+		// 3. update components and transform components
 		this.components.forEach(function(component) {
 			component.update(
 				params, font, font.glyphMap[component.name].solvingOrder
 			);
+
+			if ( component.transforms ) {
+				var matrix = Utils.transformsToMatrix(
+					component.transforms, component.transformOrigin
+				);
+
+				component.transform( matrix );
+			}
 		});
 	};
 
