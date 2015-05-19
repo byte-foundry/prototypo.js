@@ -49,7 +49,7 @@
 
 			font = prototypo.parametricFont( fontSrc );
 			glyph = font.glyphMap.L;
-			glyph.update({ width: 10, thickness: 10, xHeight: 400 }, font);
+			glyph.update({ width: 10, thickness: 10, xHeight: 400 });
 
 			glyph.visible = true;
 			glyph.contours.forEach(function(contour) {
@@ -75,6 +75,9 @@
 			// console.log(glyph.solvingOrder.map(path => path.join('.')));
 			console.log(glyph);
 			// console.log(glyph.contours[3].exportSVG());
+
+			window.glyph = glyph;
+			window.font = font;
 		</script>
 
 		<script>

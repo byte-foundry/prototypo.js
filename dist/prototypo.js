@@ -3156,10 +3156,10 @@ Table.prototype.sizeOf = function() {
     for (var i = 0; i < this.fields.length; i += 1) {
         var field = this.fields[i];
         var value = this[field.name];
-        if (value == undefined) {
+        if (value === undefined) {
             value = field.value;
         }
-// if ( value == undefined ) { debugger; }
+
         if (typeof value.sizeOf === 'function') {
             v += value.sizeOf();
         } else {
@@ -19669,9 +19669,17 @@ function Font( args ) {
 	}
 }
 
+// Todo: handle unicode updates
+Object.defineProperty(Glyph.prototype, 'children', {
+	get: function() {
+		return this.glyphs;
+	}
+});
+
 Font.prototype.addGlyph = function( glyph ) {
 	this.glyphs.push( glyph );
 	this.glyphMap[glyph.name] = glyph;
+	glyph._parent = this;
 
 	if ( glyph.ot.unicode === undefined ) {
 		return glyph;
@@ -20295,7 +20303,6 @@ module.exports = plumin;
 
 
 //# sourceMappingURL=plumin.js.map
-
 },{}],19:[function(require,module,exports){
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	DepTree = require('../node_modules/deptree/index.js'),
@@ -20671,8 +20678,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 	return new paper.Matrix(
 		rslt[0],
-		rslt[2],
 		rslt[1],
+		rslt[2],
 		rslt[3],
 		rslt[4],
 		rslt[5]
@@ -20755,7 +20762,7 @@ function nodeSrc( node, i, j, inSkeleton ) {
 		}) },
 		_dependencies: inSkeleton ?
 			// nodes in skeleton are never fully calculated (we don't calculate
-			// the position oh handles because we never draw their contour).
+			// the position of handles because we never draw their contour).
 			// So we don't care about their dependencies.
 			[] :
 			[ Utils.cursor( 'contours', i, 'all' ) ]
@@ -20790,7 +20797,9 @@ function autoExpandedNodeSrc( node, i, j, side, isClosed ) {
 		all: {
 			_dependencies: Object.keys( node.src ).map(function( key ) {
 					return Utils.cursor( i, j, key );
-			}),
+			}).concat([
+				Utils.cursor( i, j, 'expandedTo', side, 'point' )
+			]),
 			_updaters: [ function() {
 				naive.skeletonCopier( node );
 			} ]
@@ -21330,7 +21339,7 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 3. Update components and transform them
  */
 paper.PaperScope.prototype.Glyph.prototype.update =
-	function( params, font, solvingOrder ) {
+	function( params, solvingOrder ) {
 		var glyph = this;
 
 		// 1. calculate node properties
@@ -21359,61 +21368,77 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 
 		// 2. transform contours
 		this.contours.forEach(function(contour) {
-			// a. transform the contour
-			// prepare and update outlines and expanded contours, but not
-			// skeletons
-			if ( contour.transforms ) {
-				var matrix = Utils.transformsToMatrix(
-							contour.transforms, contour.transformOrigin
-						);
+			var matrix;
 
-				if ( contour.skeleton !== true ) {
-					contour.transform( matrix );
-
-				// when dealing with a skeleton, apply transforms only to
-				// expanded items
-				} else {
-					contour.expandedTo.forEach(function( _contour ) {
-						_contour.transform( matrix );
-					});
-				}
-			}
-
-			// b. transform the nodes
+			// a. transform the nodes
 			contour.nodes.forEach(function(node) {
 				if ( node.transforms ) {
 					matrix = Utils.transformsToMatrix(
-						node.transforms, node.transformOrigin
+						node.transforms.slice(0), node.transformOrigin
 					);
 
 					if ( contour.skeleton !== true ) {
-						node.transform( matrix );
+						// We don't want to apply the transforms immediatly,
+						// otherwise the transformation will add-up on each
+						// update.
+						// Don't ask me why it isn't false by default...
+						node.applyMatrix = false;
+						node.matrix = matrix;
 
-					// when dealing with a skeleton, apply transforms only to
+					// when dealing with a skeleton, modify only the matrix of
 					// expanded items
 					} else {
 						node.expandedTo.forEach(function( _node ) {
-							_node.transform( matrix );
+							_node.applyMatrix = false;
+							_node.matrix = matrix;
 						});
 					}
 				}
 			});
-		});
+
+			// b. transform the contour
+			// prepare and update outlines and expanded contours, but not
+			// skeletons
+			if ( contour.transforms ) {
+				matrix = Utils.transformsToMatrix(
+					contour.transforms.slice(0), contour.transformOrigin
+				);
+
+				if ( contour.skeleton !== true ) {
+					contour.applyMatrix = false;
+					contour.matrix = matrix;
+
+				// when dealing with a skeleton, modify only the matrix of
+				// expanded items
+				} else {
+					contour.expandedTo.forEach(function( _contour ) {
+						_contour.applyMatrix = false;
+						_contour.matrix = matrix;
+					});
+				}
+			}
+		}, this);
 
 		// 3. update components and transform components
 		this.components.forEach(function(component) {
 			component.update(
-				params, font, font.glyphMap[component.name].solvingOrder
+				params, this.parent.glyphMap[component.name].solvingOrder
 			);
 
 			if ( component.transforms ) {
 				var matrix = Utils.transformsToMatrix(
-					component.transforms, component.transformOrigin
+					component.transforms.slice(0),
+					component.transformOrigin
 				);
 
-				component.transform( matrix );
+				component.applyMatrix = false;
+				if ( !component.pivot ) {
+					component.pivot = new paper.Point( 0, 0 );
+				}
+
+				component.matrix = matrix;
 			}
-		});
+		}, this);
 	};
 
 module.exports = plumin;

@@ -67,7 +67,7 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 3. Update components and transform them
  */
 paper.PaperScope.prototype.Glyph.prototype.update =
-	function( params, font, solvingOrder ) {
+	function( params, solvingOrder ) {
 		var glyph = this;
 
 		// 1. calculate node properties
@@ -96,61 +96,77 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 
 		// 2. transform contours
 		this.contours.forEach(function(contour) {
-			// a. transform the contour
-			// prepare and update outlines and expanded contours, but not
-			// skeletons
-			if ( contour.transforms ) {
-				var matrix = Utils.transformsToMatrix(
-							contour.transforms, contour.transformOrigin
-						);
+			var matrix;
 
-				if ( contour.skeleton !== true ) {
-					contour.transform( matrix );
-
-				// when dealing with a skeleton, apply transforms only to
-				// expanded items
-				} else {
-					contour.expandedTo.forEach(function( _contour ) {
-						_contour.transform( matrix );
-					});
-				}
-			}
-
-			// b. transform the nodes
+			// a. transform the nodes
 			contour.nodes.forEach(function(node) {
 				if ( node.transforms ) {
 					matrix = Utils.transformsToMatrix(
-						node.transforms, node.transformOrigin
+						node.transforms.slice(0), node.transformOrigin
 					);
 
 					if ( contour.skeleton !== true ) {
-						node.transform( matrix );
+						// We don't want to apply the transforms immediatly,
+						// otherwise the transformation will add-up on each
+						// update.
+						// Don't ask me why it isn't false by default...
+						node.applyMatrix = false;
+						node.matrix = matrix;
 
-					// when dealing with a skeleton, apply transforms only to
+					// when dealing with a skeleton, modify only the matrix of
 					// expanded items
 					} else {
 						node.expandedTo.forEach(function( _node ) {
-							_node.transform( matrix );
+							_node.applyMatrix = false;
+							_node.matrix = matrix;
 						});
 					}
 				}
 			});
-		});
+
+			// b. transform the contour
+			// prepare and update outlines and expanded contours, but not
+			// skeletons
+			if ( contour.transforms ) {
+				matrix = Utils.transformsToMatrix(
+					contour.transforms.slice(0), contour.transformOrigin
+				);
+
+				if ( contour.skeleton !== true ) {
+					contour.applyMatrix = false;
+					contour.matrix = matrix;
+
+				// when dealing with a skeleton, modify only the matrix of
+				// expanded items
+				} else {
+					contour.expandedTo.forEach(function( _contour ) {
+						_contour.applyMatrix = false;
+						_contour.matrix = matrix;
+					});
+				}
+			}
+		}, this);
 
 		// 3. update components and transform components
 		this.components.forEach(function(component) {
 			component.update(
-				params, font, font.glyphMap[component.name].solvingOrder
+				params, this.parent.glyphMap[component.name].solvingOrder
 			);
 
 			if ( component.transforms ) {
 				var matrix = Utils.transformsToMatrix(
-					component.transforms, component.transformOrigin
+					component.transforms.slice(0),
+					component.transformOrigin
 				);
 
-				component.transform( matrix );
+				component.applyMatrix = false;
+				if ( !component.pivot ) {
+					component.pivot = new paper.Point( 0, 0 );
+				}
+
+				component.matrix = matrix;
 			}
-		});
+		}, this);
 	};
 
 module.exports = plumin;

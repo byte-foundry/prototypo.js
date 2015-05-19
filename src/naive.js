@@ -17,7 +17,7 @@ function nodeSrc( node, i, j, inSkeleton ) {
 		}) },
 		_dependencies: inSkeleton ?
 			// nodes in skeleton are never fully calculated (we don't calculate
-			// the position oh handles because we never draw their contour).
+			// the position of handles because we never draw their contour).
 			// So we don't care about their dependencies.
 			[] :
 			[ Utils.cursor( 'contours', i, 'all' ) ]
@@ -52,7 +52,9 @@ function autoExpandedNodeSrc( node, i, j, side, isClosed ) {
 		all: {
 			_dependencies: Object.keys( node.src ).map(function( key ) {
 					return Utils.cursor( i, j, key );
-			}),
+			}).concat([
+				Utils.cursor( i, j, 'expandedTo', side, 'point' )
+			]),
 			_updaters: [ function() {
 				naive.skeletonCopier( node );
 			} ]
