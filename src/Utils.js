@@ -10,6 +10,11 @@ var paper = plumin.paper,
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
 Utils.ufoToPaper = function( src ) {
+	if ( src.parameter ) {
+		src.parameters = src.parameter;
+		delete src.parameter;
+	}
+
 	if ( src.anchor ) {
 		src.anchors = src.anchor;
 		delete src.anchor;
@@ -35,6 +40,11 @@ Utils.ufoToPaper = function( src ) {
 				component.parentAnchors = component.anchor;
 				delete component.anchor;
 			}
+
+			if ( component.parameter ) {
+				component.parentParameters = component.parameter;
+				delete component.parameter;
+			}
 		});
 
 		delete src.outline.component;
@@ -57,9 +67,15 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 		name: src.name,
 		unicode: src.unicode
 	});
-	// Clone glyph src to allow altering it without impacnting components srcs.
+
+	// Clone glyph src to allow altering it without impacting components srcs.
 	glyph.src = _.merge( {}, src );
 	Utils.mergeStatic( glyph, glyph.src );
+
+	// this will be used to hold local parameters that will be marged with
+	// the font parameters
+	glyph.parameters = {};
+	Utils.mergeStatic( glyph.parameters, glyph.src.parameters );
 
 	(glyph.src.anchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();
@@ -102,6 +118,15 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 					// components' subcomponents can be embedded immediatly
 					true
 				);
+
+			component._parent = glyph;
+
+			component.parentParameters = {};
+			Utils.mergeStatic(
+				component.parentParameters,
+				componentSrc.parentParameters
+			);
+
 			naive.annotator( component );
 			glyph.addComponent( component );
 
@@ -230,8 +255,9 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 	}
 
 	Object.keys( parentSrc ).forEach(function( i ) {
-		// don't inspect private properties or non-object
-		if ( i.indexOf('_') === 0 || typeof parentSrc[i] !== 'object' ) {
+		// don't inspect local parameters, private properties and non-object
+		if ( i === 'parameters' || i.indexOf('_') === 0 ||
+				typeof parentSrc[i] !== 'object' ) {
 			return;
 		}
 

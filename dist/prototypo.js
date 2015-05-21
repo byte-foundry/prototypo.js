@@ -20316,6 +20316,11 @@ var paper = plumin.paper,
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
 Utils.ufoToPaper = function( src ) {
+	if ( src.parameter ) {
+		src.parameters = src.parameter;
+		delete src.parameter;
+	}
+
 	if ( src.anchor ) {
 		src.anchors = src.anchor;
 		delete src.anchor;
@@ -20341,6 +20346,11 @@ Utils.ufoToPaper = function( src ) {
 				component.parentAnchors = component.anchor;
 				delete component.anchor;
 			}
+
+			if ( component.parameter ) {
+				component.parentParameters = component.parameter;
+				delete component.parameter;
+			}
 		});
 
 		delete src.outline.component;
@@ -20363,9 +20373,15 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 		name: src.name,
 		unicode: src.unicode
 	});
-	// Clone glyph src to allow altering it without impacnting components srcs.
+
+	// Clone glyph src to allow altering it without impacting components srcs.
 	glyph.src = _.merge( {}, src );
 	Utils.mergeStatic( glyph, glyph.src );
+
+	// this will be used to hold local parameters that will be marged with
+	// the font parameters
+	glyph.parameters = {};
+	Utils.mergeStatic( glyph.parameters, glyph.src.parameters );
 
 	(glyph.src.anchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();
@@ -20408,6 +20424,15 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 					// components' subcomponents can be embedded immediatly
 					true
 				);
+
+			component._parent = glyph;
+
+			component.parentParameters = {};
+			Utils.mergeStatic(
+				component.parentParameters,
+				componentSrc.parentParameters
+			);
+
 			naive.annotator( component );
 			glyph.addComponent( component );
 
@@ -20536,8 +20561,9 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 	}
 
 	Object.keys( parentSrc ).forEach(function( i ) {
-		// don't inspect private properties or non-object
-		if ( i.indexOf('_') === 0 || typeof parentSrc[i] !== 'object' ) {
+		// don't inspect local parameters, private properties and non-object
+		if ( i === 'parameters' || i.indexOf('_') === 0 ||
+				typeof parentSrc[i] !== 'object' ) {
 			return;
 		}
 
@@ -21273,9 +21299,11 @@ module.exports = naive;
 /*jshint -W098 */
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	Utils = require('./Utils.js'),
-	naive = require('./naive.js');
+	naive = require('./naive.js'),
+	merge = require('lodash.merge');
 
-var paper = plumin.paper;
+var paper = plumin.paper,
+	_ = { merge: merge };
 
 function parametricFont( src ) {
 	// TODO: this, block is only here for backward compat
@@ -21326,7 +21354,7 @@ plumin.Utils.naive = naive;
 
 paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 	return this.getGlyphSubset( set ).map(function( glyph ) {
-		return glyph.update( params, this );
+		return glyph.update( params );
 	}, this);
 };
 
@@ -21339,8 +21367,29 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 3. Update components and transform them
  */
 paper.PaperScope.prototype.Glyph.prototype.update =
-	function( params, solvingOrder ) {
-		var glyph = this;
+	function( _params, solvingOrder ) {
+		var glyph = this,
+			font = glyph.parent,
+			matrix,
+			params;
+
+		// 0. calculate local parameters
+		params = _.merge( {}, _params, glyph.parentParameters );
+
+		Object.keys( ( glyph.src && glyph.src.parameters ) || [] )
+			.forEach(function( name ) {
+				var src = glyph.src.parameters[name];
+
+				if ( src._updaters ) {
+					params[name] = src._updaters[0].apply( null, [
+						name, [], [], glyph.parentAnchors, Utils
+					].concat(
+						( src._parameters || [] ).map(function(_name) {
+							return params[_name];
+						})
+					));
+				}
+			});
 
 		// 1. calculate node properties
 		( solvingOrder || glyph.solvingOrder || [] ).forEach(function(cursor) {
@@ -21348,13 +21397,12 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 				src = Utils.propFromCursor( cursor, glyph.src ),
 				obj = Utils.propFromCursor( cursor, glyph, cursor.length - 1 ),
 				// TODO: one day we could allow multiple _updaters
-				result = src && src._updaters && src._updaters[0].apply( obj,
-					[
+				result = src && src._updaters && src._updaters[0].apply( obj, [
 						propName, glyph.contours, glyph.anchors,
 						glyph.parentAnchors, Utils
 					].concat(
-						( src._parameters || [] ).map(function(name) {
-							return params[name];
+						( src._parameters || [] ).map(function(_name) {
+							return params[_name];
 						})
 					)
 				);
@@ -21368,8 +21416,6 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 
 		// 2. transform contours
 		this.contours.forEach(function(contour) {
-			var matrix;
-
 			// a. transform the nodes
 			contour.nodes.forEach(function(node) {
 				if ( node.transforms ) {
@@ -21420,30 +21466,42 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 		}, this);
 
 		// 3. update components and transform components
+		if ( this.components.length && font ) {
+			// subcomponents have the parent component as their parent
+			// so search for the font
+			while ( !font.glyphs ) {
+				font = font.parent;
+			}
+		}
 		this.components.forEach(function(component) {
 			component.update(
-				params, this.parent.glyphMap[component.name].solvingOrder
+				params, font.glyphMap[component.name].solvingOrder
 			);
 
 			if ( component.transforms ) {
-				var matrix = Utils.transformsToMatrix(
-					component.transforms.slice(0),
-					component.transformOrigin
+				matrix = Utils.transformsToMatrix(
+					component.transforms.slice(0), component.transformOrigin
 				);
 
 				component.applyMatrix = false;
-				if ( !component.pivot ) {
-					component.pivot = new paper.Point( 0, 0 );
-				}
-
 				component.matrix = matrix;
 			}
 		}, this);
+
+		// 4. transform whole glyph
+		if ( glyph.transforms ) {
+			matrix = Utils.transformsToMatrix(
+				glyph.transforms.slice(0), glyph.transformOrigin
+			);
+
+			glyph.applyMatrix = false;
+			glyph.matrix = matrix;
+		}
 	};
 
 module.exports = plumin;
 
-},{"../node_modules/plumin.js/dist/plumin.js":18,"./Utils.js":19,"./naive.js":20}],22:[function(require,module,exports){
+},{"../node_modules/plumin.js/dist/plumin.js":18,"./Utils.js":19,"./naive.js":20,"lodash.merge":2}],22:[function(require,module,exports){
 var Utils = {};
 
 // The following function should be useless, thanks to paper

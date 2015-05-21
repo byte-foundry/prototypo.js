@@ -24,7 +24,21 @@ describe('prototypo.js', function() {
 			expect(glyph.contours[1].nodes[0].point.y).to.equal(10);
 		});
 
-		// CANNOT TEST TRANSFORMS, they happer at render time as we use
+		it('calculates local parameters from global params and parent params',
+			function() {
+				var glyph = font.glyphMap.R,
+					contour = glyph.components[0].contours[0];
+
+				glyph.update({ xHeight: 1 });
+
+				expect(contour.nodes[0].point.x).to.equal(0);
+				expect(contour.nodes[0].point.y).to.equal(30);
+				expect(contour.nodes[0].angle).to.equal( 1 + 'deg');
+				expect(contour.nodes[1].point.x).to.equal( 1 + 1 + 3 );
+				expect(contour.nodes[1].point.y).to.equal( 1 + 1 + 4 );
+			});
+
+		// CANNOT TEST TRANSFORMS, they happen at render time as we use
 		// applyMatrix = false to prevent transforms to add-up at each update
 
 		// it('can transform a component, using the default origin', function(){
