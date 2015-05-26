@@ -67,12 +67,12 @@ describe('Utils', function() {
 		it('should embed components recursively', function() {
 			var font = prototypo.parametricFont( fixture );
 
-			expect( font.glyphMap.N.components.length )
-				.to.equal(1);
+			expect( font.glyphMap.N.components )
+				.to.have.length(1);
 			expect( font.glyphMap.N.components[0].name )
 				.to.equal('O');
-			expect( font.glyphMap.N.components[0].components.length )
-				.to.equal(1);
+			expect( font.glyphMap.N.components[0].components )
+				.to.have.length(1);
 			expect( font.glyphMap.N.components[0].components[0].name )
 				.to.equal('P');
 		});

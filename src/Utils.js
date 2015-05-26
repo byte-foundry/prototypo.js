@@ -72,7 +72,7 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	glyph.src = _.merge( {}, src );
 	Utils.mergeStatic( glyph, glyph.src );
 
-	// this will be used to hold local parameters that will be marged with
+	// this will be used to hold local parameters that will be merged with
 	// the font parameters
 	glyph.parameters = {};
 	Utils.mergeStatic( glyph.parameters, glyph.src.parameters );
@@ -118,8 +118,6 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 					// components' subcomponents can be embedded immediatly
 					true
 				);
-
-			component._parent = glyph;
 
 			component.parentParameters = {};
 			Utils.mergeStatic(

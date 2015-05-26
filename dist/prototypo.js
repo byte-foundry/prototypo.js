@@ -19610,9 +19610,12 @@ module.exports = Collection;
 
 },{}],4:[function(require,module,exports){
 var opentype = require('../node_modules/opentype.js/dist/opentype.js'),
+	paper = require('../node_modules/paper/dist/paper-core.js'),
 	Glyph = require('./Glyph.js');
 
 function Font( args ) {
+	paper.Group.prototype.constructor.apply( this );
+
 	if ( !args ) {
 		args = {};
 	}
@@ -19627,7 +19630,6 @@ function Font( args ) {
 
 	this.ot = new opentype.Font( args );
 
-	this.glyphs = [];
 	this.glyphMap = {};
 	this.charMap = {};
 	this.altMap = {};
@@ -19669,17 +19671,22 @@ function Font( args ) {
 	}
 }
 
-// Todo: handle unicode updates
-Object.defineProperty(Glyph.prototype, 'children', {
-	get: function() {
-		return this.glyphs;
-	}
-});
+Font.prototype = Object.create(paper.Group.prototype);
+Font.prototype.constructor = Font;
 
+// proxy .glyphs to .children
+// Todo: handle unicode updates
+Object.defineProperty(
+	Font.prototype,
+	'glyphs',
+	Object.getOwnPropertyDescriptor( paper.Item.prototype, 'children' )
+);
+
+// TODO: proper proxying of ...Glyph[s] methods to ...Child[ren] methods
+// see Glyph.js
 Font.prototype.addGlyph = function( glyph ) {
-	this.glyphs.push( glyph );
+	this.addChild( glyph );
 	this.glyphMap[glyph.name] = glyph;
-	glyph._parent = this;
 
 	if ( glyph.ot.unicode === undefined ) {
 		return glyph;
@@ -19729,7 +19736,7 @@ Object.defineProperty( Font.prototype, 'subset', {
 
 Font.prototype.getGlyphSubset = function( set ) {
 	if ( set === true ) {
-		return this.glyphs;
+		return this.children;
 	}
 
 	set = set !== undefined ?
@@ -19747,7 +19754,7 @@ Font.prototype.getGlyphSubset = function( set ) {
 	// memoize last subset
 	this._lastSubset = [
 		( this._subset || [] ).join(),
-		this.glyphs.filter(function( glyph ) {
+		this.children.filter(function( glyph ) {
 			if ( this._subset === false &&
 					( glyph.ot.unicode !== undefined ||
 					( glyph.ot.unicodes && glyph.ot.unicodes.length ) ) ) {
@@ -19901,12 +19908,13 @@ Font.normalizeSubset = function( set ) {
 
 module.exports = Font;
 
-},{"../node_modules/opentype.js/dist/opentype.js":1,"./Glyph.js":5}],5:[function(require,module,exports){
+},{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2,"./Glyph.js":5}],5:[function(require,module,exports){
 var opentype = require('../node_modules/opentype.js/dist/opentype.js'),
-	paper = require('../node_modules/paper/dist/paper-core.js');
+	paper = require('../node_modules/paper/dist/paper-core.js'),
+	Outline = require('./Outline.js');
 
 function Glyph( args ) {
-	paper.CompoundPath.prototype.constructor.apply( this );
+	paper.Group.prototype.constructor.apply( this );
 
 	if ( args && typeof args.unicode === 'string' ) {
 		args.unicode = args.unicode.charCodeAt(0);
@@ -19919,18 +19927,15 @@ function Glyph( args ) {
 	// workaround opentype 'unicode === 0' bug
 	this.ot.unicode = args.unicode;
 
-	//this.contours = ( args && args.contours ) || [];
+	this.addChild( new Outline() );
+	// the second child will hold all components
+	this.addChild( new paper.Group() );
+	// Should all anchors and parentAnchors also leave in child groups?
 	this.anchors = ( args && args.anchors ) || [];
-	this.components = ( args && args.components ) || [];
 	this.parentAnchors = ( args && args.parentAnchors ) || [];
-
-	// default fill color needed to display the glyph in a canvas
-	this.fillColor = new paper.Color(0, 0, 0);
-	// but each individual glyph must be explicitely made visible
-	this.visible = false;
 }
 
-Glyph.prototype = Object.create(paper.CompoundPath.prototype);
+Glyph.prototype = Object.create(paper.Group.prototype);
 Glyph.prototype.constructor = Glyph;
 
 // Todo: handle unicode updates
@@ -19945,59 +19950,51 @@ Object.defineProperty(Glyph.prototype, 'unicode', {
 	}
 });
 
-// proxy *Child/*Children methods to *Contour/*Contours
-// This has the added benefit of preventing CompoundPath#insertChildren
-// from arbitrarily changing the direction of paths
-Object.getOwnPropertyNames( paper.Item.prototype )
-	.forEach(function(name) {
-		// exclude getters and non-methods
-		if ( Object.getOwnPropertyDescriptor(this, name).get ||
-				typeof this[name] !== 'function' ) {
-			return;
-		}
+// proxy .contours to .children[0]
+Object.defineProperty( Glyph.prototype, 'contours', {
+	get: function() {
+		return this.children[0].children;
+	}
+});
 
-		if ( name.indexOf('Children') !== -1 ) {
-			this[name.replace('Children', 'Contours')] = this[name];
+// proxy .components to .children[1]
+Object.defineProperty( Glyph.prototype, 'components', {
+	get: function() {
+		return this.children[1].children;
+	}
+});
 
-		} else if ( name.indexOf('Child') !== -1 ) {
-			this[name.replace('Child', 'Contour')] = this[name];
-		}
+// proxy ...Contour[s] methods to children[0]...Child[ren] methods
+// and proxy ...Component[s] methods to children[1]...Child[ren] methods
+Object.getOwnPropertyNames( paper.Item.prototype ).forEach(function(name) {
+	var proto = this;
 
-	}, paper.Item.prototype);
-
-// Fix two problems with CompoundPath#insertChildren:
-// - it arbitrarily changes the direction of paths
-// - it seems that it doesn't handle CompoundPath arguments
-Glyph.prototype.insertChildren = function(index, items, _preserve) {
-	if ( Array.isArray( items ) ) {
-		// flatten items to handle CompoundPath children
-		items = [].concat.apply([], items.map(function(item) {
-			return item instanceof paper.Path ? item : item.children;
-		}));
+	// exclude getters and non-methods
+	if ( Object.getOwnPropertyDescriptor(proto, name).get ||
+			typeof proto[name] !== 'function' ) {
+		return;
 	}
 
-	return paper.Item.prototype.insertChildren.call(
-		this, index, items, _preserve, paper.Path
-	);
-};
+	if ( name.indexOf('Children') !== -1 ) {
+		proto[name.replace('Children', 'Contours')] = function() {
+			proto[name].apply( this.children[0], arguments );
+		};
 
-// proxy .children to .contours
-Object.defineProperty(
-	Glyph.prototype,
-	'contours',
-	Object.getOwnPropertyDescriptor( paper.Item.prototype, 'children' )
-);
+		proto[name.replace('Children', 'Components')] = function() {
+			proto[name].apply( this.children[1], arguments );
+		};
 
-Glyph.prototype.addComponent = function( item ) {
-	this.components.push( item );
-	return item;
-};
+	} else if ( name.indexOf('Child') !== -1 ) {
+		proto[name.replace('Child', 'Contour')] = function() {
+			proto[name].apply( this.children[0], arguments );
+		};
 
-Glyph.prototype.addComponents = function( components ) {
-	return components.forEach(function(component) {
-		this.addComponent(component);
-	}, this);
-};
+		proto[name.replace('Child', 'Component')] = function() {
+			proto[name].apply( this.children[1], arguments );
+		};
+	}
+
+}, paper.Item.prototype);
 
 Glyph.prototype.addAnchor = function( item ) {
 	this.anchors.push( item );
@@ -20022,42 +20019,31 @@ Glyph.prototype.addUnicode = function( code ) {
 };
 
 Glyph.prototype.interpolate = function( glyph0, glyph1, coef ) {
-	for (var i = 0, l = this.contours.length; i < l; i++) {
-		// The number of children should be the same everywhere,
-		// but we're going to try our best anyway
-		if ( !glyph0.contours[i] || !glyph1.contours[i] ) {
-			break;
-		}
-
-		this.contours[i].interpolate(
-			glyph0.contours[i],
-			glyph1.contours[i],
-			coef
+	// If we added an interpolate method to Group, we'd be able to just
+	// interpolate all this.children directly.
+	// instead we interpolate the outline first
+	this.children[0].interpolate( glyph0.children[0], glyph1.children[0] );
+	// and then the components
+	this.children[1].children.forEach(function(component, j) {
+		component.interpolate(
+			glyph0.children[1].children[j], glyph1.children[1].children[j], coef
 		);
+	});
 
-		/* eslint-disable no-loop-func */
-		this.components.forEach(function(component, j) {
-			component.interpolate(
-				glyph0.components[j], glyph1.components[j], coef
-			);
-		});
-		/* eslint-enable no-loop-func */
-
-		this.ot.advanceWidth =
-			glyph0.ot.advanceWidth +
-			( glyph1.ot.advanceWidth - glyph0.ot.advanceWidth ) * coef;
-		this.ot.leftSideBearing =
-			glyph0.ot.leftSideBearing +
-			( glyph1.ot.leftSideBearing - glyph0.ot.leftSideBearing ) * coef;
-		this.ot.xMax =
-			glyph0.ot.xMax + ( glyph1.ot.xMax - glyph0.ot.xMax ) * coef;
-		this.ot.xMin =
-			glyph0.ot.xMin + ( glyph1.ot.xMin - glyph0.ot.xMin ) * coef;
-		this.ot.yMax =
-			glyph0.ot.yMax + ( glyph1.ot.yMax - glyph0.ot.yMax ) * coef;
-		this.ot.yMin =
-			glyph0.ot.yMin + ( glyph1.ot.yMin - glyph0.ot.yMin ) * coef;
-	}
+	this.ot.advanceWidth =
+		glyph0.ot.advanceWidth +
+		( glyph1.ot.advanceWidth - glyph0.ot.advanceWidth ) * coef;
+	this.ot.leftSideBearing =
+		glyph0.ot.leftSideBearing +
+		( glyph1.ot.leftSideBearing - glyph0.ot.leftSideBearing ) * coef;
+	this.ot.xMax =
+		glyph0.ot.xMax + ( glyph1.ot.xMax - glyph0.ot.xMax ) * coef;
+	this.ot.xMin =
+		glyph0.ot.xMin + ( glyph1.ot.xMin - glyph0.ot.xMin ) * coef;
+	this.ot.yMax =
+		glyph0.ot.yMax + ( glyph1.ot.yMax - glyph0.ot.yMax ) * coef;
+	this.ot.yMin =
+		glyph0.ot.yMin + ( glyph1.ot.yMin - glyph0.ot.yMin ) * coef;
 
 	return this;
 };
@@ -20068,11 +20054,9 @@ Glyph.prototype.updateSVGData = function( path ) {
 		path = this.svgData;
 	}
 
-	this.contours.forEach(function( contour ) {
-		contour.updateSVGData( path );
-	}, this);
+	this.children[0].updateSVGData( path );
 
-	this.components.forEach(function( component ) {
+	this.children[1].children.forEach(function( component ) {
 		component.updateSVGData( path );
 	});
 
@@ -20085,11 +20069,9 @@ Glyph.prototype.updateOTCommands = function( path ) {
 		path = this.ot.path;
 	}
 
-	this.contours.forEach(function( contour ) {
-		contour.updateOTCommands( path );
-	}, this);
+	this.children[0].updateOTCommands( path );
 
-	this.components.forEach(function( component ) {
+	this.children[1].children.forEach(function( component ) {
 		component.updateOTCommands( path );
 	});
 
@@ -20145,7 +20127,7 @@ Glyph.prototype.importOT = function( otGlyph ) {
 
 module.exports = Glyph;
 
-},{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2}],6:[function(require,module,exports){
+},{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2,"./Outline.js":7}],6:[function(require,module,exports){
 var paper = require('../node_modules/paper/dist/paper-core.js');
 
 Object.defineProperty( paper.Segment.prototype, 'x', {
@@ -20169,6 +20151,84 @@ Object.defineProperty( paper.Segment.prototype, 'y', {
 module.exports = paper.Segment;
 
 },{"../node_modules/paper/dist/paper-core.js":2}],7:[function(require,module,exports){
+var paper = require('../node_modules/paper/dist/paper-core.js');
+
+function Outline() {
+	paper.CompoundPath.prototype.constructor.apply( this );
+
+	// default fill color needed to display the glyph in a canvas
+	this.fillColor = new paper.Color(0, 0, 0);
+	// but each individual glyph must be explicitely made visible
+	this.visible = false;
+}
+
+// inehrit CompoundPath
+Outline.prototype = Object.create(paper.CompoundPath.prototype);
+Outline.prototype.constructor = Outline;
+
+// Fix two problems with CompoundPath#insertChildren:
+// - it arbitrarily changes the direction of paths
+// - it seems that it doesn't handle CompoundPath arguments
+Outline.prototype.insertChildren = function(index, items, _preserve) {
+	if ( Array.isArray( items ) ) {
+		// flatten items to handle CompoundPath children
+		items = [].concat.apply([], items.map(function(item) {
+			return item instanceof paper.Path ? item : item.children;
+		}));
+	}
+
+	return paper.Item.prototype.insertChildren.call(
+		this, index, items, _preserve, paper.Path
+	);
+};
+
+Outline.prototype.interpolate = function( outline0, outline1, coef ) {
+	for (var i = 0, l = this.contours.length; i < l; i++) {
+		// The number of children should be the same everywhere,
+		// but we're going to try our best anyway
+		if ( !outline0.children[i] || !outline1.children[i] ) {
+			break;
+		}
+
+		this.children[i].interpolate(
+			outline0.children[i],
+			outline1.children[i],
+			coef
+		);
+	}
+
+	return this;
+};
+
+Outline.prototype.updateSVGData = function( path ) {
+	if ( !path ) {
+		this.svgData = [];
+		path = this.svgData;
+	}
+
+	this.children.forEach(function( contour ) {
+		contour.updateSVGData( path, contour.globalMatrix );
+	}, this);
+
+	return this.svgData;
+};
+
+Outline.prototype.updateOTCommands = function( path ) {
+	if ( !path ) {
+		this.ot.path.commands = [];
+		path = this.ot.path;
+	}
+
+	this.children.forEach(function( contour ) {
+		contour.updateOTCommands( path, contour.globalMatrix );
+	}, this);
+
+	return this.ot;
+};
+
+module.exports = Outline;
+
+},{"../node_modules/paper/dist/paper-core.js":2}],8:[function(require,module,exports){
 /* Extend the Path prototype to add OpenType conversion
  * and alias *segments methods and properties to *nodes
  */
@@ -20189,34 +20249,47 @@ Object.defineProperties(proto, {
 	lastNode: Object.getOwnPropertyDescriptor( proto, 'lastSegment' )
 });
 
-proto._updateData = function( data, pushSimple, pushBezier ) {
+proto._updateData = function( data, matrix, pushSimple, pushBezier ) {
 	if ( this.visible === false ) {
 		return data;
 	}
 
+	var start = this.curves[0].point1.transform( matrix );
+
 	pushSimple(
 		'M',
-		Math.round( this.curves[0].point1.x ) || 0,
-		Math.round( this.curves[0].point1.y ) || 0
+		Math.round( start.x ) || 0,
+		Math.round( start.y ) || 0
 	);
 
 	this.curves.forEach(function( curve ) {
+		var end = curve.point2.transform( matrix );
+
 		if ( curve.isLinear() ) {
 			pushSimple(
 				'L',
-				Math.round( curve.point2.x ) || 0,
-				Math.round( curve.point2.y ) || 0
+				Math.round( end.x ) || 0,
+				Math.round( end.y ) || 0
 			);
 
 		} else {
+			var ctrl1 = new paper.Point(
+					curve.point1.x + curve.handle1.x,
+					curve.point1.y + curve.handle1.y
+				).transform( matrix ),
+				ctrl2 = new paper.Point(
+					curve.point2.x + curve.handle2.x,
+					curve.point2.y + curve.handle2.y
+				).transform( matrix );
+
 			pushBezier(
 				'C',
-				Math.round( curve.point1.x + curve.handle1.x ) || 0,
-				Math.round( curve.point1.y + curve.handle1.y ) || 0,
-				Math.round( curve.point2.x + curve.handle2.x ) || 0,
-				Math.round( curve.point2.y + curve.handle2.y ) || 0,
-				Math.round( curve.point2.x ) || 0,
-				Math.round( curve.point2.y ) || 0
+				Math.round( ctrl1.x ) || 0,
+				Math.round( ctrl1.y ) || 0,
+				Math.round( ctrl2.x ) || 0,
+				Math.round( ctrl2.y ) || 0,
+				Math.round( end.x ) || 0,
+				Math.round( end.y ) || 0
 			);
 		}
 	});
@@ -20228,9 +20301,10 @@ proto._updateData = function( data, pushSimple, pushBezier ) {
 	return data;
 };
 
-proto.updateOTCommands = function( data ) {
+proto.updateOTCommands = function( data, matrix ) {
 	return this._updateData(
 		data,
+		matrix,
 		function pushSimple() {
 			data.commands.push({
 				type: arguments[0],
@@ -20252,9 +20326,10 @@ proto.updateOTCommands = function( data ) {
 	);
 };
 
-proto.updateSVGData = function( data ) {
+proto.updateSVGData = function( data, matrix ) {
 	return this._updateData(
 		data,
+		matrix,
 		function pushSimple() {
 			data.push.apply( data, arguments );
 		},
@@ -20266,17 +20341,19 @@ proto.updateSVGData = function( data ) {
 
 module.exports = paper.Path;
 
-},{"../node_modules/paper/dist/paper-core.js":2}],8:[function(require,module,exports){
+},{"../node_modules/paper/dist/paper-core.js":2}],9:[function(require,module,exports){
 var opentype = require('../node_modules/opentype.js/dist/opentype.js'),
 	paper = require('../node_modules/paper/dist/paper-core.js'),
 	Font = require('./Font.js'),
 	Glyph = require('./Glyph.js'),
+	Outline = require('./Outline'),
 	Path = require('./Path.js'),
 	Node = require('./Node.js'),
 	Collection = require('./Collection.js');
 
 paper.PaperScope.prototype.Font = Font;
 paper.PaperScope.prototype.Glyph = Glyph;
+paper.PaperScope.prototype.Outline = Outline;
 paper.PaperScope.prototype.Path = Path;
 paper.PaperScope.prototype.Node = Node;
 paper.PaperScope.prototype.Collection = Collection;
@@ -20298,7 +20375,7 @@ plumin.proxy(paper);
 
 module.exports = plumin;
 
-},{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2,"./Collection.js":3,"./Font.js":4,"./Glyph.js":5,"./Node.js":6,"./Path.js":7}]},{},[8,2])(8)
+},{"../node_modules/opentype.js/dist/opentype.js":1,"../node_modules/paper/dist/paper-core.js":2,"./Collection.js":3,"./Font.js":4,"./Glyph.js":5,"./Node.js":6,"./Outline":7,"./Path.js":8}]},{},[9,2])(9)
 });
 
 
@@ -20378,7 +20455,7 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	glyph.src = _.merge( {}, src );
 	Utils.mergeStatic( glyph, glyph.src );
 
-	// this will be used to hold local parameters that will be marged with
+	// this will be used to hold local parameters that will be merged with
 	// the font parameters
 	glyph.parameters = {};
 	Utils.mergeStatic( glyph.parameters, glyph.src.parameters );
@@ -20424,8 +20501,6 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 					// components' subcomponents can be embedded immediatly
 					true
 				);
-
-			component._parent = glyph;
 
 			component.parentParameters = {};
 			Utils.mergeStatic(
@@ -21427,7 +21502,6 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 						// We don't want to apply the transforms immediatly,
 						// otherwise the transformation will add-up on each
 						// update.
-						// Don't ask me why it isn't false by default...
 						node.applyMatrix = false;
 						node.matrix = matrix;
 
@@ -21469,24 +21543,25 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 		if ( this.components.length && font ) {
 			// subcomponents have the parent component as their parent
 			// so search for the font
-			while ( !font.glyphs ) {
+			while ( !('glyphs' in font) ) {
 				font = font.parent;
 			}
-		}
-		this.components.forEach(function(component) {
-			component.update(
-				params, font.glyphMap[component.name].solvingOrder
-			);
 
-			if ( component.transforms ) {
-				matrix = Utils.transformsToMatrix(
-					component.transforms.slice(0), component.transformOrigin
+			this.components.forEach(function(component) {
+				component.update(
+					params, font.glyphMap[component.name].solvingOrder
 				);
 
-				component.applyMatrix = false;
-				component.matrix = matrix;
-			}
-		}, this);
+				if ( component.transforms ) {
+					matrix = Utils.transformsToMatrix(
+						component.transforms.slice(0), component.transformOrigin
+					);
+
+					component.applyMatrix = false;
+					component.matrix = matrix;
+				}
+			}, this);
+		}
 
 		// 4. transform whole glyph
 		if ( glyph.transforms ) {

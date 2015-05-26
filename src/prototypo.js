@@ -129,7 +129,6 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 						// We don't want to apply the transforms immediatly,
 						// otherwise the transformation will add-up on each
 						// update.
-						// Don't ask me why it isn't false by default...
 						node.applyMatrix = false;
 						node.matrix = matrix;
 
@@ -171,24 +170,25 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 		if ( this.components.length && font ) {
 			// subcomponents have the parent component as their parent
 			// so search for the font
-			while ( !font.glyphs ) {
+			while ( !('glyphs' in font) ) {
 				font = font.parent;
 			}
-		}
-		this.components.forEach(function(component) {
-			component.update(
-				params, font.glyphMap[component.name].solvingOrder
-			);
 
-			if ( component.transforms ) {
-				matrix = Utils.transformsToMatrix(
-					component.transforms.slice(0), component.transformOrigin
+			this.components.forEach(function(component) {
+				component.update(
+					params, font.glyphMap[component.name].solvingOrder
 				);
 
-				component.applyMatrix = false;
-				component.matrix = matrix;
-			}
-		}, this);
+				if ( component.transforms ) {
+					matrix = Utils.transformsToMatrix(
+						component.transforms.slice(0), component.transformOrigin
+					);
+
+					component.applyMatrix = false;
+					component.matrix = matrix;
+				}
+			}, this);
+		}
 
 		// 4. transform whole glyph
 		if ( glyph.transforms ) {
