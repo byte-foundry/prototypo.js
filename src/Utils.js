@@ -1,11 +1,11 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	DepTree = require('../node_modules/deptree/index.js'),
 	updateUtils = require('./updateUtils.js'),
-	merge = require('lodash.merge');
+	clone = require('lodash.clone');
 
 var paper = plumin.paper,
 	Utils = updateUtils,
-	_ = { merge: merge };
+	_ = { clone: clone };
 
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
@@ -57,6 +57,11 @@ Utils.ufoToPaper = function( src ) {
 		delete src.lib.transformList;
 	}
 
+	if ( src.lib && src.lib.solvingOrder ) {
+		src.solvingOrder = src.lib.solvingOrder;
+		delete src.lib.solvingOrder;
+	}
+
 	return src;
 };
 
@@ -69,13 +74,17 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
-	glyph.src = _.merge( {}, src );
+	glyph.src = _.clone( src, true );
 	Utils.mergeStatic( glyph, glyph.src );
 
 	// this will be used to hold local parameters that will be merged with
 	// the font parameters
 	glyph.parameters = {};
 	Utils.mergeStatic( glyph.parameters, glyph.src.parameters );
+
+	// solvingOrder might be already available (if this is a subcomponent,
+	// or precomputed in a worker)
+	glyph.solvingOrder = glyph.src.solvingOrder;
 
 	(glyph.src.anchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();

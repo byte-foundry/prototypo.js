@@ -1,10 +1,10 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	Utils = require('./Utils.js'),
-	merge = require('lodash.merge');
+	assign = require('lodash.assign');
 
 var paper = plumin.paper,
 	naive = {},
-	_ = { merge: merge };
+	_ = { assign: assign };
 
 function nodeSrc( node, i, j, inSkeleton ) {
 	return {
@@ -139,10 +139,10 @@ naive.annotator = function( glyph ) {
 		if ( contour.skeleton !== true ) {
 			// annotate nodes+points that aren't in a skeleton
 			contour.nodes.forEach(function( node, j ) {
-				_.merge( node.src, nodeSrc( node, i, j ) );
+				_.assign( node.src, nodeSrc( node, i, j ) );
 			});
 
-			_.merge( contour.src, contourSrc( contour, i ) );
+			_.assign( contour.src, contourSrc( contour, i ) );
 
 			return;
 		}
@@ -176,7 +176,7 @@ naive.annotator = function( glyph ) {
 				leftSrc = autoExpandedNodeSrc( node, i, j, 0, contour.closed );
 				rightSrc = autoExpandedNodeSrc( node, i, j, 1, contour.closed );
 				node.src.expandedTo = [ leftSrc, rightSrc ];
-				_.merge( node.src, nodeSrc( node, i, j, !!'inSkeleton' ) );
+				_.assign( node.src, nodeSrc( node, i, j, !!'inSkeleton' ) );
 
 			// the expanded node might have been defined explicitely
 			} else if ( node.src.expandedTo[0] &&
@@ -186,10 +186,10 @@ naive.annotator = function( glyph ) {
 				});
 
 				// annotate nodes+points that are explicitely expanded
-				leftSrc = _.merge( node.src.expandedTo[0],
+				leftSrc = _.assign( node.src.expandedTo[0],
 					explicitExpandedNodeSrc( node, i, j, 0, contour.closed )
 				);
-				rightSrc = _.merge( node.src.expandedTo[1],
+				rightSrc = _.assign( node.src.expandedTo[1],
 					explicitExpandedNodeSrc( node, i, j, 1, contour.closed )
 				);
 

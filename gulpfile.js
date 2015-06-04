@@ -13,9 +13,9 @@ shelter({
 		'--noparse',
 			path.resolve(
 				'node_modules/plumin.js/dist/plumin.js'
-			),
+			)
 		// no need to detect globals -> faster build
-		'--dg false'
+		//'--dg false' -> actually lodash.clone uses global
 	],
 
 	/* Fragments */
@@ -45,6 +45,7 @@ shelter({
 		cmd: [ 'watchify src/${project}.js',
 				'${browserifyArgs}',
 				'-o dist/${project}.js',
+				'--debug',
 				'--verbose'
 		]
 	},

@@ -2,10 +2,10 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	Utils = require('./Utils.js'),
 	naive = require('./naive.js'),
-	merge = require('lodash.merge');
+	assign = require('lodash.assign');
 
 var paper = plumin.paper,
-	_ = { merge: merge };
+	_ = { assign: assign };
 
 function parametricFont( src ) {
 	// TODO: this, block is only here for backward compat
@@ -34,10 +34,14 @@ function parametricFont( src ) {
 		// appropriately
 		naive.annotator( glyph );
 
-		glyph.solvingOrder =
-			Utils.solveDependencyTree( glyph ).map(function( cursor ) {
-				return cursor.split('.');
-			});
+		// solvingOrder might be already available (if this is a subcomponent,
+		// or precomputed in a worker)
+		if ( !glyph.solvingOrder ) {
+			glyph.solvingOrder = glyphSrc.solvingOrder =
+				Utils.solveDependencyTree( glyph ).map(function( cursor ) {
+					return cursor.split('.');
+				});
+		}
 	});
 
 	// all glyphs are ready, embed components now
@@ -69,14 +73,14 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 3. Update components and transform them
  */
 paper.PaperScope.prototype.Glyph.prototype.update =
-	function( _params, solvingOrder ) {
+	function( _params ) {
 		var glyph = this,
 			font = glyph.parent,
 			matrix,
 			params;
 
 		// 0. calculate local parameters
-		params = _.merge( {}, _params, glyph.parentParameters );
+		params = _.assign( {}, _params, glyph.parentParameters );
 
 		Object.keys( ( glyph.src && glyph.src.parameters ) || [] )
 			.forEach(function( name ) {
@@ -94,7 +98,7 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 			});
 
 		// 1. calculate node properties
-		( solvingOrder || glyph.solvingOrder || [] ).forEach(function(cursor) {
+		( glyph.solvingOrder || [] ).forEach(function(cursor) {
 			var propName = cursor[ cursor.length - 1 ],
 				src = Utils.propFromCursor( cursor, glyph.src ),
 				obj = Utils.propFromCursor( cursor, glyph, cursor.length - 1 ),
@@ -175,9 +179,7 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 			}
 
 			this.components.forEach(function(component) {
-				component.update(
-					params, font.glyphMap[component.name].solvingOrder
-				);
+				component.update( params );
 
 				if ( component.transforms ) {
 					matrix = Utils.transformsToMatrix(
