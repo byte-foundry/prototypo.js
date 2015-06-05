@@ -38,9 +38,7 @@ function parametricFont( src ) {
 		// or precomputed in a worker)
 		if ( !glyph.solvingOrder ) {
 			glyph.solvingOrder = glyphSrc.solvingOrder =
-				Utils.solveDependencyTree( glyph ).map(function( cursor ) {
-					return cursor.split('.');
-				});
+				Utils.solveDependencyTree( glyph );
 		}
 	});
 
@@ -201,6 +199,8 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 			glyph.applyMatrix = false;
 			glyph.matrix = matrix;
 		}
+
+		return this;
 	};
 
 module.exports = plumin;

@@ -413,17 +413,13 @@ describe('naive', function() {
 						} ]
 					} ]
 				},
-				glyph,
-				solvingOrder;
+				glyph;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.annotator( glyph );
-			solvingOrder = Utils.solveDependencyTree( glyph );
 
-			glyph.solvingOrder = solvingOrder.map(function(path) {
-				return path.split('.');
-			});
+			glyph.solvingOrder = Utils.solveDependencyTree( glyph );
 
 			glyph.update({ width: 10 });
 
@@ -460,17 +456,13 @@ describe('naive', function() {
 						} ]
 					} ]
 				},
-				glyph,
-				solvingOrder;
+				glyph;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.annotator( glyph );
-			solvingOrder = Utils.solveDependencyTree( glyph );
 
-			glyph.solvingOrder = solvingOrder.map(function(path) {
-				return path.split('.');
-			});
+			glyph.solvingOrder = Utils.solveDependencyTree( glyph );
 
 			glyph.update({ width: 10 });
 
@@ -530,17 +522,13 @@ describe('naive', function() {
 						} ]
 					} ]
 				},
-				glyph,
-				solvingOrder;
+				glyph;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.annotator( glyph );
-			solvingOrder = Utils.solveDependencyTree( glyph );
 
-			glyph.solvingOrder = solvingOrder.map(function(path) {
-				return path.split('.');
-			});
+			glyph.solvingOrder = Utils.solveDependencyTree( glyph );
 
 			glyph.update({ width: 10 });
 
@@ -612,17 +600,13 @@ describe('naive', function() {
 						} ]
 					} ]
 				},
-				glyph,
-				solvingOrder;
+				glyph;
 
 			Utils.createUpdaters( glyphSrc );
 			glyph = Utils.glyphFromSrc( glyphSrc );
 			naive.annotator( glyph );
-			solvingOrder = Utils.solveDependencyTree( glyph );
 
-			glyph.solvingOrder = solvingOrder.map(function(path) {
-				return path.split('.');
-			});
+			glyph.solvingOrder = Utils.solveDependencyTree( glyph );
 
 			glyph.update({ width: 10 });
 

@@ -20657,8 +20657,10 @@ Utils.createUpdaters = function( leaf, path ) {
 
 Utils.solveDependencyTree = function( glyph ) {
 	var depTree = Utils.dependencyTree( glyph.src, null ),
-		order = depTree.resolve(),
-		simplified = Utils.simplifyResolutionOrder( order );
+		order = depTree.resolve().map(function( cursor ) {
+			return cursor.split('.');
+		}),
+		simplified = Utils.simplifyResolutionOrder( glyph, order );
 
 	return simplified;
 };
@@ -20699,9 +20701,11 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 
 // Simplify resolution order by removing cursors that don't point to objects
 // with updater functions
-Utils.simplifyResolutionOrder = function( depTree ) {
-	// TODO: test + implement this optimization
-	return depTree;
+Utils.simplifyResolutionOrder = function( glyph, depTree ) {
+	return depTree.filter(function( cursor ) {
+		var src = Utils.propFromCursor( cursor, glyph.src );
+		return src && src._updaters;
+	});
 };
 
 var rdeg = /deg$/;
@@ -21444,9 +21448,7 @@ function parametricFont( src ) {
 		// or precomputed in a worker)
 		if ( !glyph.solvingOrder ) {
 			glyph.solvingOrder = glyphSrc.solvingOrder =
-				Utils.solveDependencyTree( glyph ).map(function( cursor ) {
-					return cursor.split('.');
-				});
+				Utils.solveDependencyTree( glyph );
 		}
 	});
 
@@ -21607,6 +21609,8 @@ paper.PaperScope.prototype.Glyph.prototype.update =
 			glyph.applyMatrix = false;
 			glyph.matrix = matrix;
 		}
+
+		return this;
 	};
 
 module.exports = plumin;
