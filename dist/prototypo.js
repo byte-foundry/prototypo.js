@@ -19957,6 +19957,9 @@ function Glyph( args ) {
 
 	// each individual glyph must be explicitely made visible
 	this.visible = false;
+	// required to display the glyph properly in a canvas
+	this.fillColor = this.strokeColor = new paper.Color(0, 0, 0);
+	this.strokeScaling = false;
 }
 
 Glyph.prototype = Object.create(paper.Group.prototype);
@@ -20181,9 +20184,6 @@ var paper = require('../node_modules/paper/dist/paper-core.js');
 
 function Outline() {
 	paper.CompoundPath.prototype.constructor.apply( this );
-
-	// default fill color needed to display the glyph in a canvas
-	this.fillColor = new paper.Color(0, 0, 0);
 }
 
 // inehrit CompoundPath
@@ -20278,7 +20278,13 @@ proto._updateData = function( data, matrix, pushSimple, pushBezier ) {
 		return data;
 	}
 
-	var start = this.curves[0].point1.transform( matrix );
+	// prototypo needs to be able to change the direction of the updated data.
+	var reverse = ( this.export === 'clockwise' && !this.clockwise ) ||
+			( this.export === 'anticlockwise' && this.clockwise ),
+		curves = this.curves,
+		start = curves[ reverse ? curves.length - 1 : 0 ]
+			[ 'point' + ( reverse ? 2 : 1 ) ]
+			.transform( matrix );
 
 	pushSimple(
 		'M',
@@ -20286,8 +20292,9 @@ proto._updateData = function( data, matrix, pushSimple, pushBezier ) {
 		Math.round( start.y ) || 0
 	);
 
-	this.curves.forEach(function( curve ) {
-		var end = curve.point2.transform( matrix );
+	for ( var i = -1, l = curves.length; ++i < l; ) {
+		var curve = curves[ reverse ? l - 1 - i : i ],
+			end = curve['point' + ( reverse ? 1 : 2 ) ].transform( matrix );
 
 		if ( curve.isLinear() ) {
 			pushSimple(
@@ -20306,17 +20313,29 @@ proto._updateData = function( data, matrix, pushSimple, pushBezier ) {
 					curve.point2.y + curve.handle2.y
 				).transform( matrix );
 
-			pushBezier(
-				'C',
-				Math.round( ctrl1.x ) || 0,
-				Math.round( ctrl1.y ) || 0,
-				Math.round( ctrl2.x ) || 0,
-				Math.round( ctrl2.y ) || 0,
-				Math.round( end.x ) || 0,
-				Math.round( end.y ) || 0
-			);
+			if ( reverse ) {
+				pushBezier(
+					'C',
+					Math.round( ctrl2.x ) || 0,
+					Math.round( ctrl2.y ) || 0,
+					Math.round( ctrl1.x ) || 0,
+					Math.round( ctrl1.y ) || 0,
+					Math.round( end.x ) || 0,
+					Math.round( end.y ) || 0
+				);
+			} else {
+				pushBezier(
+					'C',
+					Math.round( ctrl1.x ) || 0,
+					Math.round( ctrl1.y ) || 0,
+					Math.round( ctrl2.x ) || 0,
+					Math.round( ctrl2.y ) || 0,
+					Math.round( end.x ) || 0,
+					Math.round( end.y ) || 0
+				);
+			}
 		}
-	});
+	}
 
 	if ( this.closed ) {
 		pushSimple('Z');
@@ -21480,138 +21499,189 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 2. transform contours
  * 3. Update components and transform them
  */
-paper.PaperScope.prototype.Glyph.prototype.update =
-	function( _params ) {
-		var glyph = this,
-			font = glyph.parent,
-			matrix,
-			params;
+paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
+	var glyph = this,
+		font = glyph.parent,
+		matrix,
+		params;
 
-		// 0. calculate local parameters
-		params = _.assign( {}, _params, glyph.parentParameters );
+	// 0. calculate local parameters
+	params = _.assign( {}, _params, glyph.parentParameters );
 
-		Object.keys( ( glyph.src && glyph.src.parameters ) || [] )
-			.forEach(function( name ) {
-				var src = glyph.src.parameters[name];
+	Object.keys( ( glyph.src && glyph.src.parameters ) || [] )
+		.forEach(function( name ) {
+			var src = glyph.src.parameters[name];
 
-				if ( src._updaters ) {
-					params[name] = src._updaters[0].apply( null, [
-						name, [], [], glyph.parentAnchors, Utils
-					].concat(
-						( src._parameters || [] ).map(function(_name) {
-							return params[_name];
-						})
-					));
-				}
-			});
-
-		// 1. calculate node properties
-		( glyph.solvingOrder || [] ).forEach(function(cursor) {
-			var propName = cursor[ cursor.length - 1 ],
-				src = Utils.propFromCursor( cursor, glyph.src ),
-				obj = Utils.propFromCursor( cursor, glyph, cursor.length - 1 ),
-				// TODO: one day we could allow multiple _updaters
-				result = src && src._updaters && src._updaters[0].apply( obj, [
-						propName, glyph.contours, glyph.anchors,
-						glyph.parentAnchors, Utils
-					].concat(
-						( src._parameters || [] ).map(function(_name) {
-							return params[_name];
-						})
-					)
-				);
-
-			// Assume that updaters returning undefined have their own
-			// assignment logic
-			if ( result !== undefined ) {
-				obj[propName] = result;
+			if ( src._updaters ) {
+				params[name] = src._updaters[0].apply( null, [
+					name, [], [], glyph.parentAnchors, Utils
+				].concat(
+					( src._parameters || [] ).map(function(_name) {
+						return params[_name];
+					})
+				));
 			}
-		}, this);
+		});
 
-		// 2. transform contours
-		this.contours.forEach(function(contour) {
-			// a. transform the nodes
-			contour.nodes.forEach(function(node) {
-				if ( node.transforms ) {
-					matrix = Utils.transformsToMatrix(
-						node.transforms.slice(0), node.transformOrigin
-					);
+	// 1. calculate node properties
+	( glyph.solvingOrder || [] ).forEach(function(cursor) {
+		var propName = cursor[ cursor.length - 1 ],
+			src = Utils.propFromCursor( cursor, glyph.src ),
+			obj = Utils.propFromCursor( cursor, glyph, cursor.length - 1 ),
+			// TODO: one day we could allow multiple _updaters
+			result = src && src._updaters && src._updaters[0].apply( obj, [
+					propName, glyph.contours, glyph.anchors,
+					glyph.parentAnchors, Utils
+				].concat(
+					( src._parameters || [] ).map(function(_name) {
+						return params[_name];
+					})
+				)
+			);
 
-					if ( contour.skeleton !== true ) {
-						// We don't want to apply the transforms immediatly,
-						// otherwise the transformation will add-up on each
-						// update.
-						node.applyMatrix = false;
-						node.matrix = matrix;
+		// Assume that updaters returning undefined have their own
+		// assignment logic
+		if ( result !== undefined ) {
+			obj[propName] = result;
+		}
+	}, this);
 
-					// when dealing with a skeleton, modify only the matrix of
-					// expanded items
-					} else {
-						node.expandedTo.forEach(function( _node ) {
-							_node.applyMatrix = false;
-							_node.matrix = matrix;
-						});
-					}
-				}
-			});
-
-			// b. transform the contour
-			// prepare and update outlines and expanded contours, but not
-			// skeletons
-			if ( contour.transforms ) {
+	// 2. transform contours
+	this.contours.forEach(function(contour) {
+		// a. transform the nodes
+		contour.nodes.forEach(function(node) {
+			if ( node.transforms ) {
 				matrix = Utils.transformsToMatrix(
-					contour.transforms.slice(0), contour.transformOrigin
+					node.transforms.slice(0), node.transformOrigin
 				);
 
 				if ( contour.skeleton !== true ) {
-					contour.applyMatrix = false;
-					contour.matrix = matrix;
+					// We don't want to apply the transforms immediatly,
+					// otherwise the transformation will add-up on each
+					// update.
+					node.applyMatrix = false;
+					node.matrix = matrix;
 
 				// when dealing with a skeleton, modify only the matrix of
 				// expanded items
 				} else {
-					contour.expandedTo.forEach(function( _contour ) {
-						_contour.applyMatrix = false;
-						_contour.matrix = matrix;
+					node.expandedTo.forEach(function( _node ) {
+						_node.applyMatrix = false;
+						_node.matrix = matrix;
 					});
 				}
 			}
-		}, this);
+		});
 
-		// 3. update components and transform components
-		if ( this.components.length && font ) {
-			// subcomponents have the parent component as their parent
-			// so search for the font
-			while ( !('glyphs' in font) ) {
-				font = font.parent;
-			}
-
-			this.components.forEach(function(component) {
-				component.update( params );
-
-				if ( component.transforms ) {
-					matrix = Utils.transformsToMatrix(
-						component.transforms.slice(0), component.transformOrigin
-					);
-
-					component.applyMatrix = false;
-					component.matrix = matrix;
-				}
-			}, this);
-		}
-
-		// 4. transform whole glyph
-		if ( glyph.transforms ) {
+		// b. transform the contour
+		// prepare and update outlines and expanded contours, but not
+		// skeletons
+		if ( contour.transforms ) {
 			matrix = Utils.transformsToMatrix(
-				glyph.transforms.slice(0), glyph.transformOrigin
+				contour.transforms.slice(0), contour.transformOrigin
 			);
 
-			glyph.applyMatrix = false;
-			glyph.matrix = matrix;
+			if ( contour.skeleton !== true ) {
+				contour.applyMatrix = false;
+				contour.matrix = matrix;
+
+			// when dealing with a skeleton, modify only the matrix of
+			// expanded items
+			} else {
+				contour.expandedTo.forEach(function( _contour ) {
+					_contour.applyMatrix = false;
+					_contour.matrix = matrix;
+				});
+			}
+		}
+	}, this);
+
+	// 3. update components and transform components
+	if ( this.components.length && font ) {
+		// subcomponents have the parent component as their parent
+		// so search for the font
+		while ( !('glyphs' in font) ) {
+			font = font.parent;
 		}
 
-		return this;
-	};
+		this.components.forEach(function(component) {
+			component.update( params );
+
+			if ( component.transforms ) {
+				matrix = Utils.transformsToMatrix(
+					component.transforms.slice(0), component.transformOrigin
+				);
+
+				component.applyMatrix = false;
+				component.matrix = matrix;
+			}
+		}, this);
+	}
+
+	// 4. transform whole glyph
+	if ( glyph.transforms ) {
+		matrix = Utils.transformsToMatrix(
+			glyph.transforms.slice(0), glyph.transformOrigin
+		);
+
+		glyph.applyMatrix = false;
+		glyph.matrix = matrix;
+	}
+
+	return this;
+};
+
+// Before updating SVG or OpenType data, we must determine paths exports
+// directions. Basically, everything needs to be clockwise.
+// this method needs to be called only after the first update
+paper.PaperScope.prototype.Outline.prototype.prepareDataUpdate = function() {
+	this.children.forEach(function(contour) {
+		// expanded contours are handled from their skeleton
+		if ( contour.expandedFrom ) {
+			return;
+		}
+
+		if ( contour.skeleton !== true ) {
+			contour.export = 'clockwise';
+
+		} else {
+			contour.expandedTo[0].export = 'clockwise';
+
+			if ( contour.expandedTo[1] ) {
+				contour.expandedTo[0].export = contour.clockwise ?
+					'clockwise' :
+					'anticlockwise';
+
+				contour.expandedTo[1].export = contour.clockwise ?
+					'anticlockwise' :
+					'clockwise';
+			}
+		}
+	});
+};
+
+var updateSVGData =
+		paper.PaperScope.prototype.Outline.prototype.updateSVGData,
+	updateOTCommands =
+		paper.PaperScope.prototype.Outline.prototype.updateOTCommands;
+
+paper.PaperScope.prototype.Outline.prototype.updateSVGData = function() {
+	if ( !this.isPrepared ) {
+		this.prepareDataUpdate();
+		this.isPrepared = true;
+	}
+
+	updateSVGData.apply( this, arguments );
+};
+
+paper.PaperScope.prototype.Outline.prototype.updateOTCommands = function() {
+	if ( !this.isPrepared ) {
+		this.prepareDataUpdate();
+		this.isPrepared = true;
+	}
+
+	updateOTCommands.apply( this, arguments );
+};
 
 module.exports = plumin;
 
