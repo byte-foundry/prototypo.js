@@ -1,6 +1,6 @@
 {
   "name": "prototypo.js",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "parametric-glyph engine",
   "dependencies": {
     "lodash.assign": "^3.2.0",
