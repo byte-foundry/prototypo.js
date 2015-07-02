@@ -1,11 +1,11 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
 	DepTree = require('../node_modules/deptree/index.js'),
-	updateUtils = require('./updateUtils.js'),
-	clone = require('lodash.clone');
+	assign = require('es6-object-assign').assign,
+	updateUtils = require('./updateUtils.js');
 
 var paper = plumin.paper,
 	Utils = updateUtils,
-	_ = { clone: clone };
+	_ = { assign: assign };
 
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
@@ -65,6 +65,33 @@ Utils.ufoToPaper = function( src ) {
 	return src;
 };
 
+Utils.fontFromSrc = function( src ) {
+	var font = new paper.Font( src.fontinfo );
+
+	font.src = src;
+
+	var filteredSrc = _.assign( {}, src );
+	delete filteredSrc.controls;
+	delete filteredSrc.presets;
+	delete filteredSrc.glyphs;
+
+	Utils.createUpdaters( filteredSrc, 'font_' + src.fontinfo.familyName );
+
+	font.parameters = {};
+	Utils.mergeStatic( font.parameters, font.src.parameters );
+
+	// solvingOrder might be already available (if this is a subcomponent,
+	// or precomputed in a worker)
+	font.solvingOrder = font.src.solvingOrder;
+
+	if ( !font.solvingOrder ) {
+		font.solvingOrder = filteredSrc.solvingOrder =
+			Utils.solveDependencyTree( font );
+	}
+
+	return font;
+};
+
 // create Glyph instance and all its child items: anchors, contours
 // and components
 Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
@@ -74,7 +101,7 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
-	glyph.src = _.clone( src, true );
+	glyph.src = JSON.parse( JSON.stringify( src ) );
 	Utils.mergeStatic( glyph, glyph.src );
 
 	// this will be used to hold local parameters that will be merged with
@@ -248,12 +275,12 @@ Utils.createUpdaters = function( leaf, path ) {
 	}
 };
 
-Utils.solveDependencyTree = function( glyph ) {
-	var depTree = Utils.dependencyTree( glyph.src, null ),
+Utils.solveDependencyTree = function( leaf, src ) {
+	var depTree = Utils.dependencyTree( src || leaf.src, null ),
 		order = depTree.resolve().map(function( cursor ) {
 			return cursor.split('.');
 		}),
-		simplified = Utils.simplifyResolutionOrder( glyph, order );
+		simplified = Utils.simplifyResolutionOrder( leaf, order );
 
 	return simplified;
 };
@@ -294,9 +321,9 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 
 // Simplify resolution order by removing cursors that don't point to objects
 // with updater functions
-Utils.simplifyResolutionOrder = function( glyph, depTree ) {
+Utils.simplifyResolutionOrder = function( leaf, depTree ) {
 	return depTree.filter(function( cursor ) {
-		var src = Utils.propFromCursor( cursor, glyph.src );
+		var src = Utils.propFromCursor( cursor, leaf.src );
 		return src && src._updaters;
 	});
 };

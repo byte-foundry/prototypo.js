@@ -1,8 +1,8 @@
 /*jshint -W098 */
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
+	assign = require('es6-object-assign').assign,
 	Utils = require('./Utils.js'),
-	naive = require('./naive.js'),
-	assign = require('lodash.assign');
+	naive = require('./naive.js');
 
 var paper = plumin.paper,
 	_ = { assign: assign };
@@ -14,9 +14,7 @@ function parametricFont( src ) {
 		src.fontinfo = src.info;
 	}
 
-	var font = new paper.Font( src.fontinfo );
-
-	font.src = src;
+	var font = Utils.fontFromSrc( src );
 
 	Object.keys( src.glyphs ).forEach(function( name ) {
 		var glyphSrc = src.glyphs[name];

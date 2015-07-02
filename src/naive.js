@@ -1,6 +1,6 @@
 var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
-	Utils = require('./Utils.js'),
-	assign = require('lodash.assign');
+	assign = require('es6-object-assign').assign,
+	Utils = require('./Utils.js');
 
 var paper = plumin.paper,
 	naive = {},

@@ -3,6 +3,7 @@
   "version": "0.6.3",
   "description": "parametric-glyph engine",
   "dependencies": {
+    "es6-object-assign": "^1.0.1",
     "lodash.assign": "^3.2.0",
     "lodash.clone": "^3.0.2"
   },
@@ -22,7 +23,7 @@
     "lodash.merge": "^3.1.0",
     "mocha": "^2.2.1",
     "plumin.js": "^0.9.1",
-    "test.ptf": "byte-foundry/test.ptf",
+    "genese.ptf": "byte-foundry/genese.ptf",
     "uglify-js": "^2.4.17",
     "watchify": "^2.6.0"
   },
