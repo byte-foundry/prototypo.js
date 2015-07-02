@@ -36,6 +36,8 @@ describe('prototypo.js', function() {
 				expect(contour.nodes[0].angle).to.equal( 1 + 'deg');
 				expect(contour.nodes[1].point.x).to.equal( 1 + 1 + 3 );
 				expect(contour.nodes[1].point.y).to.equal( 1 + 1 + 4 );
+
+				// TODO: test static parameters.
 			});
 
 		// CANNOT TEST TRANSFORMS, they happen at render time as we use

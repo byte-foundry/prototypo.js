@@ -7,7 +7,6 @@
     "lodash.assign": "^3.2.0",
     "lodash.clone": "^3.0.2"
   },
-  "//devDependencies": "test.ptf isn't available on npm, must be linked manually",
   "devDependencies": {
     "browser-sync": "^2.4.0",
     "browserify": "^9.0.3",
@@ -24,6 +23,8 @@
     "mocha": "^2.2.1",
     "plumin.js": "^0.9.1",
     "genese.ptf": "byte-foundry/genese.ptf",
+    "plumin.js": "byte-foundry/plumin.js#master",
+    "test.ptf": "byte-foundry/test.ptf#master",
     "uglify-js": "^2.4.17",
     "watchify": "^2.6.0"
   },

@@ -15,18 +15,7 @@ Based on [paper.js](https://github.com/paperjs/paper.js)'s API and [opentype.js]
 ## Contribute
 
 Before starting to hack on this lib, you need to install its dev dependencies.
-The `test.ptf` package isn't available on npm, you need to clone it and link it first.
 
-In your workspace directory:
 ```bash
-git clone git@github.com:byte-foundry/test.ptf.git
-cd test.ptf
-npm install
-npm link
-```
-
-In prototypo.js directory:
-```bash
-npm link test.ptf
 npm install
 ```
