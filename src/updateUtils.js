@@ -110,6 +110,67 @@ Utils.onLine = function( params ) {
 		( params.y - origin.y ) / vector[1] * vector[0] + origin.x;
 };
 
+Utils.pointOnCurve = function(pointHandleOut,
+	pointHandleIn,
+	distanceFromOut,
+	linePrecision) {
+	linePrecision = linePrecision || 3;
+	var length = 0;
+	var previousPoint;
+
+	var points = [
+		pointHandleOut.point,
+		pointHandleOut.point.add(pointHandleOut.handleOut),
+		pointHandleIn.point.add(pointHandleIn.handleIn),
+		pointHandleIn.point
+	];
+
+	for (var i = 0; i < linePrecision; i++) {
+		var point = Utils.deCasteljau(points,
+			( i / ( linePrecision - 1 ) ) );
+
+		if (previousPoint) {
+			length += Utils.distance(previousPoint.x,
+				previousPoint.y,
+				point.x,
+				point.y);
+
+		}
+
+		previousPoint = point;
+	}
+
+	var t = length === 0 ? 0 : distanceFromOut / length;
+
+	t = Math.max(0.1, Math.min(1, t));
+
+    return Utils.deCasteljau(points, t);
+};
+
+Utils.deCasteljau = function(points, t) {
+	var newPoints = [];
+	for (var i = 1; i < points.length; i++) {
+		newPoints.push(
+			points[i - 1]
+				.multiply(1 - t)
+				.add(
+					points[i]
+						.multiply(t)
+				)
+			);
+	}
+
+	if (newPoints.length === 1) {
+		return newPoints[0];
+	} else {
+		return Utils.deCasteljau(newPoints, t);
+	}
+};
+
+Utils.distance = function(x1, y1, x2, y2) {
+	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y1 - y2, 2));
+};
+
 Utils.log = function() {
 	console.log.apply( console, arguments );
 	return arguments[0];
