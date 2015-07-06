@@ -19476,7 +19476,7 @@ function Font( args ) {
 		args.unitsPerEm = 1024;
 	}
 
-	this.ot = new opentype.Font( args );
+	this.fontinfo = this.ot = new opentype.Font( args );
 
 	this.glyphMap = {};
 	this.charMap = {};
