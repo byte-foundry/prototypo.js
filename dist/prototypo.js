@@ -20363,7 +20363,7 @@ Utils.fontFromSrc = function( src ) {
 
 	if ( !font.solvingOrder ) {
 		font.solvingOrder = filteredSrc.solvingOrder =
-			Utils.solveDependencyTree( font );
+			Utils.solveDependencyTree( font, filteredSrc );
 	}
 
 	return font;
