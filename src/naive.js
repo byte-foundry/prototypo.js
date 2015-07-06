@@ -1,4 +1,4 @@
-var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
+var plumin = require('plumin.js'),
 	assign = require('es6-object-assign').assign,
 	Utils = require('./Utils.js');
 

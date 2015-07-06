@@ -1,11 +1,15 @@
-var plumin = require('../node_modules/plumin.js/dist/plumin.js'),
-	DepTree = require('../node_modules/deptree/index.js'),
+var plumin = require('plumin.js'),
+	DepTree = require('deptree'),
+	clone = require('lodash.clone'),
 	assign = require('es6-object-assign').assign,
 	updateUtils = require('./updateUtils.js');
 
 var paper = plumin.paper,
 	Utils = updateUtils,
-	_ = { assign: assign };
+	_ = {
+		assign: assign,
+		clone: clone
+	};
 
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
@@ -101,7 +105,7 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
-	glyph.src = JSON.parse( JSON.stringify( src ) );
+	glyph.src = _.clone( src, true );
 	Utils.mergeStatic( glyph, glyph.src );
 
 	// this will be used to hold local parameters that will be merged with
