@@ -20302,12 +20302,14 @@ Utils.ufoToPaper = function( src ) {
 		delete src.outline.contour;
 	}
 
-	src.contours.forEach(function(contour) {
-		if ( contour.point ) {
-			contour.nodes = contour.point;
-			delete contour.point;
-		}
-	});
+	if ( src.contours ) {
+		src.contours.forEach(function(contour) {
+			if ( contour.point ) {
+				contour.nodes = contour.point;
+				delete contour.point;
+			}
+		});
+	}
 
 	if ( src.outline && src.outline.component ) {
 		src.components = src.outline.component;
@@ -20329,9 +20331,19 @@ Utils.ufoToPaper = function( src ) {
 
 	delete src.outline;
 
-	if ( src.lib && src.lib.transformList ) {
-		src.transformList = src.lib.transformList;
-		delete src.lib.transformList;
+	if ( src.lib && src.lib.transforms ) {
+		src.transforms = src.lib.transforms;
+		delete src.lib.transforms;
+	}
+
+	if ( src.lib && src.lib.transformOrigin ) {
+		src.transformOrigin = src.lib.transformOrigin;
+		delete src.lib.transformOrigin;
+	}
+
+	if ( src.lib && src.lib.parameters ) {
+		src.parameters = src.lib.parameters;
+		delete src.lib.parameters;
 	}
 
 	if ( src.lib && src.lib.solvingOrder ) {
@@ -20343,9 +20355,15 @@ Utils.ufoToPaper = function( src ) {
 };
 
 Utils.fontFromSrc = function( src ) {
+	// TODO: this, block is only here for backward compat
+	// and should be removed at some point in the future
+	if ( !src.fontinfo ) {
+		src.fontinfo = src.info;
+	}
+
 	var font = new paper.Font( src.fontinfo );
 
-	font.src = src;
+	font.src = Utils.ufoToPaper( src );
 
 	var filteredSrc = _.assign( {}, src );
 	delete filteredSrc.controls;
@@ -20721,59 +20739,46 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 	);
 };
 
-// Utils.normalizeAngle = function( angle ) {
-// 	return angle % ( 2 * Math.PI ) + ( angle < 0 ? 2 * Math.PI : 0 );
-// };
+Utils.updateParameters = function( leaf, params ) {
+	Object.keys( ( leaf.src && leaf.src.parameters ) || [] )
+		.forEach(function( name ) {
+			var src = leaf.src.parameters[name];
 
-// Utils.findUpdater = function( glyph, cursor ) {
-// 	var steps = [ 'glyph' ].concat( cursor.split('.') ),
-// 		context = { glyph: glyph };
-//
-// 	for ( var i = -1; ++i < steps.length; ) {
-// 		context = context[ steps[i] ];
-//
-// 		if ()
-// 	}
-// };
+			if ( src._updaters ) {
+				params[name] = src._updaters[0].apply( null, [
+					name, [], [], leaf.parentAnchors, Utils
+				].concat(
+					( src._parameters || [] ).map(function(_name) {
+						return params[_name];
+					})
+				));
+			}
+		});
+};
 
-// patterns that should be searched for in dependencies and expanded
-// This list is expandable by plugins, 'naive' uses this possibility
-// hashtag #expandableception
-// Utils.expandables = [
-// 	[ /\.nodes\.\d+\.point$/, function( dep ) {
-// 		dep = dep.replace(/\.point$/, '');
-//
-// 		return [
-// 			dep + '.x',
-// 			dep + '.y'
-// 		];
-// 	} ],
-// 	[ /\.nodes\.\d+$/, function( dep ) {
-// 		return [
-// 			dep + '.x',
-// 			dep + '.y',
-// 			dep + '.handleIn.point',
-// 			dep + '.handleOut.point'
-// 		];
-// 	} ]
-// ];
-// Utils.expandDependencies = function( glyphSrc, deps, excludeList ) {
-// 	deps = deps.map(function(dep) {
-// 		// search for an expandable pattern and... expand the dependency
-// 		for ( var i = -1, l = Utils.expandables.length; ++i < l; ) {
-// 			if ( Utils.expandables[i][0].test( dep ) ) {
-// 				return Utils.expandables[i][1]( dep, glyphSrc );
-// 			}
-// 		}
-//
-// 		return dep;
-// 	});
-//
-// 	// flatten deps array and remove items from excludeList
-// 	return [].concat.apply([], deps).filter(function(dep) {
-// 		return excludeList.indexOf( dep ) === -1;
-// 	});
-// };
+Utils.updateProperties = function( leaf, params ) {
+	( leaf.solvingOrder || [] ).forEach(function(cursor) {
+		var propName = cursor[ cursor.length - 1 ],
+			src = Utils.propFromCursor( cursor, leaf.src ),
+			obj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 ),
+			// TODO: one day we could allow multiple _updaters
+			result = src && src._updaters && src._updaters[0].apply( obj, [
+					propName, leaf.contours, leaf.anchors,
+					leaf.parentAnchors, Utils
+				].concat(
+					( src._parameters || [] ).map(function(_name) {
+						return params[_name];
+					})
+				)
+			);
+
+		// Assume that updaters returning undefined have their own
+		// assignment logic
+		if ( result !== undefined ) {
+			obj[propName] = result;
+		}
+	}, this);
+};
 
 module.exports = Utils;
 
@@ -21213,10 +21218,10 @@ naive.updateContour = function( path, curviness ) {
 
 		startDir = start._dirOut !== undefined ?
 			start._dirOut :
-			start.type === 'smooth' ? start._dirIn + Math.PI : 0;
+			( start.type === 'smooth' ? start._dirIn + Math.PI : 0 );
 		endDir = end._dirIn !== undefined ?
 			end._dirIn :
-			end.type === 'smooth' ? end._dirOut - Math.PI : 0;
+			( end.type === 'smooth' ? end._dirOut - Math.PI : 0 );
 
 		rri = Utils.rayRayIntersection(
 			start._point,
@@ -21315,12 +21320,6 @@ var paper = plumin.paper,
 	_ = { assign: assign };
 
 function parametricFont( src ) {
-	// TODO: this, block is only here for backward compat
-	// and should be removed at some point in the future
-	if ( !src.fontinfo ) {
-		src.fontinfo = src.info;
-	}
-
 	var font = Utils.fontFromSrc( src );
 
 	Object.keys( src.glyphs ).forEach(function( name ) {
@@ -21362,9 +21361,27 @@ plumin.Utils = Utils;
 plumin.Utils.naive = naive;
 
 paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
-	return this.getGlyphSubset( set ).map(function( glyph ) {
+	var font = this,
+		matrix;
+
+	Utils.updateParameters( font, params );
+
+	Utils.updateProperties( font, params );
+
+	this.getGlyphSubset( set ).map(function( glyph ) {
 		return glyph.update( params );
 	}, this);
+
+	if ( font.transforms ) {
+		matrix = Utils.transformsToMatrix(
+			font.transforms.slice(0), font.transformOrigin
+		);
+
+		font.applyMatrix = false;
+		font.matrix = matrix;
+	}
+
+	return this;
 };
 
 /* Update the shape of the glyph, according to formula and parameters
@@ -21382,45 +21399,16 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 		params;
 
 	// 0. calculate local parameters
-	params = _.assign( {}, _params, glyph.parentParameters );
+	params = _.assign( {}, _params, glyph.parameters, glyph.parentParameters );
 
-	Object.keys( ( glyph.src && glyph.src.parameters ) || [] )
-		.forEach(function( name ) {
-			var src = glyph.src.parameters[name];
+	Utils.updateParameters( glyph, params );
 
-			if ( src._updaters ) {
-				params[name] = src._updaters[0].apply( null, [
-					name, [], [], glyph.parentAnchors, Utils
-				].concat(
-					( src._parameters || [] ).map(function(_name) {
-						return params[_name];
-					})
-				));
-			}
-		});
+	// parentParameters always overwrite glyph parameters. Use aliases
+	// (e.g. _width) to let glyph hav the final word
+	_.assign( params, glyph.parentParameters );
 
 	// 1. calculate node properties
-	( glyph.solvingOrder || [] ).forEach(function(cursor) {
-		var propName = cursor[ cursor.length - 1 ],
-			src = Utils.propFromCursor( cursor, glyph.src ),
-			obj = Utils.propFromCursor( cursor, glyph, cursor.length - 1 ),
-			// TODO: one day we could allow multiple _updaters
-			result = src && src._updaters && src._updaters[0].apply( obj, [
-					propName, glyph.contours, glyph.anchors,
-					glyph.parentAnchors, Utils
-				].concat(
-					( src._parameters || [] ).map(function(_name) {
-						return params[_name];
-					})
-				)
-			);
-
-		// Assume that updaters returning undefined have their own
-		// assignment logic
-		if ( result !== undefined ) {
-			obj[propName] = result;
-		}
-	}, this);
+	Utils.updateProperties( glyph, params );
 
 	// 2. transform contours
 	this.contours.forEach(function(contour) {

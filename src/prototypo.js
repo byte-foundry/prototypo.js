@@ -8,12 +8,6 @@ var paper = plumin.paper,
 	_ = { assign: assign };
 
 function parametricFont( src ) {
-	// TODO: this, block is only here for backward compat
-	// and should be removed at some point in the future
-	if ( !src.fontinfo ) {
-		src.fontinfo = src.info;
-	}
-
 	var font = Utils.fontFromSrc( src );
 
 	Object.keys( src.glyphs ).forEach(function( name ) {
@@ -55,9 +49,27 @@ plumin.Utils = Utils;
 plumin.Utils.naive = naive;
 
 paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
-	return this.getGlyphSubset( set ).map(function( glyph ) {
+	var font = this,
+		matrix;
+
+	Utils.updateParameters( font, params );
+
+	Utils.updateProperties( font, params );
+
+	this.getGlyphSubset( set ).map(function( glyph ) {
 		return glyph.update( params );
 	}, this);
+
+	if ( font.transforms ) {
+		matrix = Utils.transformsToMatrix(
+			font.transforms.slice(0), font.transformOrigin
+		);
+
+		font.applyMatrix = false;
+		font.matrix = matrix;
+	}
+
+	return this;
 };
 
 /* Update the shape of the glyph, according to formula and parameters
@@ -75,45 +87,16 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 		params;
 
 	// 0. calculate local parameters
-	params = _.assign( {}, _params, glyph.parentParameters );
+	params = _.assign( {}, _params, glyph.parameters, glyph.parentParameters );
 
-	Object.keys( ( glyph.src && glyph.src.parameters ) || [] )
-		.forEach(function( name ) {
-			var src = glyph.src.parameters[name];
+	Utils.updateParameters( glyph, params );
 
-			if ( src._updaters ) {
-				params[name] = src._updaters[0].apply( null, [
-					name, [], [], glyph.parentAnchors, Utils
-				].concat(
-					( src._parameters || [] ).map(function(_name) {
-						return params[_name];
-					})
-				));
-			}
-		});
+	// parentParameters always overwrite glyph parameters. Use aliases
+	// (e.g. _width) to let glyph hav the final word
+	_.assign( params, glyph.parentParameters );
 
 	// 1. calculate node properties
-	( glyph.solvingOrder || [] ).forEach(function(cursor) {
-		var propName = cursor[ cursor.length - 1 ],
-			src = Utils.propFromCursor( cursor, glyph.src ),
-			obj = Utils.propFromCursor( cursor, glyph, cursor.length - 1 ),
-			// TODO: one day we could allow multiple _updaters
-			result = src && src._updaters && src._updaters[0].apply( obj, [
-					propName, glyph.contours, glyph.anchors,
-					glyph.parentAnchors, Utils
-				].concat(
-					( src._parameters || [] ).map(function(_name) {
-						return params[_name];
-					})
-				)
-			);
-
-		// Assume that updaters returning undefined have their own
-		// assignment logic
-		if ( result !== undefined ) {
-			obj[propName] = result;
-		}
-	}, this);
+	Utils.updateProperties( glyph, params );
 
 	// 2. transform contours
 	this.contours.forEach(function(contour) {
