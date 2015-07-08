@@ -172,7 +172,17 @@ Utils.deCasteljau = function(points, t) {
 	}
 
 	if (newPoints.length === 1) {
-		return newPoints[0];
+		var p0 = { x: 0, y: 0 },
+			p1 = {
+			x: points[1].x - points[0].x,
+			y: points[1].y - points[0].y
+		};
+
+		return {
+			x: newPoints[0].x,
+			y: newPoints[0].y,
+			normal: Utils.lineAngle(p0, p1)
+		};
 	} else {
 		return Utils.deCasteljau(newPoints, t);
 	}
