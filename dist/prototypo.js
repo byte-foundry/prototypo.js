@@ -21665,17 +21665,29 @@ Utils.onLine = function( params ) {
 Utils.pointOnCurve = function(pointHandleOut,
 	pointHandleIn,
 	distanceFromOut,
+	inverseOrientation,
 	linePrecision) {
 	linePrecision = linePrecision || 3;
 	var length = 0;
 	var previousPoint;
 
-	var points = [
-		pointHandleOut.point,
-		pointHandleOut.point.add(pointHandleOut.handleOut),
-		pointHandleIn.point.add(pointHandleIn.handleIn),
-		pointHandleIn.point
-	];
+	var points;
+	if (!inverseOrientation) {
+		points = [
+			pointHandleOut.point,
+			pointHandleOut.point.add(pointHandleOut.handleOut),
+			pointHandleIn.point.add(pointHandleIn.handleIn),
+			pointHandleIn.point
+		];
+	}
+	else {
+		points = [
+			pointHandleIn.point,
+			pointHandleIn.point.add(pointHandleIn.handleIn),
+			pointHandleOut.point.add(pointHandleOut.handleOut),
+			pointHandleOut.point
+		];
+	}
 
 	for (var i = 0; i < linePrecision; i++) {
 		var point = Utils.deCasteljau(points,

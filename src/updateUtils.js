@@ -127,8 +127,7 @@ Utils.pointOnCurve = function(pointHandleOut,
 			pointHandleIn.point.add(pointHandleIn.handleIn),
 			pointHandleIn.point
 		];
-	}
-	else {
+	} else {
 		points = [
 			pointHandleIn.point,
 			pointHandleIn.point.add(pointHandleIn.handleIn),
