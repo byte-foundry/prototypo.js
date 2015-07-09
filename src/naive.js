@@ -459,6 +459,15 @@ naive.updateContour = function( path, curviness ) {
 					middle, angle + Math.PI / 2, end._point, endDir
 				);
 
+			if ( p0 === null ) {
+				startCtrl.x = 0;
+				startCtrl.y = 0;
+				endCtrl.x = 0;
+				endCtrl.y = 0;
+
+				return;
+			}
+
 			startCtrl.x = ( Math.round(p0[0]) - start._point.x ) *
 				curviness * startTension;
 			startCtrl.y = ( Math.round(p0[1]) - start._point.y ) *
