@@ -1,6 +1,6 @@
 var plumin = require('plumin.js'),
 	DepTree = require('deptree'),
-	clone = require('lodash.clone'),
+	clone = require('lodash/lang/clone'),
 	assign = require('es6-object-assign').assign,
 	updateUtils = require('./updateUtils.js');
 

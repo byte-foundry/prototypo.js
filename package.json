@@ -4,8 +4,7 @@
   "description": "parametric-glyph engine",
   "dependencies": {
     "es6-object-assign": "^1.0.1",
-    "lodash.assign": "^3.2.0",
-    "lodash.clone": "^3.0.2"
+    "lodash": "^3.10.0"
   },
   "devDependencies": {
     "browser-sync": "^2.4.0",
@@ -19,7 +18,7 @@
     "gulp": "^3.8.11",
     "gulp-shelter": "^0.9.1",
     "jscs": "^1.11.3",
-    "lodash.merge": "^3.1.0",
+    "lodash.merge": "^3.3.2",
     "mocha": "^2.2.1",
     "plumin.js": "byte-foundry/plumin.js#master",
     "genese.ptf": "byte-foundry/genese.ptf",
