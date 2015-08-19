@@ -19187,6 +19187,19 @@ Object.defineProperty( Font.prototype, 'subset', {
 	}
 });
 
+Font.normalizeSubset = function( set ) {
+	return ( typeof set === 'string' ?
+			set.split('').map(function(e) {
+				return e.charCodeAt(0);
+			}) :
+			set || []
+		)
+		.filter(function(e, i, arr) {
+			return arr.lastIndexOf(e) === i;
+		})
+		.sort();
+};
+
 Font.prototype.getGlyphSubset = function( _set ) {
 	var set =
 			_set === undefined ? this._subset :
@@ -19348,11 +19361,20 @@ if ( typeof window === 'object' && window.document ) {
 			return this;
 		};
 
+	var a = document.createElement('a');
 	Font.prototype.download = function( buffer ) {
-		var reader = new FileReader();
+		var reader = new FileReader(),
+			familyName = this.ot.familyName;
 
 		reader.onloadend = function() {
-			window.location = reader.result;
+			a.download = familyName + '.otf';
+			a.href = reader.result;
+			a.dispatchEvent(new MouseEvent('click'));
+
+			setTimeout(function() {
+				a.href = '#';
+				_URL.revokeObjectURL( reader.result );
+			}, 100);
 		};
 
 		reader.readAsDataURL(new Blob(
@@ -19364,19 +19386,6 @@ if ( typeof window === 'object' && window.document ) {
 	};
 
 }
-
-Font.normalizeSubset = function( set ) {
-	return ( typeof set === 'string' ?
-			set.split('').map(function(e) {
-				return e.charCodeAt(0);
-			}) :
-			set || []
-		)
-		.filter(function(e, i, arr) {
-			return arr.lastIndexOf(e) === i;
-		})
-		.sort();
-};
 
 module.exports = Font;
 
