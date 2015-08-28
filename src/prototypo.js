@@ -185,8 +185,13 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 
 // Before updating SVG or OpenType data, we must determine paths exports
 // directions. Basically, everything needs to be clockwise.
-// this method needs to be called only after the first update
+// this method needs to be called only after the first update, otherwise the
+// directions won't be known
 paper.PaperScope.prototype.Outline.prototype.prepareDataUpdate = function() {
+	if ( this.isPrepared ) {
+		return;
+	}
+
 	this.children.forEach(function(contour) {
 		// expanded contours are handled from their skeleton
 		if ( contour.expandedFrom ) {
@@ -194,22 +199,21 @@ paper.PaperScope.prototype.Outline.prototype.prepareDataUpdate = function() {
 		}
 
 		if ( contour.skeleton !== true ) {
-			contour.export = 'clockwise';
+			contour.exportReversed = !contour.isClockwise();
+
+		} else if ( !contour.expandedTo[1] ) {
+			contour.expandedTo[0].exportReversed =
+				!contour.expandedTo[0].isClockwise();
 
 		} else {
-			contour.expandedTo[0].export = 'clockwise';
+			var isClockwise = contour.isClockwise();
 
-			if ( contour.expandedTo[1] ) {
-				contour.expandedTo[0].export = contour.clockwise ?
-					'clockwise' :
-					'anticlockwise';
-
-				contour.expandedTo[1].export = contour.clockwise ?
-					'anticlockwise' :
-					'clockwise';
-			}
+			contour.expandedTo[0].exportReversed = !isClockwise;
+			contour.expandedTo[1].exportReversed = !isClockwise;
 		}
 	});
+
+	this.isPrepared = true;
 };
 
 var updateSVGData =
@@ -220,7 +224,6 @@ var updateSVGData =
 paper.PaperScope.prototype.Outline.prototype.updateSVGData = function() {
 	if ( !this.isPrepared ) {
 		this.prepareDataUpdate();
-		this.isPrepared = true;
 	}
 
 	updateSVGData.apply( this, arguments );
