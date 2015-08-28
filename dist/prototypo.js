@@ -20155,7 +20155,7 @@ Utils.createUpdaters = function( leaf, path ) {
 Utils.solveDependencyTree = function( leaf, src ) {
 	var depTree = Utils.dependencyTree( src || leaf.src, null ),
 		order = depTree.resolve().map(function( cursor ) {
-			return cursor.split('.');
+			return { cursor: cursor.split('.') };
 		}),
 		simplified = Utils.simplifyResolutionOrder( leaf, order );
 
@@ -20200,7 +20200,7 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 // with updater functions
 Utils.simplifyResolutionOrder = function( leaf, depTree ) {
 	return depTree.filter(function( cursor ) {
-		var src = Utils.propFromCursor( cursor, leaf.src );
+		var src = Utils.propFromCursor( cursor.cursor, leaf.src );
 		return src && src._updaters;
 	});
 };
@@ -20339,10 +20339,17 @@ Utils.updateParameters = function( leaf, params ) {
 };
 
 Utils.updateProperties = function( leaf, params ) {
-	( leaf.solvingOrder || [] ).forEach(function(cursor) {
-		var propName = cursor[ cursor.length - 1 ],
-			src = Utils.propFromCursor( cursor, leaf.src ),
-			obj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 ),
+	if ( !leaf.solvingOrder ) {
+		return;
+	}
+
+	leaf.solvingOrder.forEach(function(_cursor) {
+		var cursor = _cursor.cursor,
+			propName = cursor[ cursor.length - 1 ],
+			src = _cursor.src || ( _cursor.src =
+				Utils.propFromCursor( cursor, leaf.src ) ),
+			obj = _cursor.obj || ( _cursor.obj =
+				Utils.propFromCursor( cursor, leaf, cursor.length - 1 ) ),
 			// TODO: one day we could allow multiple _updaters
 			result = src && src._updaters && src._updaters[0].apply( obj, [
 					propName, leaf.contours, leaf.anchors,
