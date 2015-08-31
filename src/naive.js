@@ -6,14 +6,14 @@ var paper = plumin.paper,
 	naive = {},
 	_ = { assign: assign };
 
-function nodeSrc( node, i, j, inSkeleton ) {
+function autoExpandableNodeSrc( node, i, j, inSkeleton ) {
 	return {
 		point: { _dependencies: [
 			Utils.cursor( i, j, 'x' ),
 			Utils.cursor( i, j, 'y' )
 		] },
 		all: { _dependencies: Object.keys( node.src ).map(function( key ) {
-				return Utils.cursor( i, j, key );
+			return Utils.cursor( i, j, key );
 		}) },
 		_dependencies: inSkeleton ?
 			// nodes in skeleton are never fully calculated (we don't calculate
@@ -66,23 +66,34 @@ function autoExpandedNodeSrc( node, i, j, side, isClosed ) {
 	};
 }
 
+function explicitExpandableNodeSrc( node, i, j ) {
+	return {
+		point: { _dependencies: [] },
+		all: { _dependencies: [ 0, 1 ].map(function( side ) {
+			return Utils.cursor( i, j, 'expandedTo', side, 'all' );
+		}) },
+		_dependencies: []
+	};
+}
+
 function explicitExpandedNodeSrc( node, i, j, side, isClosed ) {
 	return {
 		point: { _dependencies: [
 				Utils.cursor( i, j, 'expandedTo', side, 'x' ),
 				Utils.cursor( i, j, 'expandedTo', side, 'y' )
 		] },
-		all: { _dependencies: Object.keys( node.src ).map(function( key ) {
+		all: { _dependencies:
+			Object.keys( node.src.expandedTo[ side ] ).map(function( key ) {
 				return Utils.cursor( i, j, 'expandedTo', side, key );
-		}) },
+			})
+		},
 		_dependencies: [
 			Utils.cursor( 'contours', i, 'expandedTo',
-				( isClosed ? side : 0 ), 'points' )
+				( isClosed ? side : 0 ), 'all' )
 		]
 	};
 }
 
-//function expandedContourSrc( contour, i, side, nodesSrc ) {
 function expandedContourSrc( contour, i, side ) {
 	var half = contour.nodes.length / 2;
 
@@ -139,7 +150,7 @@ naive.annotator = function( glyph ) {
 		if ( contour.skeleton !== true ) {
 			// annotate nodes+points that aren't in a skeleton
 			contour.nodes.forEach(function( node, j ) {
-				_.assign( node.src, nodeSrc( node, i, j ) );
+				_.assign( node.src, autoExpandableNodeSrc( node, i, j ) );
 			});
 
 			_.assign( contour.src, contourSrc( contour, i ) );
@@ -176,7 +187,8 @@ naive.annotator = function( glyph ) {
 				leftSrc = autoExpandedNodeSrc( node, i, j, 0, contour.closed );
 				rightSrc = autoExpandedNodeSrc( node, i, j, 1, contour.closed );
 				node.src.expandedTo = [ leftSrc, rightSrc ];
-				_.assign( node.src, nodeSrc( node, i, j, !!'inSkeleton' ) );
+				_.assign( node.src,
+					autoExpandableNodeSrc( node, i, j, !!'inSkeleton' ) );
 
 			// the expanded node might have been defined explicitely
 			} else if ( node.src.expandedTo[0] &&
@@ -192,6 +204,9 @@ naive.annotator = function( glyph ) {
 				rightSrc = _.assign( node.src.expandedTo[1],
 					explicitExpandedNodeSrc( node, i, j, 1, contour.closed )
 				);
+
+				_.assign( node.src,
+					explicitExpandableNodeSrc( node, i, j ) );
 
 				// A leaf shouldn't appear twice during the recursive
 				// dependency-tree building. Make the expanded nodes accessible
