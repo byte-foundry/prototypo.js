@@ -15,9 +15,6 @@ function parametricFont( src ) {
 
 		Utils.ufoToPaper( glyphSrc );
 
-		// turn ._operation strings to ._updaters functions
-		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
-
 		var glyph = Utils.glyphFromSrc( glyphSrc, src, naive );
 
 		font.addGlyph( glyph );
@@ -87,7 +84,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 		params;
 
 	// 0. calculate local parameters
-	params = _.assign( {}, _params, glyph.parameters, glyph.parentParameters );
+	params = _.assign( {}, _params, glyph.parentParameters );
 
 	Utils.updateParameters( glyph, params );
 

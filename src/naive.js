@@ -377,24 +377,30 @@ naive.prepareContour = function( path ) {
 	path.nodes.forEach(function(node) {
 		if ( node.typeIn === 'line' && node.previous ) {
 			node.previous.typeOut = 'line';
-
-			if ( node.type === 'smooth' ) {
-				node._dirIn = Utils.lineAngle(
-					node.point, node.previous.point
-				);
-				node._dirOut = node._dirIn + Math.PI;
-			}
 		}
 
 		if ( node.typeOut === 'line' && node.next ) {
 			node.next.typeIn = 'line';
+		}
+	});
 
-			if ( node.type === 'smooth' ) {
-				node._dirOut = Utils.lineAngle(
-					node.point, node.next.point
-				);
-				node._dirIn = node._dirOut + Math.PI;
-			}
+	path.nodes.forEach(function(node) {
+		if ( node.typeIn === 'line' && node.type === 'smooth' &&
+				node.previous ) {
+
+			node._dirIn = Utils.lineAngle(
+				node.point, node.previous.point
+			);
+			node._dirOut = node._dirIn + Math.PI;
+		}
+
+		if ( node.typeOut === 'line' && node.type === 'smooth' &&
+				node.next ) {
+
+			node._dirOut = Utils.lineAngle(
+				node.point, node.next.point
+			);
+			node._dirIn = node._dirOut + Math.PI;
 		}
 	});
 };

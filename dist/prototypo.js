@@ -19862,8 +19862,8 @@ var plumin = require('plumin.js'),
 var paper = plumin.paper,
 	Utils = updateUtils,
 	_ = {
-		assign: assign,
-		clone: clone
+		clone: clone,
+		assign: assign
 	};
 
 // convert the glyph source from the ufo object model to the paper object model
@@ -19971,6 +19971,7 @@ Utils.fontFromSrc = function( src ) {
 
 // create Glyph instance and all its child items: anchors, contours
 // and components
+// var wmm = typeof WeakMap === 'function' && new WeakMap();
 Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	var glyph = new paper.Glyph({
 		name: src.name,
@@ -19978,7 +19979,16 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
+	// if ( !wmm.has( src ) ) {
+	// 	wmm.set( src, JSON.stringify( src ) );
+	// }
+	// glyph.src = JSON.parse( wmm.get( src ) );
+	// glyph.src = JSON.parse( JSON.stringify( src ) );
 	glyph.src = _.clone( src, true );
+	// turn ._operation strings to ._updaters functions
+	// TODO: restore sourceURL pragma for debugging.
+	// this should impact the way results are memoized
+	Utils.createUpdaters( glyph.src/*, 'glyphs/glyph_' + name*/ );
 	Utils.mergeStatic( glyph, glyph.src );
 
 	// this will be used to hold local parameters that will be merged with
@@ -20110,46 +20120,53 @@ Utils.mergeStatic = function( obj, src ) {
 };
 
 Utils.createUpdaters = function( leaf, path ) {
-	if ( leaf.constructor === Object &&
-			( typeof leaf._operation === 'string' ||
-			typeof leaf._operation === 'function' ) ) {
+	if ( leaf.constructor === Object && leaf._operation ) {
+		leaf._updaters = [ Utils.createUpdater( leaf, path ) ];
 
-		var args = [
-					'propName', 'contours', 'anchors', 'parentAnchors', 'Utils'
-				]
-				.concat( leaf._parameters || [] )
-				.concat(
-					( typeof leaf._operation === 'string' &&
-							leaf._operation.indexOf('return ') === -1 ?
-						'return ' : ''
-					) +
-					// The operation might be wrapped in a function (e.g. multi-
-					// line code for debugging purpose). In this case, return
-					// must be explicit
-					leaf._operation.toString()
-						// [\s\S] need to be used instead of . because
-						// javascript doesn't have a dotall flag (s)
-						.replace(/function\s*\(\)\s*\{([\s\S]*?)\}$/, '$1')
-						.trim() +
-					// add sourceURL pragma to help debugging
-					'\n\n//# sourceURL=' + path
-				);
-
-		leaf._updaters = [ Function.apply( null, args ) ];
-		return leaf._updaters;
-	}
-
-	if ( leaf.constructor === Object ) {
+	} else if ( leaf.constructor === Object ) {
 		for ( var i in leaf ) {
 			Utils.createUpdaters( leaf[i], path + '.' + i );
 		}
-	}
 
-	if ( leaf.constructor === Array ) {
+	} else if ( leaf.constructor === Array ) {
 		leaf.forEach(function(child, j) {
 			Utils.createUpdaters( child, path + '.' + j );
 		});
 	}
+};
+
+Utils.updaterCache = {};
+Utils.createUpdater = function( leaf/*, path*/ ) {
+	var sOperation = leaf._operation.toString(),
+		cacheKey = ( leaf.parameters || [] ).join() + '#' + sOperation;
+
+	if ( cacheKey in Utils.updaterCache ) {
+		return Utils.updaterCache[ cacheKey ];
+	}
+
+	Utils.updaterCache[ cacheKey ] = Function.apply( null, [
+			'propName', 'contours', 'anchors', 'parentAnchors', 'Utils'
+		]
+		.concat( leaf._parameters || [] )
+		.concat(
+			( typeof leaf._operation === 'string' &&
+					leaf._operation.indexOf('return ') === -1 ?
+				'return ' : ''
+			) +
+			// The operation might be wrapped in a function (e.g. multi-
+			// line code for debugging purpose). In this case, return
+			// must be explicit
+			sOperation
+				// [\s\S] need to be used instead of . because
+				// javascript doesn't have a dotall flag (s)
+				.replace(/^function\s*\(\)\s*\{([\s\S]*?)\}$/, '$1')
+				.trim()/* +
+			// add sourceURL pragma to help debugging
+			// TODO: restore sourceURL pragma if it proves necessary
+			'\n\n//# sourceURL=' + path*/
+		) );
+
+	return Utils.updaterCache[ cacheKey ];
 };
 
 Utils.solveDependencyTree = function( leaf, src ) {
@@ -20326,15 +20343,15 @@ Utils.updateParameters = function( leaf, params ) {
 		.forEach(function( name ) {
 			var src = leaf.src.parameters[name];
 
-			if ( src._updaters ) {
-				params[name] = src._updaters[0].apply( null, [
+			params[name] = src._updaters ?
+				src._updaters[0].apply( null, [
 					name, [], [], leaf.parentAnchors, Utils
 				].concat(
 					( src._parameters || [] ).map(function(_name) {
 						return params[_name];
 					})
-				));
-			}
+				)) :
+				src;
 		});
 };
 
@@ -20751,24 +20768,30 @@ naive.prepareContour = function( path ) {
 	path.nodes.forEach(function(node) {
 		if ( node.typeIn === 'line' && node.previous ) {
 			node.previous.typeOut = 'line';
-
-			if ( node.type === 'smooth' ) {
-				node._dirIn = Utils.lineAngle(
-					node.point, node.previous.point
-				);
-				node._dirOut = node._dirIn + Math.PI;
-			}
 		}
 
 		if ( node.typeOut === 'line' && node.next ) {
 			node.next.typeIn = 'line';
+		}
+	});
 
-			if ( node.type === 'smooth' ) {
-				node._dirOut = Utils.lineAngle(
-					node.point, node.next.point
-				);
-				node._dirIn = node._dirOut + Math.PI;
-			}
+	path.nodes.forEach(function(node) {
+		if ( node.typeIn === 'line' && node.type === 'smooth' &&
+				node.previous ) {
+
+			node._dirIn = Utils.lineAngle(
+				node.point, node.previous.point
+			);
+			node._dirOut = node._dirIn + Math.PI;
+		}
+
+		if ( node.typeOut === 'line' && node.type === 'smooth' &&
+				node.next ) {
+
+			node._dirOut = Utils.lineAngle(
+				node.point, node.next.point
+			);
+			node._dirIn = node._dirOut + Math.PI;
 		}
 	});
 };
@@ -20940,9 +20963,6 @@ function parametricFont( src ) {
 
 		Utils.ufoToPaper( glyphSrc );
 
-		// turn ._operation strings to ._updaters functions
-		Utils.createUpdaters( glyphSrc, 'glyphs/glyph_' + name );
-
 		var glyph = Utils.glyphFromSrc( glyphSrc, src, naive );
 
 		font.addGlyph( glyph );
@@ -21012,7 +21032,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 		params;
 
 	// 0. calculate local parameters
-	params = _.assign( {}, _params, glyph.parameters, glyph.parentParameters );
+	params = _.assign( {}, _params, glyph.parentParameters );
 
 	Utils.updateParameters( glyph, params );
 
