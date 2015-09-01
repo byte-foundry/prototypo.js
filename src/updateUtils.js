@@ -153,7 +153,7 @@ Utils.pointOnCurve = function(pointHandleOut,
 
 	var t = length === 0 ? 0 : distanceFromOut / length;
 
-	t = Math.max(0.1, Math.min(1, t));
+	t = Math.max(0.001, Math.min(1, t));
 
     return Utils.deCasteljau(points, t);
 };
