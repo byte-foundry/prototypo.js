@@ -20368,15 +20368,33 @@ Utils.updateProperties = function( leaf, params ) {
 			obj = _cursor.obj || ( _cursor.obj =
 				Utils.propFromCursor( cursor, leaf, cursor.length - 1 ) ),
 			// TODO: one day we could allow multiple _updaters
-			result = src && src._updaters && src._updaters[0].apply( obj, [
-					propName, leaf.contours, leaf.anchors,
-					leaf.parentAnchors, Utils
-				].concat(
-					( src._parameters || [] ).map(function(_name) {
-						return params[_name];
-					})
-				)
-			);
+			result;
+
+		if ( src && src._updaters ) {
+			try {
+				result = src._updaters[0].apply(
+					obj,
+					[
+						propName, leaf.contours, leaf.anchors,
+						leaf.parentAnchors, Utils
+					].concat(
+						( src._parameters || [] ).map(function(_name) {
+							return params[_name];
+						})
+					)
+				);
+			} catch (e) {
+				console.error(
+					[
+						'Cannot update property',
+						cursor.join('.'),
+						'from component',
+						leaf.name
+					].join(' '),
+					e
+				);
+			}
+		}
 
 		// Assume that updaters returning undefined have their own
 		// assignment logic
