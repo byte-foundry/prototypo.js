@@ -26217,6 +26217,10 @@ Font.prototype.getGlyphSubset = function( _set ) {
 	return _set !== undefined ? this.normalizeSubset( _set ) : this.subset;
 };
 
+Font.prototype.setAlternateFor = function( unicode, glyphName ) {
+	this.charMap[ unicode ] = this.glyphMap[ glyphName ];
+};
+
 Font.prototype.interpolate = function( font0, font1, coef, set ) {
 	this.getGlyphSubset( set ).map(function( glyph ) {
 		glyph.interpolate(
@@ -26527,7 +26531,9 @@ Glyph.prototype.updateOTCommands = function( path, united ) {
 
 		if ( solution.length > 0 ) {
 			solution = clipper.Clipper.CleanPolygons( solution, 0.1 );
-			solution = clipper.Clipper.SimplifyPolygons( solution, clipper.PolyFillType.pftNonZero );
+			solution = clipper
+				.Clipper
+				.SimplifyPolygons( solution, clipper.PolyFillType.pftNonZero );
 
 			var unionedPath = new Outline();
 			solution.forEach(function( path ) {
@@ -26726,10 +26732,16 @@ Outline.prototype.getPaths = function( solution ) {
 		if ( contour.skeleton !== true ) {
 			solution = contour.getPath( solution, contour.globalMatrix );
 		} else if ( !contour.expandedTo[1] ) {
-			solution = contour.expandedTo[0].getPath( solution, contour.globalMatrix );
+			solution = contour
+				.expandedTo[0]
+				.getPath( solution, contour.globalMatrix );
 		} else {
-			solution.push( contour.expandedTo[0].getSimplePath( null, contour.globalMatrix ) );
-			solution.push( contour.expandedTo[1].getSimplePath( null, contour.globalMatrix ) );
+			solution.push(
+				contour.expandedTo[0]
+					.getSimplePath( null, contour.globalMatrix ) );
+			solution.push(
+				contour.expandedTo[1]
+					.getSimplePath( null, contour.globalMatrix ) );
 		}
 	});
 
@@ -26885,7 +26897,8 @@ proto.getSimplePath = function( precision, matrix ) {
 			for (var j = precision - 1; j > 0; j--) {
 				offset = j / precision;
 
-				locationOnCurve = this.curves[i].getLocationAt( offset, true ).point.transform( matrix );
+				locationOnCurve = this.curves[i]
+					.getLocationAt( offset, true ).point.transform( matrix );
 				path.push( { X: locationOnCurve.x, Y: locationOnCurve.y } );
 			}
 		}
@@ -26896,7 +26909,8 @@ proto.getSimplePath = function( precision, matrix ) {
 			for (var k = 1; k < precision; k++) {
 				offset = k / precision;
 
-				locationOnCurve = item.getLocationAt( offset, true ).point.transform( matrix );
+				locationOnCurve = item
+					.getLocationAt( offset, true ).point.transform( matrix );
 				path.push( { X: locationOnCurve.x, Y: locationOnCurve.y } );
 			}
 		});
@@ -26915,7 +26929,10 @@ proto.getPath = function( solution, matrix ) {
 	c.AddPaths( solution, clipper.PolyType.ptSubject, true );
 	c.AddPath( path, clipper.PolyType.ptClip, true );
 	try {
-		c.Execute( clipper.ClipType.ctUnion, newPathToAdd, clipper.PolyFillType.pftNonZero, clipper.PolyFillType.pftNonZero);
+		c.Execute( clipper.ClipType.ctUnion,
+			newPathToAdd,
+			clipper.PolyFillType.pftNonZero,
+			clipper.PolyFillType.pftNonZero);
 	} catch ( err ) {
 		newPathToAdd = solution;
 		newPathToAdd.push( path );
