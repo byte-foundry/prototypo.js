@@ -51,7 +51,7 @@ shelter({
 	},
 	build: {
 		dsc: 'Lint code, generate dist files and test them',
-		cmd: '( ${_jscs} & ${_eslint} ) && ${_dist} && ${_mocha}'
+		cmd: '${_dist} && ${_mocha}'
 	},
 	serve: {
 		dsc: 'Opens index.html and live-reload on changes',

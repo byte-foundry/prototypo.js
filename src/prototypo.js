@@ -54,8 +54,8 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 
 	Utils.updateProperties( font, params );
 
-	if ( params.indiv_group_param ) {
-		const groupedProperties = [
+	if ( params['indiv_group_param'] ) {
+		var groupedProperties = [
 			'ascender',
 			'descender',
 			'cap-height',
@@ -64,11 +64,11 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 
 		groupedProperties.forEach(function( name ) {
 			var src = font.src.fontinfo[name];
-			Object.keys( params.indiv_group_param )
+			Object.keys( params['indiv_group_param'] )
 				.forEach(function( groupName ) {
-				const group = params.indiv_group_param[groupName];
+				var group = params['indiv_group_param'][groupName];
 
-				const sign = font.ot[name] > 0 ? 1 : -1;
+				var sign = font.ot[name] > 0 ? 1 : -1;
 
 				font.ot[name] = sign * Math.max( Math.abs(font.ot[name]),
 					Math.abs(src._updaters[0].apply(
@@ -118,15 +118,17 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 		params;
 
 	// 0. calculate local parameters
-	if (_params.indiv_glyphs &&
-		Object.keys( _params.indiv_glyphs )
+	if (_params['indiv_glyphs'] &&
+		Object.keys( _params['indiv_glyphs'] )
 			.indexOf( '' + glyph.ot.unicode ) !== -1) {
 
 		var indivParam = {};
 
 		Object.keys( _params ).forEach(function( param ) {
 			if ( _params[param].constructor.name === 'Number' ) {
-				var groups = _params.indiv_group_param[_params.indiv_glyphs[glyph.ot.unicode]],
+				var groups = _params['indiv_group_param'][
+						_params['indiv_glyphs'][glyph.ot.unicode]
+					],
 					multiplier = groups[param + '_rel'] || {
 					state: 'relative',
 					value: 1

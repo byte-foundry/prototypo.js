@@ -498,11 +498,11 @@ Utils.updateParameters = function( leaf, params ) {
 				)) :
 				src;
 
-			if (params.indiv_group_param) {
-				Object.keys(params.indiv_group_param)
+			if (params['indiv_group_param']) {
+				Object.keys(params['indiv_group_param'])
 					.forEach(function( groupName ) {
 					var needed = false;
-					var group = params.indiv_group_param[groupName];
+					var group = params['indiv_group_param'][groupName];
 
 					function handleGroup(_name) {
 						return group[_name + '_rel'] ?
