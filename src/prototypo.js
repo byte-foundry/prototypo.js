@@ -108,15 +108,18 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 					// We don't want to apply the transforms immediatly,
 					// otherwise the transformation will add-up on each
 					// update.
-					node.applyMatrix = false;
-					node.matrix = matrix;
+					//node.applyMatrix = false;
+					//node.matrix = matrix;
+
+					node.transform(matrix);
 
 				// when dealing with a skeleton, modify only the matrix of
 				// expanded items
 				} else {
 					node.expandedTo.forEach(function( _node ) {
-						_node.applyMatrix = false;
-						_node.matrix = matrix;
+						//_node.applyMatrix = false;
+						//_node.matrix = matrix;
+						_node.transform(matrix);
 					});
 				}
 			}
