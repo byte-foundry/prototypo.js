@@ -2,10 +2,11 @@
 var plumin = require('plumin.js'),
 	assign = require('es6-object-assign').assign,
 	Utils = require('./Utils.js'),
-	naive = require('./naive.js');
+	naive = require('./naive.js'),
+	lodash = require('lodash');
 
 var paper = plumin.paper,
-	_ = { assign: assign };
+	_ = { assign: assign, map: lodash.map};
 
 function parametricFont( src ) {
 	var font = Utils.fontFromSrc( src );
@@ -53,6 +54,34 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 
 	Utils.updateProperties( font, params );
 
+
+	if ( params.indiv_group_param ) {
+		const groupedProperties = ['ascender', 'descender', 'cap-height', 'descendent-height'];
+
+		groupedProperties.forEach(function( name ) {
+			var src = font.src.fontinfo[name];
+			Object.keys( params.indiv_group_param ).forEach(function( groupName ) {
+				const group = params.indiv_group_param[groupName];
+
+				const sign = font.ot[name] > 0 ? 1 : -1;
+
+				font.ot[name] = sign * Math.max( Math.abs(font.ot[name]),
+					Math.abs(src._updaters[0].apply(
+						font.ot,
+						[
+							name, null, null,
+							null, Utils
+						].concat(
+							( src._parameters || [] ).map(function(_name) {
+								return group[_name] || params[_name];
+							})
+						)
+					))
+				);
+			});
+		});
+	}
+
 	this.getGlyphSubset( set ).map(function( glyph ) {
 		return glyph.update( params );
 	}, this);
@@ -84,7 +113,33 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 		params;
 
 	// 0. calculate local parameters
-	params = _.assign( {}, _params, glyph.parentParameters );
+	if (_params.indiv_glyphs &&
+		Object.keys( _params.indiv_glyphs ).indexOf( '' + glyph.ot.unicode ) !== -1) {
+		var indivParam = {};
+
+		Object.keys( _params ).forEach(function( param ) {
+			if ( _params[param].constructor.name === 'Number' ) {
+				var multiplier = _params.indiv_group_param[_params.indiv_glyphs[glyph.ot.unicode]][param + '_rel'] || {
+					state: 'relative',
+					value: 1
+				};
+
+				indivParam[param] = _params.indiv_group_param[_params.indiv_glyphs[glyph.ot.unicode]][param] ||
+					( multiplier.state === 'relative' ?
+						(multiplier.value * _params[param]) :
+						(multiplier.value + _params[param])
+					);
+			}
+		});
+
+		params = _.assign({},
+			_params,
+			indivParam,
+			glyph.parentParameters);
+	}
+	else {
+		params = _.assign({}, _params, glyph.parentParameters);
+	}
 
 	Utils.updateParameters( glyph, params );
 
