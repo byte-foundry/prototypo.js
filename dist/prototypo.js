@@ -32749,9 +32749,19 @@ Utils.updateParameters = function( leaf, params ) {
 				src;
 
 			if (params.indiv_group_param) {
-				Object.keys(params.indiv_group_param).forEach(function( groupName ) {
+				Object.keys(params.indiv_group_param)
+					.forEach(function( groupName ) {
 					var needed = false;
 					var group = params.indiv_group_param[groupName];
+
+					function handleGroup(_name) {
+						return group[_name + '_rel'] ?
+							( group[_name + '_rel'].state === 'relative' ?
+								group[_name + '_rel'].value * params[_name] :
+								group[_name + '_rel'].value + params[_name]
+							)
+							: params[_name];
+					}
 
 					if (src._parameters) {
 						src._parameters.forEach(function( parameter ) {
@@ -32764,14 +32774,8 @@ Utils.updateParameters = function( leaf, params ) {
 								src._updaters[0].apply( null, [
 									name, [], [], leaf.parentAnchors, Utils
 								].concat(
-									( src._parameters || [] ).map(function(_name) {
-										return group[_name + '_rel'] ?
-											( group[_name + '_rel'].state === 'relative' ?
-												group[_name + '_rel'].value * params[_name] :
-												group[_name + '_rel'].value + params[_name]
-											)
-											: params[_name];
-									})
+									( src._parameters || [] )
+										.map(handleGroup)
 								)) :
 								src;
 						}
@@ -33399,7 +33403,7 @@ var plumin = require('plumin.js'),
 	lodash = require('lodash');
 
 var paper = plumin.paper,
-	_ = { assign: assign, map: lodash.map};
+	_ = { assign: assign, map: lodash.map };
 
 function parametricFont( src ) {
 	var font = Utils.fontFromSrc( src );
@@ -33447,13 +33451,18 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
 
 	Utils.updateProperties( font, params );
 
-
 	if ( params.indiv_group_param ) {
-		const groupedProperties = ['ascender', 'descender', 'cap-height', 'descendent-height'];
+		const groupedProperties = [
+			'ascender',
+			'descender',
+			'cap-height',
+			'descendent-height'
+		];
 
 		groupedProperties.forEach(function( name ) {
 			var src = font.src.fontinfo[name];
-			Object.keys( params.indiv_group_param ).forEach(function( groupName ) {
+			Object.keys( params.indiv_group_param )
+				.forEach(function( groupName ) {
 				const group = params.indiv_group_param[groupName];
 
 				const sign = font.ot[name] > 0 ? 1 : -1;
@@ -33507,17 +33516,20 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 
 	// 0. calculate local parameters
 	if (_params.indiv_glyphs &&
-		Object.keys( _params.indiv_glyphs ).indexOf( '' + glyph.ot.unicode ) !== -1) {
+		Object.keys( _params.indiv_glyphs )
+			.indexOf( '' + glyph.ot.unicode ) !== -1) {
+
 		var indivParam = {};
 
 		Object.keys( _params ).forEach(function( param ) {
 			if ( _params[param].constructor.name === 'Number' ) {
-				var multiplier = _params.indiv_group_param[_params.indiv_glyphs[glyph.ot.unicode]][param + '_rel'] || {
+				var groups = _params.indiv_group_param[_params.indiv_glyphs[glyph.ot.unicode]],
+					multiplier = groups[param + '_rel'] || {
 					state: 'relative',
 					value: 1
 				};
 
-				indivParam[param] = _params.indiv_group_param[_params.indiv_glyphs[glyph.ot.unicode]][param] ||
+				indivParam[param] = groups[param] ||
 					( multiplier.state === 'relative' ?
 						(multiplier.value * _params[param]) :
 						(multiplier.value + _params[param])
@@ -33529,8 +33541,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 			_params,
 			indivParam,
 			glyph.parentParameters);
-	}
-	else {
+	} else {
 		params = _.assign({}, _params, glyph.parentParameters);
 	}
 
