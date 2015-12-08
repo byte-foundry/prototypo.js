@@ -2,11 +2,10 @@
 var plumin = require('plumin.js'),
 	assign = require('es6-object-assign').assign,
 	Utils = require('./Utils.js'),
-	naive = require('./naive.js'),
-	lodash = require('lodash');
+	naive = require('./naive.js');
 
 var paper = plumin.paper,
-	_ = { assign: assign, map: lodash.map };
+	_ = { assign: assign };
 
 function parametricFont( src ) {
 	var font = Utils.fontFromSrc( src );
@@ -169,20 +168,12 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 				);
 
 				if ( contour.skeleton !== true ) {
-					// We don't want to apply the transforms immediatly,
-					// otherwise the transformation will add-up on each
-					// update.
-					//node.applyMatrix = false;
-					//node.matrix = matrix;
-
 					node.transform(matrix);
 
 				// when dealing with a skeleton, modify only the matrix of
 				// expanded items
 				} else {
 					node.expandedTo.forEach(function( _node ) {
-						//_node.applyMatrix = false;
-						//_node.matrix = matrix;
 						_node.transform(matrix);
 					});
 				}

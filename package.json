@@ -3,17 +3,17 @@
   "version": "0.6.16",
   "description": "parametric-glyph engine",
   "dependencies": {
-    "es6-object-assign": "^1.0.1",
-    "lodash": "^3.10.0"
+    "es6-object-assign": "^1.0.1"
   },
   "devDependencies": {
     "browser-sync": "^2.4.0",
     "browserify": "^9.0.3",
     "chai": "^2.1.2",
     "deptree": "^0.1.0",
-    "eslint": "^0.21.2",
+    "eslint": "^1.10.3",
     "eslint-plugin-mocha": "^0.2.2",
     "exorcist": "^0.1.6",
+    "genese.ptf": "byte-foundry/genese.ptf",
     "ghooks": "^0.3.0",
     "gulp": "^3.8.11",
     "gulp-shelter": "^0.9.1",
@@ -21,9 +21,8 @@
     "lodash.merge": "^3.3.2",
     "mocha": "^2.2.1",
     "plumin.js": "byte-foundry/plumin.js#master",
-    "genese.ptf": "byte-foundry/genese.ptf",
     "test.ptf": "byte-foundry/test.ptf#master",
-    "uglify-js": "^2.4.17",
+    "uglify-js": "^2.6.1",
     "watchify": "^2.6.0"
   },
   "engines": {

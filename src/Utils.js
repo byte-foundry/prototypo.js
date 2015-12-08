@@ -88,7 +88,11 @@ Utils.fontFromSrc = function( src ) {
 		src.fontinfo = src.info;
 	}
 
-	var font = new paper.Font( src.fontinfo );
+	var font = new paper.Font( _.assign({}, src.fontinfo, {
+		// The font needs to be initialized with valid ascender/descender values
+		ascender: 1,
+		descender: -1
+	}) );
 
 	font.src = Utils.ufoToPaper( src );
 
@@ -498,7 +502,7 @@ Utils.updateParameters = function( leaf, params ) {
 				)) :
 				src;
 
-			if (params['indiv_group_param']) {
+			if ( params['indiv_group_param'] ) {
 				Object.keys(params['indiv_group_param'])
 					.forEach(function( groupName ) {
 					var needed = false;
@@ -513,12 +517,12 @@ Utils.updateParameters = function( leaf, params ) {
 							: params[_name];
 					}
 
-					if (src._parameters) {
+					if ( src._parameters ) {
 						src._parameters.forEach(function( parameter ) {
 							needed = needed || group[parameter + '_rel'];
 						});
 
-						if (needed) {
+						if ( needed ) {
 
 							group[name] = src._updaters ?
 								src._updaters[0].apply( null, [
