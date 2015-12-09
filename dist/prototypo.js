@@ -446,7 +446,7 @@ function bufferClone(buffer) {
 module.exports = bufferClone;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-
+//# sourceMappingURL=data:application/json;charset:utf-8;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5vZGVfbW9kdWxlcy9sb2Rhc2gvaW50ZXJuYWwvYnVmZmVyQ2xvbmUuanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IjtBQUFBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQSIsImZpbGUiOiJnZW5lcmF0ZWQuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlc0NvbnRlbnQiOlsiLyoqIE5hdGl2ZSBtZXRob2QgcmVmZXJlbmNlcy4gKi9cbnZhciBBcnJheUJ1ZmZlciA9IGdsb2JhbC5BcnJheUJ1ZmZlcixcbiAgICBVaW50OEFycmF5ID0gZ2xvYmFsLlVpbnQ4QXJyYXk7XG5cbi8qKlxuICogQ3JlYXRlcyBhIGNsb25lIG9mIHRoZSBnaXZlbiBhcnJheSBidWZmZXIuXG4gKlxuICogQHByaXZhdGVcbiAqIEBwYXJhbSB7QXJyYXlCdWZmZXJ9IGJ1ZmZlciBUaGUgYXJyYXkgYnVmZmVyIHRvIGNsb25lLlxuICogQHJldHVybnMge0FycmF5QnVmZmVyfSBSZXR1cm5zIHRoZSBjbG9uZWQgYXJyYXkgYnVmZmVyLlxuICovXG5mdW5jdGlvbiBidWZmZXJDbG9uZShidWZmZXIpIHtcbiAgdmFyIHJlc3VsdCA9IG5ldyBBcnJheUJ1ZmZlcihidWZmZXIuYnl0ZUxlbmd0aCksXG4gICAgICB2aWV3ID0gbmV3IFVpbnQ4QXJyYXkocmVzdWx0KTtcblxuICB2aWV3LnNldChuZXcgVWludDhBcnJheShidWZmZXIpKTtcbiAgcmV0dXJuIHJlc3VsdDtcbn1cblxubW9kdWxlLmV4cG9ydHMgPSBidWZmZXJDbG9uZTtcbiJdfQ==
 },{}],13:[function(require,module,exports){
 var toObject = require('./toObject');
 
@@ -797,10 +797,10 @@ var baseClone = require('../internal/baseClone'),
 
 /**
  * Creates a clone of `value`. If `isDeep` is `true` nested objects are cloned,
- * otherwise they are assigned by reference. If `customizer` is provided it is
+ * otherwise they are assigned by reference. If `customizer` is provided it's
  * invoked to produce the cloned values. If `customizer` returns `undefined`
  * cloning is handled by the method instead. The `customizer` is bound to
- * `thisArg` and invoked with two argument; (value [, index|key, object]).
+ * `thisArg` and invoked with up to three argument; (value [, index|key, object]).
  *
  * **Note:** This method is loosely based on the
  * [structured clone algorithm](http://www.w3.org/TR/html5/infrastructure.html#internal-structured-cloning-algorithm).
@@ -856,7 +856,7 @@ function clone(value, isDeep, customizer, thisArg) {
     isDeep = false;
   }
   return typeof customizer == 'function'
-    ? baseClone(value, isDeep, bindCallback(customizer, thisArg, 1))
+    ? baseClone(value, isDeep, bindCallback(customizer, thisArg, 3))
     : baseClone(value, isDeep);
 }
 
@@ -974,7 +974,7 @@ var objToString = objectProto.toString;
 function isFunction(value) {
   // The use of `Object#toString` avoids issues with the `typeof` operator
   // in older versions of Chrome and Safari which return 'function' for regexes
-  // and Safari 8 equivalents which return 'object' for typed array constructors.
+  // and Safari 8 which returns 'object' for typed array constructors.
   return isObject(value) && objToString.call(value) == funcTag;
 }
 
