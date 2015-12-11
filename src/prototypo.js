@@ -5,6 +5,7 @@ var plumin = require('plumin.js'),
 	naive = require('./naive.js');
 
 var paper = plumin.paper,
+	psProto = paper.PaperScope.prototype,
 	_ = { assign: assign };
 
 function parametricFont( src ) {
@@ -45,59 +46,21 @@ plumin.parametricFont = parametricFont;
 plumin.Utils = Utils;
 plumin.Utils.naive = naive;
 
-paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
-	var font = this,
-		matrix;
+psProto.Font.prototype.update = function( params, set ) {
+	var font = this;
 
 	Utils.updateParameters( font, params );
 
 	Utils.updateProperties( font, params );
 
-	if ( params['indiv_group_param'] ) {
-		var groupedProperties = [
-			'ascender',
-			'descender',
-			'cap-height',
-			'descendent-height'
-		];
-
-		groupedProperties.forEach(function( name ) {
-			var src = font.src.fontinfo[name];
-			Object.keys( params['indiv_group_param'] )
-				.forEach(function( groupName ) {
-				var group = params['indiv_group_param'][groupName];
-
-				var sign = font.ot[name] > 0 ? 1 : -1;
-
-				font.ot[name] = sign * Math.max( Math.abs(font.ot[name]),
-					Math.abs(src._updaters[0].apply(
-						font.ot,
-						[
-							name, null, null,
-							null, Utils
-						].concat(
-							( src._parameters || [] ).map(function(_name) {
-								return group[_name] || params[_name];
-							})
-						)
-					))
-				);
-			});
-		});
-	}
+	Utils.updateXscenderProperties( font, params );
 
 	this.getGlyphSubset( set ).map(function( glyph ) {
 		return glyph.update( params );
 	}, this);
 
-	if ( font.transforms ) {
-		matrix = Utils.transformsToMatrix(
-			font.transforms.slice(0), font.transformOrigin
-		);
-
-		font.applyMatrix = false;
-		font.matrix = matrix;
-	}
+	// We no longer support font transforms. Transforms should happen at the
+	// glyph level, where they can be individualized.
 
 	return this;
 };
@@ -110,28 +73,28 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 2. transform contours
  * 3. Update components and transform them
  */
-paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
+psProto.Glyph.prototype.update = function( _params ) {
 	var glyph = this,
 		font = glyph.parent,
 		matrix,
 		params;
 
 	// 0. calculate local parameters
-	if (_params['indiv_glyphs'] &&
-		Object.keys( _params['indiv_glyphs'] )
-			.indexOf( '' + glyph.ot.unicode ) !== -1) {
+	if ( _params['indiv_glyphs'] &&
+			Object.keys( _params['indiv_glyphs'] )
+				.indexOf( '' + glyph.ot.unicode ) !== -1 ) {
 
 		var indivParam = {};
 
 		Object.keys( _params ).forEach(function( param ) {
-			if ( _params[param].constructor.name === 'Number' ) {
+			if ( typeof _params[param] === 'number' ) {
 				var groups = _params['indiv_group_param'][
 						_params['indiv_glyphs'][glyph.ot.unicode]
 					],
 					multiplier = groups[param + '_rel'] || {
-					state: 'relative',
-					value: 1
-				};
+						state: 'relative',
+						value: 1
+					};
 
 				indivParam[param] = groups[param] ||
 					( multiplier.state === 'relative' ?
@@ -141,12 +104,9 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 			}
 		});
 
-		params = _.assign({},
-			_params,
-			indivParam,
-			glyph.parentParameters);
+		params = _.assign( {}, _params, indivParam, glyph.parentParameters );
 	} else {
-		params = _.assign({}, _params, glyph.parentParameters);
+		params = _.assign( {}, _params, glyph.parentParameters );
 	}
 
 	Utils.updateParameters( glyph, params );
@@ -189,6 +149,8 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 			);
 
 			if ( contour.skeleton !== true ) {
+				// We don't want to apply the transforms immediatly on contours,
+				// otherwise the transformation will add-up on each update.
 				contour.applyMatrix = false;
 				contour.matrix = matrix;
 
@@ -227,6 +189,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 
 	// 4. transform whole glyph
 	if ( glyph.transforms ) {
+
 		matrix = Utils.transformsToMatrix(
 			glyph.transforms.slice(0), glyph.transformOrigin
 		);
@@ -242,7 +205,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 // directions. Basically, everything needs to be clockwise.
 // this method needs to be called only after the first update, otherwise the
 // directions won't be known
-paper.PaperScope.prototype.Outline.prototype.prepareDataUpdate = function() {
+psProto.Outline.prototype.prepareDataUpdate = function() {
 	if ( this.isPrepared ) {
 		return;
 	}
@@ -276,7 +239,7 @@ var updateSVGData =
 	updateOTCommands =
 		paper.PaperScope.prototype.Outline.prototype.updateOTCommands;
 
-paper.PaperScope.prototype.Outline.prototype.updateSVGData = function() {
+psProto.Outline.prototype.updateSVGData = function() {
 	if ( !this.isPrepared ) {
 		this.prepareDataUpdate();
 	}
@@ -284,7 +247,7 @@ paper.PaperScope.prototype.Outline.prototype.updateSVGData = function() {
 	updateSVGData.apply( this, arguments );
 };
 
-paper.PaperScope.prototype.Outline.prototype.updateOTCommands = function() {
+psProto.Outline.prototype.updateOTCommands = function() {
 	if ( !this.isPrepared ) {
 		this.prepareDataUpdate();
 		this.isPrepared = true;

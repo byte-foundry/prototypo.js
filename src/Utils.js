@@ -128,11 +128,6 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
-	// if ( !wmm.has( src ) ) {
-	// 	wmm.set( src, JSON.stringify( src ) );
-	// }
-	// glyph.src = JSON.parse( wmm.get( src ) );
-	// glyph.src = JSON.parse( JSON.stringify( src ) );
 	glyph.src = _.clone( src, true );
 	// turn ._operation strings to ._updaters functions
 	// TODO: restore sourceURL pragma for debugging.
@@ -502,40 +497,39 @@ Utils.updateParameters = function( leaf, params ) {
 				)) :
 				src;
 
-			if ( params['indiv_group_param'] ) {
-				Object.keys(params['indiv_group_param'])
-					.forEach(function( groupName ) {
-					var needed = false;
-					var group = params['indiv_group_param'][groupName];
-
-					function handleGroup(_name) {
-						return group[_name + '_rel'] ?
-							( group[_name + '_rel'].state === 'relative' ?
-								group[_name + '_rel'].value * params[_name] :
-								group[_name + '_rel'].value + params[_name]
-							)
-							: params[_name];
-					}
-
-					if ( src._parameters ) {
-						src._parameters.forEach(function( parameter ) {
-							needed = needed || group[parameter + '_rel'];
-						});
-
-						if ( needed ) {
-
-							group[name] = src._updaters ?
-								src._updaters[0].apply( null, [
-									name, [], [], leaf.parentAnchors, Utils
-								].concat(
-									( src._parameters || [] )
-										.map(handleGroup)
-								)) :
-								src;
-						}
-					}
-				});
-			}
+			// if ( params['indiv_group_param'] ) {
+			// 	Object.keys(params['indiv_group_param'])
+			// 		.forEach(function( groupName ) {
+			// 		var needed = false;
+			// 		var group = params['indiv_group_param'][groupName];
+			//
+			// 		function handleGroup(_name) {
+			// 			return group[_name + '_rel'] ?
+			// 				( group[_name + '_rel'].state === 'relative' ?
+			// 					group[_name + '_rel'].value * params[_name] :
+			// 					group[_name + '_rel'].value + params[_name]
+			// 				)
+			// 				: params[_name];
+			// 		}
+			//
+			// 		if ( !src._parameters ) {
+			// 			src._parameters.forEach(function( parameter ) {
+			// 				needed = needed || group[parameter + '_rel'];
+			// 			});
+			//
+			// 			if ( needed ) {
+			// 				group[name] = src._updaters ?
+			// 					src._updaters[0].apply( null, [
+			// 						name, [], [], leaf.parentAnchors, Utils
+			// 					].concat(
+			// 						( src._parameters || [] )
+			// 							.map(handleGroup)
+			// 					)) :
+			// 					src;
+			// 			}
+			// 		}
+			// 	});
+			// }
 		});
 };
 
@@ -569,6 +563,7 @@ Utils.updateProperties = function( leaf, params ) {
 				);
 
 			} catch (e) {
+				/* eslint-disable no-console */
 				console.error(
 					[
 						'Cannot update property',
@@ -578,6 +573,7 @@ Utils.updateProperties = function( leaf, params ) {
 					].join(' '),
 					e
 				);
+				/* eslint-enable no-console */
 			}
 		}
 
@@ -588,5 +584,41 @@ Utils.updateProperties = function( leaf, params ) {
 		}
 	}, this);
 };
+
+// The ascender and descender properties must be set to their maximum
+// values accross the individualized params groups
+Utils.updateXscenderProperties = function( font, params ) {
+	if ( params['indiv_group_param'] ) {
+		var xscenderProperties = [
+			'ascender',
+			'descender',
+			'cap-height',
+			'descendent-height'
+		];
+
+		xscenderProperties.forEach(function( name ) {
+			var src = font.src.fontinfo[ name ];
+			Object.keys( params['indiv_group_param'] )
+				.forEach(function( groupName ) {
+				var group = params['indiv_group_param'][groupName];
+
+				var sign = font.ot[name] > 0 ? 1 : -1;
+
+				font.ot[ name ] = sign * Math.max( Math.abs(font.ot[ name ]),
+					Math.abs(src._updaters[0].apply(
+						font.ot,
+						[
+							name, null, null, null, Utils
+						].concat(
+							( src._parameters || [] ).map(function(_name) {
+								return group[_name] || params[_name];
+							})
+						)
+					))
+				);
+			});
+		});
+	}
+}
 
 module.exports = Utils;

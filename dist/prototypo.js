@@ -7837,7 +7837,7 @@ exports.checkArgument = function(expression, message) {
  *
  * All rights reserved.
  *
- * Date: Mon Dec 7 15:26:30 2015 +0100
+ * Date: Wed Dec 9 17:33:02 2015 +0100
  *
  ***
  *
@@ -21806,11 +21806,11 @@ Font.prototype.updateSVGData = function( set ) {
 	return this;
 };
 
-Font.prototype.updateOTCommands = function( set, united ) {
+Font.prototype.updateOTCommands = function( set, merged ) {
 	return this.updateOT({
 		set: set,
 		shouldUpdateCommands: true,
-		united: united
+		merged: merged
 	});
 };
 
@@ -21818,7 +21818,7 @@ Font.prototype.updateOT = function( args ) {
 	this.ot.glyphs.glyphs = (
 		this.getGlyphSubset( args && args.set ).reduce(function(o, glyph, i) {
 			o[i] = args && args.shouldUpdateCommands ?
-				glyph.updateOTCommands( null, args && args.united ) :
+				glyph.updateOTCommands( null, args && args.merged ) :
 				glyph.ot;
 			return o;
 		}, {})
@@ -21903,54 +21903,47 @@ if ( typeof window === 'object' && window.document ) {
 
 	var a = document.createElement('a');
 
-	Font.prototype.downloadFromLink = function( buffer ) {
-			var reader = new FileReader();
-			var enFamilyName = this.ot.getEnglishName('fontFamily');
+	var triggerDownload = function( font, arrayBuffer ) {
+		var reader = new FileReader();
+		var enFamilyName = font.ot.getEnglishName('fontFamily');
 
-			reader.onloadend = function() {
-				a.download = enFamilyName + '.otf';
-				a.href = reader.result;
-				a.dispatchEvent(new MouseEvent('click'));
+		reader.onloadend = function() {
+			a.download = enFamilyName + '.otf';
+			a.href = reader.result;
+			a.dispatchEvent(new MouseEvent('click'));
 
-				setTimeout(function() {
-					a.href = '#';
-					_URL.revokeObjectURL( reader.result );
-				}, 100);
-			};
+			setTimeout(function() {
+				a.href = '#';
+				_URL.revokeObjectURL( reader.result );
+			}, 100);
+		};
 
-			reader.readAsDataURL(new Blob(
-				[ new DataView( buffer || this.toArrayBuffer() ) ],
-				{ type: 'font/opentype' }
-			));
+		reader.readAsDataURL(new Blob(
+			[ new DataView( arrayBuffer || font.toArrayBuffer() ) ],
+			{ type: 'font/opentype' }
+		));
 	};
 
-	Font.prototype.download = function( buffer, merged, name, user ) {
+	Font.prototype.download = function( arrayBuffer, merged, name, user ) {
 		if ( merged ) {
-			var headers = new Headers();
-			headers.append('Content-Type', 'application/otf');
-
+			// TODO: replace that with client-side font merging
 			fetch('http://fontforgeconv.cloudapp.net/' + name + '/' + user, {
 					method: 'POST',
-					headers: headers,
-					body: buffer
+					headers: { 'Content-Type': 'application/otf' },
+					body: arrayBuffer
 				})
 				.then(function( response ) {
-
-					response.arrayBuffer()
-						.then(function( bufferToDownload ) {
-							this.downloadFromLink(bufferToDownload);
-						}.bind(this));
-
-				}.bind(this))
-				.catch(function(/*err*/) {
-					//console.log('error: ', err);
-				});
+					return response.arrayBuffer();
+				})
+				.then(function( bufferToDownload ) {
+					triggerDownload( this, bufferToDownload );
+				}.bind(this));
 
 		} else {
-			this.downloadFromLink( buffer );
-
-			return this;
+			triggerDownload( this, arrayBuffer );
 		}
+
+		return this;
 	};
 
 }
@@ -22007,6 +22000,16 @@ Object.defineProperty(Glyph.prototype, 'unicode', {
 	}
 });
 
+// alias .advanceWidth to .ot.advanceWidth
+Object.defineProperty(Glyph.prototype, 'advanceWidth', {
+	set: function( value ) {
+		this.ot.advanceWidth = value;
+	},
+	get: function() {
+		return this.ot.advanceWidth;
+	}
+});
+
 // proxy .contours to .children[0]
 Object.defineProperty( Glyph.prototype, 'contours', {
 	get: function() {
@@ -22020,8 +22023,6 @@ Object.defineProperty( Glyph.prototype, 'components', {
 		return this.children[1].children;
 	}
 });
-
-// proxy .visible to
 
 // proxy ...Contour[s] methods to children[0]...Child[ren] methods
 // and proxy ...Component[s] methods to children[1]...Child[ren] methods
@@ -22590,11 +22591,6 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
-	// if ( !wmm.has( src ) ) {
-	// 	wmm.set( src, JSON.stringify( src ) );
-	// }
-	// glyph.src = JSON.parse( wmm.get( src ) );
-	// glyph.src = JSON.parse( JSON.stringify( src ) );
 	glyph.src = _.clone( src, true );
 	// turn ._operation strings to ._updaters functions
 	// TODO: restore sourceURL pragma for debugging.
@@ -22964,40 +22960,39 @@ Utils.updateParameters = function( leaf, params ) {
 				)) :
 				src;
 
-			if ( params['indiv_group_param'] ) {
-				Object.keys(params['indiv_group_param'])
-					.forEach(function( groupName ) {
-					var needed = false;
-					var group = params['indiv_group_param'][groupName];
-
-					function handleGroup(_name) {
-						return group[_name + '_rel'] ?
-							( group[_name + '_rel'].state === 'relative' ?
-								group[_name + '_rel'].value * params[_name] :
-								group[_name + '_rel'].value + params[_name]
-							)
-							: params[_name];
-					}
-
-					if ( src._parameters ) {
-						src._parameters.forEach(function( parameter ) {
-							needed = needed || group[parameter + '_rel'];
-						});
-
-						if ( needed ) {
-
-							group[name] = src._updaters ?
-								src._updaters[0].apply( null, [
-									name, [], [], leaf.parentAnchors, Utils
-								].concat(
-									( src._parameters || [] )
-										.map(handleGroup)
-								)) :
-								src;
-						}
-					}
-				});
-			}
+			// if ( params['indiv_group_param'] ) {
+			// 	Object.keys(params['indiv_group_param'])
+			// 		.forEach(function( groupName ) {
+			// 		var needed = false;
+			// 		var group = params['indiv_group_param'][groupName];
+			//
+			// 		function handleGroup(_name) {
+			// 			return group[_name + '_rel'] ?
+			// 				( group[_name + '_rel'].state === 'relative' ?
+			// 					group[_name + '_rel'].value * params[_name] :
+			// 					group[_name + '_rel'].value + params[_name]
+			// 				)
+			// 				: params[_name];
+			// 		}
+			//
+			// 		if ( !src._parameters ) {
+			// 			src._parameters.forEach(function( parameter ) {
+			// 				needed = needed || group[parameter + '_rel'];
+			// 			});
+			//
+			// 			if ( needed ) {
+			// 				group[name] = src._updaters ?
+			// 					src._updaters[0].apply( null, [
+			// 						name, [], [], leaf.parentAnchors, Utils
+			// 					].concat(
+			// 						( src._parameters || [] )
+			// 							.map(handleGroup)
+			// 					)) :
+			// 					src;
+			// 			}
+			// 		}
+			// 	});
+			// }
 		});
 };
 
@@ -23031,6 +23026,7 @@ Utils.updateProperties = function( leaf, params ) {
 				);
 
 			} catch (e) {
+				/* eslint-disable no-console */
 				console.error(
 					[
 						'Cannot update property',
@@ -23040,6 +23036,7 @@ Utils.updateProperties = function( leaf, params ) {
 					].join(' '),
 					e
 				);
+				/* eslint-enable no-console */
 			}
 		}
 
@@ -23050,6 +23047,42 @@ Utils.updateProperties = function( leaf, params ) {
 		}
 	}, this);
 };
+
+// The ascender and descender properties must be set to their maximum
+// values accross the individualized params groups
+Utils.updateXscenderProperties = function( font, params ) {
+	if ( params['indiv_group_param'] ) {
+		var xscenderProperties = [
+			'ascender',
+			'descender',
+			'cap-height',
+			'descendent-height'
+		];
+
+		xscenderProperties.forEach(function( name ) {
+			var src = font.src.fontinfo[ name ];
+			Object.keys( params['indiv_group_param'] )
+				.forEach(function( groupName ) {
+				var group = params['indiv_group_param'][groupName];
+
+				var sign = font.ot[name] > 0 ? 1 : -1;
+
+				font.ot[ name ] = sign * Math.max( Math.abs(font.ot[ name ]),
+					Math.abs(src._updaters[0].apply(
+						font.ot,
+						[
+							name, null, null, null, Utils
+						].concat(
+							( src._parameters || [] ).map(function(_name) {
+								return group[_name] || params[_name];
+							})
+						)
+					))
+				);
+			});
+		});
+	}
+}
 
 module.exports = Utils;
 
@@ -23618,6 +23651,7 @@ var plumin = require('plumin.js'),
 	naive = require('./naive.js');
 
 var paper = plumin.paper,
+	psProto = paper.PaperScope.prototype,
 	_ = { assign: assign };
 
 function parametricFont( src ) {
@@ -23658,59 +23692,21 @@ plumin.parametricFont = parametricFont;
 plumin.Utils = Utils;
 plumin.Utils.naive = naive;
 
-paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
-	var font = this,
-		matrix;
+psProto.Font.prototype.update = function( params, set ) {
+	var font = this;
 
 	Utils.updateParameters( font, params );
 
 	Utils.updateProperties( font, params );
 
-	if ( params['indiv_group_param'] ) {
-		var groupedProperties = [
-			'ascender',
-			'descender',
-			'cap-height',
-			'descendent-height'
-		];
-
-		groupedProperties.forEach(function( name ) {
-			var src = font.src.fontinfo[name];
-			Object.keys( params['indiv_group_param'] )
-				.forEach(function( groupName ) {
-				var group = params['indiv_group_param'][groupName];
-
-				var sign = font.ot[name] > 0 ? 1 : -1;
-
-				font.ot[name] = sign * Math.max( Math.abs(font.ot[name]),
-					Math.abs(src._updaters[0].apply(
-						font.ot,
-						[
-							name, null, null,
-							null, Utils
-						].concat(
-							( src._parameters || [] ).map(function(_name) {
-								return group[_name] || params[_name];
-							})
-						)
-					))
-				);
-			});
-		});
-	}
+	Utils.updateXscenderProperties( font, params );
 
 	this.getGlyphSubset( set ).map(function( glyph ) {
-		return glyph.update( params );
+		return glyph.update( params, font.transforms );
 	}, this);
 
-	if ( font.transforms ) {
-		matrix = Utils.transformsToMatrix(
-			font.transforms.slice(0), font.transformOrigin
-		);
-
-		font.applyMatrix = false;
-		font.matrix = matrix;
-	}
+	// We no longer support font transforms. Transforms should happen at the
+	// glyph level, where they can be individualized.
 
 	return this;
 };
@@ -23723,28 +23719,28 @@ paper.PaperScope.prototype.Font.prototype.update = function( params, set ) {
  * 2. transform contours
  * 3. Update components and transform them
  */
-paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
+psProto.Glyph.prototype.update = function( _params ) {
 	var glyph = this,
 		font = glyph.parent,
 		matrix,
 		params;
 
 	// 0. calculate local parameters
-	if (_params['indiv_glyphs'] &&
-		Object.keys( _params['indiv_glyphs'] )
-			.indexOf( '' + glyph.ot.unicode ) !== -1) {
+	if ( _params['indiv_glyphs'] &&
+			Object.keys( _params['indiv_glyphs'] )
+				.indexOf( '' + glyph.ot.unicode ) !== -1 ) {
 
 		var indivParam = {};
 
 		Object.keys( _params ).forEach(function( param ) {
-			if ( _params[param].constructor.name === 'Number' ) {
+			if ( typeof _params[param] === 'number' ) {
 				var groups = _params['indiv_group_param'][
 						_params['indiv_glyphs'][glyph.ot.unicode]
 					],
 					multiplier = groups[param + '_rel'] || {
-					state: 'relative',
-					value: 1
-				};
+						state: 'relative',
+						value: 1
+					};
 
 				indivParam[param] = groups[param] ||
 					( multiplier.state === 'relative' ?
@@ -23754,12 +23750,9 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 			}
 		});
 
-		params = _.assign({},
-			_params,
-			indivParam,
-			glyph.parentParameters);
+		params = _.assign( {}, _params, indivParam, glyph.parentParameters );
 	} else {
-		params = _.assign({}, _params, glyph.parentParameters);
+		params = _.assign( {}, _params, glyph.parentParameters );
 	}
 
 	Utils.updateParameters( glyph, params );
@@ -23802,6 +23795,8 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 			);
 
 			if ( contour.skeleton !== true ) {
+				// We don't want to apply the transforms immediatly on contours,
+				// otherwise the transformation will add-up on each update.
 				contour.applyMatrix = false;
 				contour.matrix = matrix;
 
@@ -23840,6 +23835,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 
 	// 4. transform whole glyph
 	if ( glyph.transforms ) {
+
 		matrix = Utils.transformsToMatrix(
 			glyph.transforms.slice(0), glyph.transformOrigin
 		);
@@ -23855,7 +23851,7 @@ paper.PaperScope.prototype.Glyph.prototype.update = function( _params ) {
 // directions. Basically, everything needs to be clockwise.
 // this method needs to be called only after the first update, otherwise the
 // directions won't be known
-paper.PaperScope.prototype.Outline.prototype.prepareDataUpdate = function() {
+psProto.Outline.prototype.prepareDataUpdate = function() {
 	if ( this.isPrepared ) {
 		return;
 	}
@@ -23889,7 +23885,7 @@ var updateSVGData =
 	updateOTCommands =
 		paper.PaperScope.prototype.Outline.prototype.updateOTCommands;
 
-paper.PaperScope.prototype.Outline.prototype.updateSVGData = function() {
+psProto.Outline.prototype.updateSVGData = function() {
 	if ( !this.isPrepared ) {
 		this.prepareDataUpdate();
 	}
@@ -23897,7 +23893,7 @@ paper.PaperScope.prototype.Outline.prototype.updateSVGData = function() {
 	updateSVGData.apply( this, arguments );
 };
 
-paper.PaperScope.prototype.Outline.prototype.updateOTCommands = function() {
+psProto.Outline.prototype.updateOTCommands = function() {
 	if ( !this.isPrepared ) {
 		this.prepareDataUpdate();
 		this.isPrepared = true;
