@@ -21873,6 +21873,10 @@ if ( typeof window === 'object' && window.document ) {
 				)
 			);
 
+			if ( fontface.status === 'error' ) {
+				throw new Error('Fontface is invalid and cannot be displayed');
+			}
+
 			document.fonts.add( fontface );
 
 			return this;
@@ -23702,7 +23706,7 @@ psProto.Font.prototype.update = function( params, set ) {
 	Utils.updateXscenderProperties( font, params );
 
 	this.getGlyphSubset( set ).map(function( glyph ) {
-		return glyph.update( params, font.transforms );
+		return glyph.update( params );
 	}, this);
 
 	// We no longer support font transforms. Transforms should happen at the
