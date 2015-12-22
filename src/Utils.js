@@ -496,40 +496,47 @@ Utils.updateParameters = function( leaf, params ) {
 					})
 				)) :
 				src;
+		});
+};
 
-			// if ( params['indiv_group_param'] ) {
-			// 	Object.keys(params['indiv_group_param'])
-			// 		.forEach(function( groupName ) {
-			// 		var needed = false;
-			// 		var group = params['indiv_group_param'][groupName];
-			//
-			// 		function handleGroup(_name) {
-			// 			return group[_name + '_rel'] ?
-			// 				( group[_name + '_rel'].state === 'relative' ?
-			// 					group[_name + '_rel'].value * params[_name] :
-			// 					group[_name + '_rel'].value + params[_name]
-			// 				)
-			// 				: params[_name];
-			// 		}
-			//
-			// 		if ( !src._parameters ) {
-			// 			src._parameters.forEach(function( parameter ) {
-			// 				needed = needed || group[parameter + '_rel'];
-			// 			});
-			//
-			// 			if ( needed ) {
-			// 				group[name] = src._updaters ?
-			// 					src._updaters[0].apply( null, [
-			// 						name, [], [], leaf.parentAnchors, Utils
-			// 					].concat(
-			// 						( src._parameters || [] )
-			// 							.map(handleGroup)
-			// 					)) :
-			// 					src;
-			// 			}
-			// 		}
-			// 	});
-			// }
+Utils.updateIndividualParameters = function( leaf, params ) {
+	Object.keys( ( leaf.src && leaf.src.parameters ) || [] )
+		.forEach(function( name ) {
+			var src = leaf.src.parameters[name];
+
+			if ( params['indiv_group_param'] ) {
+				Object.keys(params['indiv_group_param'])
+					.forEach(function( groupName ) {
+					var needed = false;
+					var group = params['indiv_group_param'][groupName];
+
+					function handleGroup(_name) {
+						return group[_name + '_rel'] ?
+							( group[_name + '_rel'].state === 'relative' ?
+								group[_name + '_rel'].value * params[_name] :
+								group[_name + '_rel'].value + params[_name]
+							)
+							: params[_name];
+					}
+
+					if ( src._parameters ) {
+						src._parameters.forEach(function( parameter ) {
+							needed = needed || group[parameter + '_rel'];
+						});
+
+						if ( needed ) {
+							group[name] = src._updaters ?
+								src._updaters[0].apply( null, [
+									name, [], [], leaf.parentAnchors, Utils
+								].concat(
+									( src._parameters || [] )
+										.map(handleGroup)
+								)) :
+								src;
+						}
+					}
+				});
+			}
 		});
 };
 

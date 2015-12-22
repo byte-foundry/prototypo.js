@@ -21757,7 +21757,17 @@ Font.prototype.normalizeSubset = function( _set ) {
 		set.unshift( this.glyphMap['.notdef'] );
 	}
 
-	// remove undefined glyphs and dedupe the set
+	// when encountering diacritics, include their base-glyph in the subset
+	set.forEach(function( glyph ) {
+		if ( glyph.base !== undefined ) {
+			var base = this.charMap[ glyph.base ];
+			if ( set.indexOf( base ) === -1 ) {
+				set.unshift( base );
+			}
+		}
+	}, this);
+
+	// remove undefined glyphs, dedupe the set and move diacritics at the end
 	return set.filter(function(e, i, arr) {
 		return e && arr.lastIndexOf(e) === i;
 	});
@@ -21817,7 +21827,7 @@ Font.prototype.updateOTCommands = function( set, merged ) {
 Font.prototype.updateOT = function( args ) {
 	if ( args && args.shouldUpdateCommands ) {
 		// the following is required so that the globalMatrix of glyphs
-		// takes the font matrix into account. I assume this is done in the
+		// is taken into account on each update. I assume this is done in the
 		// main thread when calling view.update();
 		this._project._updateVersion++;
 	}
@@ -22008,6 +22018,17 @@ Object.defineProperty(Glyph.prototype, 'unicode', {
 	},
 	get: function() {
 		return this.ot.unicode;
+	}
+});
+
+Object.defineProperty(Glyph.prototype, 'base', {
+	set: function( code ) {
+		this._base = typeof code === 'string' ?
+			code.charCodeAt(0) :
+			code;
+	},
+	get: function() {
+		return this._base;
 	}
 });
 
@@ -22470,7 +22491,6 @@ module.exports = plumin;
 });
 
 
-//# sourceMappingURL=plumin.js.map
 },{}],36:[function(require,module,exports){
 var plumin = require('plumin.js'),
 	DepTree = require('deptree'),
@@ -22970,40 +22990,47 @@ Utils.updateParameters = function( leaf, params ) {
 					})
 				)) :
 				src;
+		});
+};
 
-			// if ( params['indiv_group_param'] ) {
-			// 	Object.keys(params['indiv_group_param'])
-			// 		.forEach(function( groupName ) {
-			// 		var needed = false;
-			// 		var group = params['indiv_group_param'][groupName];
-			//
-			// 		function handleGroup(_name) {
-			// 			return group[_name + '_rel'] ?
-			// 				( group[_name + '_rel'].state === 'relative' ?
-			// 					group[_name + '_rel'].value * params[_name] :
-			// 					group[_name + '_rel'].value + params[_name]
-			// 				)
-			// 				: params[_name];
-			// 		}
-			//
-			// 		if ( !src._parameters ) {
-			// 			src._parameters.forEach(function( parameter ) {
-			// 				needed = needed || group[parameter + '_rel'];
-			// 			});
-			//
-			// 			if ( needed ) {
-			// 				group[name] = src._updaters ?
-			// 					src._updaters[0].apply( null, [
-			// 						name, [], [], leaf.parentAnchors, Utils
-			// 					].concat(
-			// 						( src._parameters || [] )
-			// 							.map(handleGroup)
-			// 					)) :
-			// 					src;
-			// 			}
-			// 		}
-			// 	});
-			// }
+Utils.updateIndividualParameters = function( leaf, params ) {
+	Object.keys( ( leaf.src && leaf.src.parameters ) || [] )
+		.forEach(function( name ) {
+			var src = leaf.src.parameters[name];
+
+			if ( params['indiv_group_param'] ) {
+				Object.keys(params['indiv_group_param'])
+					.forEach(function( groupName ) {
+					var needed = false;
+					var group = params['indiv_group_param'][groupName];
+
+					function handleGroup(_name) {
+						return group[_name + '_rel'] ?
+							( group[_name + '_rel'].state === 'relative' ?
+								group[_name + '_rel'].value * params[_name] :
+								group[_name + '_rel'].value + params[_name]
+							)
+							: params[_name];
+					}
+
+					if ( src._parameters ) {
+						src._parameters.forEach(function( parameter ) {
+							needed = needed || group[parameter + '_rel'];
+						});
+
+						if ( needed ) {
+							group[name] = src._updaters ?
+								src._updaters[0].apply( null, [
+									name, [], [], leaf.parentAnchors, Utils
+								].concat(
+									( src._parameters || [] )
+										.map(handleGroup)
+								)) :
+								src;
+						}
+					}
+				});
+			}
 		});
 };
 
@@ -23708,6 +23735,9 @@ psProto.Font.prototype.update = function( params, set ) {
 
 	Utils.updateParameters( font, params );
 
+	// Additionally, we must update the params of indiv group
+	Utils.updateIndividualParameters( font, params );
+
 	Utils.updateProperties( font, params );
 
 	Utils.updateXscenderProperties( font, params );
@@ -23769,7 +23799,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 	Utils.updateParameters( glyph, params );
 
 	// parentParameters always overwrite glyph parameters. Use aliases
-	// (e.g. _width) to let glyph hav the final word
+	// (e.g. _width) to let glyph have the final word
 	_.assign( params, glyph.parentParameters );
 
 	// 1. calculate node properties

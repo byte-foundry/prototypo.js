@@ -51,6 +51,9 @@ psProto.Font.prototype.update = function( params, set ) {
 
 	Utils.updateParameters( font, params );
 
+	// Additionally, we must update the params of indiv group
+	Utils.updateIndividualParameters( font, params );
+
 	Utils.updateProperties( font, params );
 
 	Utils.updateXscenderProperties( font, params );
@@ -112,7 +115,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 	Utils.updateParameters( glyph, params );
 
 	// parentParameters always overwrite glyph parameters. Use aliases
-	// (e.g. _width) to let glyph hav the final word
+	// (e.g. _width) to let glyph have the final word
 	_.assign( params, glyph.parentParameters );
 
 	// 1. calculate node properties
