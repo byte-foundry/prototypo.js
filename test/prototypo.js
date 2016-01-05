@@ -33,7 +33,7 @@ describe('prototypo.js', function() {
 
 				expect(contour.nodes[0].point.x).to.equal(0);
 				expect(contour.nodes[0].point.y).to.equal(30);
-				expect(contour.nodes[0].angle).to.equal( 1 + 'deg');
+				expect(contour.nodes[0].angle).to.equal( 1 * 2 + 1 + 'deg');
 				expect(contour.nodes[1].point.x).to.equal( 1 + 1 + 3 );
 				expect(contour.nodes[1].point.y).to.equal( 1 + 1 + 4 );
 				expect(contour.nodes[2].point.x).to.equal( 1 * 2 * 2 );
