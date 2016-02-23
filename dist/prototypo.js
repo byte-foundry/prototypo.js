@@ -23054,14 +23054,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var plumin = __webpack_require__(11),
 		DepTree = __webpack_require__(30),
-		clone = __webpack_require__(84),
+		cloneDeep = __webpack_require__(84),
 		assign = __webpack_require__(7).assign,
 		updateUtils = __webpack_require__(92);
 	
 	var paper = plumin.paper,
 		Utils = updateUtils,
 		_ = {
-			clone: clone,
+			cloneDeep: cloneDeep,
 			assign: assign
 		};
 	
@@ -23182,7 +23182,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		});
 	
 		// Clone glyph src to allow altering it without impacting components srcs.
-		glyph.src = _.clone( src, true );
+		glyph.src = _.cloneDeep( src );
 		// turn ._operation strings to ._updaters functions
 		// TODO: restore sourceURL pragma for debugging.
 		// this should impact the way results are memoized
@@ -25562,34 +25562,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	var baseClone = __webpack_require__(42);
 	
 	/**
-	 * Creates a shallow clone of `value`.
-	 *
-	 * **Note:** This method is loosely based on the
-	 * [structured clone algorithm](https://mdn.io/Structured_clone_algorithm)
-	 * and supports cloning arrays, array buffers, booleans, date objects, maps,
-	 * numbers, `Object` objects, regexes, sets, strings, symbols, and typed
-	 * arrays. The own enumerable properties of `arguments` objects are cloned
-	 * as plain objects. An empty object is returned for uncloneable values such
-	 * as error objects, functions, DOM nodes, and WeakMaps.
+	 * This method is like `_.clone` except that it recursively clones `value`.
 	 *
 	 * @static
 	 * @memberOf _
 	 * @category Lang
-	 * @param {*} value The value to clone.
-	 * @returns {*} Returns the cloned value.
+	 * @param {*} value The value to recursively clone.
+	 * @returns {*} Returns the deep cloned value.
 	 * @example
 	 *
 	 * var objects = [{ 'a': 1 }, { 'b': 2 }];
 	 *
-	 * var shallow = _.clone(objects);
-	 * console.log(shallow[0] === objects[0]);
-	 * // => true
+	 * var deep = _.cloneDeep(objects);
+	 * console.log(deep[0] === objects[0]);
+	 * // => false
 	 */
-	function clone(value) {
-	  return baseClone(value);
+	function cloneDeep(value) {
+	  return baseClone(value, true);
 	}
 	
-	module.e = clone;
+	module.e = cloneDeep;
 
 
 /***/ },

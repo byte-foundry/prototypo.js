@@ -1,13 +1,13 @@
 var plumin = require('plumin.js'),
 	DepTree = require('deptree'),
-	clone = require('lodash/clone'),
+	cloneDeep = require('lodash/cloneDeep'),
 	assign = require('es6-object-assign').assign,
 	updateUtils = require('./updateUtils.js');
 
 var paper = plumin.paper,
 	Utils = updateUtils,
 	_ = {
-		clone: clone,
+		cloneDeep: cloneDeep,
 		assign: assign
 	};
 
@@ -128,7 +128,7 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
-	glyph.src = _.clone( src, true );
+	glyph.src = _.cloneDeep( src );
 	// turn ._operation strings to ._updaters functions
 	// TODO: restore sourceURL pragma for debugging.
 	// this should impact the way results are memoized
