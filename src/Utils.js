@@ -476,8 +476,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 	return new paper.Matrix(
 		rslt[0],
-		rslt[2],
 		rslt[1],
+		rslt[2],
 		rslt[3],
 		rslt[4],
 		rslt[5]
