@@ -8,6 +8,11 @@ module.exports = {
 		library: 'prototypo',
         libraryTarget: 'umd',
 	},
+	resolve: {
+		alias: {
+			'plumin.js': 'plumin.js/dist/plumin.js',
+		}
+	},
 	externals: [{
 		'./node/window': true,
 		'./node/extend': true,
