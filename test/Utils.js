@@ -1,14 +1,15 @@
-var expect = require('../node_modules/chai').expect,
-	prototypo = require('../src/prototypo'),
-	Utils = require('../src/Utils.js'),
-	fixture = require('test.ptf');
+var Utils = prototypo.Utils;
 
 describe('Utils', function() {
+	var font;
+
 	before(function() {
 		prototypo.setup({
 			width: 1024,
 			height: 1024
 		});
+
+		font = prototypo.parametricFont( JSON.parse( fontJSON ) );
 	});
 
 	describe('#dependencyTree', function() {
@@ -65,8 +66,6 @@ describe('Utils', function() {
 
 	describe('#glyphFromSrc', function() {
 		it('should embed components recursively', function() {
-			var font = prototypo.parametricFont( fixture );
-
 			expect( font.glyphMap.N.components )
 				.to.have.length(1);
 			expect( font.glyphMap.N.components[0].name )

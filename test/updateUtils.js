@@ -1,5 +1,4 @@
-var expect = require('../node_modules/chai').expect,
-	Utils = require('../src/updateUtils.js');
+var Utils = prototypo.Utils;
 
 describe('#rayRayIntersection', function() {
 	it('should return an array with the coordinates of the intersection',

@@ -1,6 +1,6 @@
 var plumin = require('plumin.js'),
 	DepTree = require('deptree'),
-	clone = require('lodash/lang/clone'),
+	clone = require('lodash/clone'),
 	assign = require('es6-object-assign').assign,
 	updateUtils = require('./updateUtils.js');
 
@@ -250,9 +250,11 @@ Utils.mergeStatic = function( obj, src ) {
 			obj[i] = src[i];
 
 		// props that have empty dependencies and params are static
-		} else if ( src[i]._dependencies && src[i]._dependencies.length === 0 &&
-				src[i]._parameters.length === 0 ) {
-
+		} else if (
+			src[i]._dependencies && src[i]._dependencies.length === 0 &&
+			( !src[i]._parameters || src[i]._parameters.length === 0 ) &&
+			src[i]._updaters
+		) {
 			obj[i] = src[i]._updaters[0].apply(
 				obj,
 				[ null, null, null, null, Utils ]
@@ -474,8 +476,8 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 	return new paper.Matrix(
 		rslt[0],
-		rslt[1],
 		rslt[2],
+		rslt[1],
 		rslt[3],
 		rslt[4],
 		rslt[5]

@@ -1,7 +1,5 @@
-var expect = require('../node_modules/chai').expect,
-	prototypo = require('../src/prototypo'),
-	Utils = require('../src/Utils.js'),
-	naive = require('../src/naive.js');
+var Utils = prototypo.Utils;
+var naive = Utils.naive;
 
 describe('naive', function() {
 	before(function() {

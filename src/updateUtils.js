@@ -193,7 +193,9 @@ Utils.distance = function(x1, y1, x2, y2) {
 };
 
 Utils.log = function() {
+	/*eslint-disable no-console */
 	console.log.apply( console, arguments );
+	/*eslint-enable no-console */
 	return arguments[0];
 };
 

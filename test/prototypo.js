@@ -1,9 +1,3 @@
-var expect = require('../node_modules/chai').expect,
-	prototypo = require('../src/prototypo'),
-	// initUtils = require('../src/Utils.js'),
-	// if this fails then make sure you have read the README ;)
-	fixture = require('test.ptf');
-
 describe('prototypo.js', function() {
 	var font;
 
@@ -13,7 +7,7 @@ describe('prototypo.js', function() {
 			height: 1024
 		});
 
-		font = prototypo.parametricFont(fixture);
+		font = prototypo.parametricFont( JSON.parse( fontJSON ) );
 	});
 
 	describe('Glyph#update', function() {
@@ -33,7 +27,7 @@ describe('prototypo.js', function() {
 
 				expect(contour.nodes[0].point.x).to.equal(0);
 				expect(contour.nodes[0].point.y).to.equal(30);
-				expect(contour.nodes[0].angle).to.equal( 1 * 2 + 1 + 'deg');
+				expect(contour.nodes[0].angle).to.equal( 1 + 'deg');
 				expect(contour.nodes[1].point.x).to.equal( 1 + 1 + 3 );
 				expect(contour.nodes[1].point.y).to.equal( 1 + 1 + 4 );
 				expect(contour.nodes[2].point.x).to.equal( 1 * 2 * 2 );

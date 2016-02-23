@@ -6,38 +6,37 @@
     "es6-object-assign": "^1.0.1"
   },
   "devDependencies": {
-    "browser-sync": "^2.4.0",
-    "browserify": "^9.0.3",
-    "chai": "^2.1.2",
+    "bluebird": "^3.3.1",
+    "browser-sync": "^2.11.1",
+    "chai": "^3.5.0",
     "deptree": "^0.1.0",
-    "eslint": "^1.10.3",
-    "eslint-plugin-mocha": "^0.2.2",
-    "exorcist": "^0.1.6",
+    "eslint": "^2.2.0",
+    "eslint-plugin-mocha": "^2.0.0",
     "genese.ptf": "byte-foundry/genese.ptf",
-    "ghooks": "^0.3.0",
-    "gulp": "^3.8.11",
-    "gulp-shelter": "^0.9.1",
-    "jscs": "^1.11.3",
-    "lodash": "^3.10.1",
-    "lodash.clone": "^3.0.3",
-    "mocha": "^2.2.1",
-    "plumin.js": "byte-foundry/plumin.js#master",
+    "ghooks": "^1.0.3",
+    "gulp": "^3.9.1",
+    "gulp-shelter": "^1.0.1",
+    "jscs": "^2.10.1",
+    "lodash": "^4.5.1",
+    "mocha": "^2.4.5",
+    "phantomjs": "^2.1.3",
+    "mocha-phantomjs": "latest",
+    "plumin.js": "1.0.1",
     "test.ptf": "byte-foundry/test.ptf#master",
-    "uglify-js": "^2.6.1",
-    "watchify": "^2.6.0"
+    "webpack": "^2.1.0-beta.2",
+    "whatwg-fetch": "^0.11.0"
   },
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">=4.3.0"
   },
-  "main": "dist/prototypo.js",
+  "main": "src/prototypo.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "gulp": "gulp",
     "help": "gulp --tasks",
-    "test": "gulp build",
-    "prepublish": "gulp build"
+    "test": "gulp build"
   },
   "repository": {
     "type": "git",
