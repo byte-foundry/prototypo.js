@@ -1,0 +1,36 @@
+<html>
+	<head>
+		<meta charset="utf-8">
+		<!-- encoding must be set for mocha's special characters to render properly -->
+		<link rel="stylesheet" href="node_modules/mocha/mocha.css" />
+	</head>
+	<body>
+		<div id="mocha"></div>
+		<script src="node_modules/mocha/mocha.js"></script>
+		<script src="node_modules/chai/chai.js"></script>
+		<script>
+			mocha.ui('bdd');
+			expect = chai.expect;
+		</script>
+		<script src="node_modules/whatwg-fetch/fetch.js"></script>
+		<script src="node_modules/bluebird/js/browser/bluebird.js"></script>
+		<script src="dist/prototypo.js"></script>
+		<script>
+			// Let's write this xhr manually, because we need to ignore the fact
+			// that for some reasons it always returns a status code of 0 :(
+			var xhr = new XMLHttpRequest();
+			xhr.onload = function() {
+				window.fontJSON = xhr.responseText;
+			};
+			xhr.open('GET', 'node_modules/test.ptf/dist/font.json', false);
+			xhr.send();
+		</script>
+		<script src="test/naive.js"></script>
+		<script src="test/prototypo.js"></script>
+		<script src="test/updateUtils.js"></script>
+		<script src="test/Utils.js"></script>
+		<script>
+			mocha.run();
+		</script>
+	</body>
+</html>
