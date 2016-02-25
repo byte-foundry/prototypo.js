@@ -197,7 +197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(9);
+	var isObject = __webpack_require__(10);
 	
 	/** `Object#toString` result references. */
 	var funcTag = '[object Function]',
@@ -241,159 +241,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Code refactored from Mozilla Developer Network:
-	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-	 */
-	
-	'use strict';
-	
-	function assign(target, firstSource) {
-	  if (target === undefined || target === null) {
-	    throw new TypeError('Cannot convert first argument to object');
-	  }
-	
-	  var to = Object(target);
-	  for (var i = 1; i < arguments.length; i++) {
-	    var nextSource = arguments[i];
-	    if (nextSource === undefined || nextSource === null) {
-	      continue;
-	    }
-	
-	    var keysArray = Object.keys(Object(nextSource));
-	    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-	      var nextKey = keysArray[nextIndex];
-	      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-	      if (desc !== undefined && desc.enumerable) {
-	        to[nextKey] = nextSource[nextKey];
-	      }
-	    }
-	  }
-	  return to;
-	}
-	
-	function polyfill() {
-	  if (!Object.assign) {
-	    Object.defineProperty(Object, 'assign', {
-	      enumerable: false,
-	      configurable: true,
-	      writable: true,
-	      value: assign
-	    });
-	  }
-	}
-	
-	module.e = {
-	  assign: assign,
-	  polyfill: polyfill
-	};
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @type {Function}
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */
-	var isArray = Array.isArray;
-	
-	module.e = isArray;
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
-	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-	
-	module.e = isObject;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-	
-	module.e = isObjectLike;
-
-
-/***/ },
-/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function webpackUniversalModuleDefinition(root, factory) {
@@ -21516,8 +21363,10 @@ return /******/ (function(modules) { // webpackBootstrap
 			var _URL = window.URL || window.webkitURL;
 			Font.prototype.addToFonts = document.fonts ?
 				// CSS font loading, lightning fast
-				function( buffer ) {
-					var enFamilyName = this.ot.getEnglishName('fontFamily');
+				function( buffer, enFamilyName ) {
+					if ( !enFamilyName ) {
+						enFamilyName = this.ot.getEnglishName('fontFamily');
+					}
 		
 					if ( this.fontMap[ enFamilyName ] ) {
 						document.fonts.delete( this.fontMap[ enFamilyName ] );
@@ -21538,8 +21387,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 					return this;
 				} :
-				function( buffer ) {
-					var enFamilyName = this.ot.getEnglishName('fontFamily');
+				function( buffer, enFamilyName ) {
+					if ( !enFamilyName ) {
+						enFamilyName = this.ot.getEnglishName('fontFamily');
+					}
+		
 					var url = _URL.createObjectURL(
 							new Blob(
 								[ new DataView( buffer || this.toArrayBuffer() ) ],
@@ -22540,6 +22392,159 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=plumin.js.map
 
 /***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Code refactored from Mozilla Developer Network:
+	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+	 */
+	
+	'use strict';
+	
+	function assign(target, firstSource) {
+	  if (target === undefined || target === null) {
+	    throw new TypeError('Cannot convert first argument to object');
+	  }
+	
+	  var to = Object(target);
+	  for (var i = 1; i < arguments.length; i++) {
+	    var nextSource = arguments[i];
+	    if (nextSource === undefined || nextSource === null) {
+	      continue;
+	    }
+	
+	    var keysArray = Object.keys(Object(nextSource));
+	    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+	      var nextKey = keysArray[nextIndex];
+	      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+	      if (desc !== undefined && desc.enumerable) {
+	        to[nextKey] = nextSource[nextKey];
+	      }
+	    }
+	  }
+	  return to;
+	}
+	
+	function polyfill() {
+	  if (!Object.assign) {
+	    Object.defineProperty(Object, 'assign', {
+	      enumerable: false,
+	      configurable: true,
+	      writable: true,
+	      value: assign
+	    });
+	  }
+	}
+	
+	module.e = {
+	  assign: assign,
+	  polyfill: polyfill
+	};
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @type {Function}
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(document.body.children);
+	 * // => false
+	 *
+	 * _.isArray('abc');
+	 * // => false
+	 *
+	 * _.isArray(_.noop);
+	 * // => false
+	 */
+	var isArray = Array.isArray;
+	
+	module.e = isArray;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+	
+	module.e = isObject;
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+	
+	module.e = isObjectLike;
+
+
+/***/ },
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23052,10 +23057,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var plumin = __webpack_require__(11),
+	var plumin = __webpack_require__(7),
 		DepTree = __webpack_require__(30),
 		cloneDeep = __webpack_require__(84),
-		assign = __webpack_require__(7).assign,
+		assign = __webpack_require__(8).assign,
 		updateUtils = __webpack_require__(92);
 	
 	var paper = plumin.paper,
@@ -23692,8 +23697,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/*jshint -W098 */
-	var plumin = __webpack_require__(11),
-		assign = __webpack_require__(7).assign,
+	var plumin = __webpack_require__(7),
+		assign = __webpack_require__(8).assign,
 		Utils = __webpack_require__(28),
 		naive = __webpack_require__(91);
 	
@@ -24275,10 +24280,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    initCloneArray = __webpack_require__(68),
 	    initCloneByTag = __webpack_require__(69),
 	    initCloneObject = __webpack_require__(70),
-	    isArray = __webpack_require__(8),
+	    isArray = __webpack_require__(9),
 	    isBuffer = __webpack_require__(88),
 	    isHostObject = __webpack_require__(21),
-	    isObject = __webpack_require__(9);
+	    isObject = __webpack_require__(10);
 	
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -24398,7 +24403,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(9);
+	var isObject = __webpack_require__(10);
 	
 	/** Built-in value references. */
 	var objectCreate = Object.create;
@@ -25036,7 +25041,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var baseTimes = __webpack_require__(49),
 	    isArguments = __webpack_require__(86),
-	    isArray = __webpack_require__(8),
+	    isArray = __webpack_require__(9),
 	    isLength = __webpack_require__(25),
 	    isString = __webpack_require__(90);
 	
@@ -25667,7 +25672,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var isArrayLike = __webpack_require__(24),
-	    isObjectLike = __webpack_require__(10);
+	    isObjectLike = __webpack_require__(11);
 	
 	/**
 	 * This method is like `_.isArrayLike` except that it also checks if `value`
@@ -25760,7 +25765,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var isFunction = __webpack_require__(6),
 	    isHostObject = __webpack_require__(21),
-	    isObjectLike = __webpack_require__(10);
+	    isObjectLike = __webpack_require__(11);
 	
 	/** Used to match `RegExp` [syntax characters](http://ecma-international.org/ecma-262/6.0/#sec-patterns). */
 	var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
@@ -25817,8 +25822,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(8),
-	    isObjectLike = __webpack_require__(10);
+	var isArray = __webpack_require__(9),
+	    isObjectLike = __webpack_require__(11);
 	
 	/** `Object#toString` result references. */
 	var stringTag = '[object String]';
@@ -25860,8 +25865,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var plumin = __webpack_require__(11),
-		assign = __webpack_require__(7).assign,
+	var plumin = __webpack_require__(7),
+		assign = __webpack_require__(8).assign,
 		Utils = __webpack_require__(28);
 	
 	var paper = plumin.paper,
