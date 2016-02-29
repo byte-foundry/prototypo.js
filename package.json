@@ -1,6 +1,6 @@
 {
   "name": "prototypo.js",
-  "version": "0.8.4",
+  "version": "0.8.5",
   "description": "parametric-glyph engine",
   "dependencies": {
     "es6-object-assign": "^1.0.1",
