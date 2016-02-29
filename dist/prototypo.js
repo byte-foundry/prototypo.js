@@ -197,7 +197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(10);
+	var isObject = __webpack_require__(9);
 	
 	/** `Object#toString` result references. */
 	var funcTag = '[object Function]',
@@ -241,6 +241,159 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Code refactored from Mozilla Developer Network:
+	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+	 */
+	
+	'use strict';
+	
+	function assign(target, firstSource) {
+	  if (target === undefined || target === null) {
+	    throw new TypeError('Cannot convert first argument to object');
+	  }
+	
+	  var to = Object(target);
+	  for (var i = 1; i < arguments.length; i++) {
+	    var nextSource = arguments[i];
+	    if (nextSource === undefined || nextSource === null) {
+	      continue;
+	    }
+	
+	    var keysArray = Object.keys(Object(nextSource));
+	    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+	      var nextKey = keysArray[nextIndex];
+	      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+	      if (desc !== undefined && desc.enumerable) {
+	        to[nextKey] = nextSource[nextKey];
+	      }
+	    }
+	  }
+	  return to;
+	}
+	
+	function polyfill() {
+	  if (!Object.assign) {
+	    Object.defineProperty(Object, 'assign', {
+	      enumerable: false,
+	      configurable: true,
+	      writable: true,
+	      value: assign
+	    });
+	  }
+	}
+	
+	module.e = {
+	  assign: assign,
+	  polyfill: polyfill
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @type {Function}
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(document.body.children);
+	 * // => false
+	 *
+	 * _.isArray('abc');
+	 * // => false
+	 *
+	 * _.isArray(_.noop);
+	 * // => false
+	 */
+	var isArray = Array.isArray;
+	
+	module.e = isArray;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+	
+	module.e = isObject;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+	
+	module.e = isObjectLike;
+
+
+/***/ },
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function webpackUniversalModuleDefinition(root, factory) {
@@ -413,8 +566,10 @@ return /******/ (function(modules) { // webpackBootstrap
 		    var p = 12;
 		    for (var i = 0; i < numTables; i += 1) {
 		        var tag = parse.getTag(data, p);
+		        var checksum = parse.getULong(data, p + 4);
 		        var offset = parse.getULong(data, p + 8);
-		        tableEntries.push({tag: tag, offset: offset, compression: false});
+		        var length = parse.getULong(data, p + 12);
+		        tableEntries.push({tag: tag, checksum: checksum, offset: offset, length: length, compression: false});
 		        p += 16;
 		    }
 		
@@ -1985,8 +2140,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		        maxLeftSideBearing: Math.max.apply(null, leftSideBearings),
 		        minRightSideBearing: Math.min.apply(null, rightSideBearings)
 		    };
-		    globals.ascender = font.ascender !== undefined ? font.ascender : globals.yMax;
-		    globals.descender = font.descender !== undefined ? font.descender : globals.yMin;
+		    globals.ascender = font.ascender;
+		    globals.descender = font.descender;
 		
 		    var headTable = head.make({
 		        flags: 3, // 00000011 (baseline for font at y=0; left sidebearing point at x=0)
@@ -2771,18 +2926,36 @@ return /******/ (function(modules) { // webpackBootstrap
 		encode.TABLE = function(table) {
 		    var d = [];
 		    var length = table.fields.length;
+		    var subtables = [];
+		    var subtableOffsets = [];
+		    var i;
 		
-		    for (var i = 0; i < length; i += 1) {
+		    for (i = 0; i < length; i += 1) {
 		        var field = table.fields[i];
 		        var encodingFunction = encode[field.type];
-		        check.argument(encodingFunction !== undefined, 'No encoding function for field type ' + field.type);
+		        check.argument(encodingFunction !== undefined, 'No encoding function for field type ' + field.type + ' (' + field.name + ')');
 		        var value = table[field.name];
 		        if (value === undefined) {
 		            value = field.value;
 		        }
 		
 		        var bytes = encodingFunction(value);
-		        d = d.concat(bytes);
+		        if (field.type === 'TABLE') {
+		            subtableOffsets.push(d.length);
+		            d = d.concat([0, 0]);
+		            subtables.push(bytes);
+		        } else {
+		            d = d.concat(bytes);
+		        }
+		    }
+		
+		    for (i = 0; i < subtables.length; i += 1) {
+		        var o = subtableOffsets[i];
+		        var offset = d.length;
+		        check.argument(offset < 65536, 'Table ' + table.name + ' too big.');
+		        d[o] = offset >> 8;
+		        d[o + 1] = offset & 0xff;
+		        d = d.concat(subtables[i]);
 		    }
 		
 		    return d;
@@ -2795,13 +2968,18 @@ return /******/ (function(modules) { // webpackBootstrap
 		    for (var i = 0; i < length; i += 1) {
 		        var field = table.fields[i];
 		        var sizeOfFunction = sizeOf[field.type];
-		        check.argument(sizeOfFunction !== undefined, 'No sizeOf function for field type ' + field.type);
+		        check.argument(sizeOfFunction !== undefined, 'No sizeOf function for field type ' + field.type + ' (' + field.name + ')');
 		        var value = table[field.name];
 		        if (value === undefined) {
 		            value = field.value;
 		        }
 		
 		        numBytes += sizeOfFunction(value);
+		
+		        // Subtables take 2 more bytes for offsets.
+		        if (field.type === 'TABLE') {
+		            numBytes += 2;
+		        }
 		    }
 		
 		    return numBytes;
@@ -4602,7 +4780,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		        yMin: Math.min.apply(null, yCoords),
 		        xMax: Math.max.apply(null, xCoords),
 		        yMax: Math.max.apply(null, yCoords),
-		        leftSideBearing: 0
+		        leftSideBearing: this.leftSideBearing
 		    };
 		
 		    if (!isFinite(metrics.xMin)) {
@@ -6291,16 +6469,16 @@ return /******/ (function(modules) { // webpackBootstrap
 		    return nameID;
 		}
 		
-		function makeFvarAxis(axis, names) {
+		function makeFvarAxis(n, axis, names) {
 		    var nameID = addName(axis.name, names);
-		    return new table.Table('fvarAxis', [
-		        {name: 'tag', type: 'TAG', value: axis.tag},
-		        {name: 'minValue', type: 'FIXED', value: axis.minValue << 16},
-		        {name: 'defaultValue', type: 'FIXED', value: axis.defaultValue << 16},
-		        {name: 'maxValue', type: 'FIXED', value: axis.maxValue << 16},
-		        {name: 'flags', type: 'USHORT', value: 0},
-		        {name: 'nameID', type: 'USHORT', value: nameID}
-		    ]);
+		    return [
+		        {name: 'tag_' + n, type: 'TAG', value: axis.tag},
+		        {name: 'minValue_' + n, type: 'FIXED', value: axis.minValue << 16},
+		        {name: 'defaultValue_' + n, type: 'FIXED', value: axis.defaultValue << 16},
+		        {name: 'maxValue_' + n, type: 'FIXED', value: axis.maxValue << 16},
+		        {name: 'flags_' + n, type: 'USHORT', value: 0},
+		        {name: 'nameID_' + n, type: 'USHORT', value: nameID}
+		    ];
 		}
 		
 		function parseFvarAxis(data, start, names) {
@@ -6315,23 +6493,23 @@ return /******/ (function(modules) { // webpackBootstrap
 		    return axis;
 		}
 		
-		function makeFvarInstance(inst, axes, names) {
+		function makeFvarInstance(n, inst, axes, names) {
 		    var nameID = addName(inst.name, names);
 		    var fields = [
-		        {name: 'nameID', type: 'USHORT', value: nameID},
-		        {name: 'flags', type: 'USHORT', value: 0}
+		        {name: 'nameID_' + n, type: 'USHORT', value: nameID},
+		        {name: 'flags_' + n, type: 'USHORT', value: 0}
 		    ];
 		
 		    for (var i = 0; i < axes.length; ++i) {
 		        var axisTag = axes[i].tag;
 		        fields.push({
-		            name: 'axis ' + axisTag,
+		            name: 'axis_' + n + ' ' + axisTag,
 		            type: 'FIXED',
 		            value: inst.coordinates[axisTag] << 16
 		        });
 		    }
 		
-		    return new table.Table('fvarInstance', fields);
+		    return fields;
 		}
 		
 		function parseFvarInstance(data, start, axes, names) {
@@ -6361,18 +6539,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		    result.offsetToData = result.sizeOf();
 		
 		    for (var i = 0; i < fvar.axes.length; i++) {
-		        result.fields.push({
-		            name: 'axis ' + i,
-		            type: 'TABLE',
-		            value: makeFvarAxis(fvar.axes[i], names)});
+		        result.fields = result.fields.concat(makeFvarAxis(i, fvar.axes[i], names));
 		    }
 		
 		    for (var j = 0; j < fvar.instances.length; j++) {
-		        result.fields.push({
-		            name: 'instance ' + j,
-		            type: 'TABLE',
-		            value: makeFvarInstance(fvar.instances[j], fvar.axes, names)
-		        });
+		        result.fields = result.fields.concat(makeFvarInstance(j, fvar.instances[j], fvar.axes, names));
 		    }
 		
 		    return result;
@@ -7055,7 +7226,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 *
 		 * All rights reserved.
 		 *
-		 * Date: Wed Feb 17 19:06:29 2016 +0100
+		 * Date: Fri Feb 26 17:49:44 2016 +0100
 		 *
 		 ***
 		 *
@@ -9056,7 +9227,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						var owner = this._owner;
 						if (owner.setSelected) {
 							owner._boundsSelected = selected;
-							owner.setSelected(selected || owner._selectedSegmentState > 0);
+							owner.setSelected(selected || owner._segmentSelection > 0);
 						}
 					}
 				})
@@ -9828,8 +9999,9 @@ return /******/ (function(modules) { // webpackBootstrap
 						matrices: [new Matrix()],
 						updateMatrix: true
 					});
-				for (var i = 0, l = children.length; i < l; i++)
+				for (var i = 0, l = children.length; i < l; i++) {
 					children[i].draw(ctx, param);
+				}
 				ctx.restore();
 		
 				if (this._selectedItemCount > 0) {
@@ -9838,8 +10010,9 @@ return /******/ (function(modules) { // webpackBootstrap
 					var items = this._selectedItems,
 						size = this._scope.settings.handleSize,
 						version = this._updateVersion;
-					for (var id in items)
+					for (var id in items) {
 						items[id]._drawSelection(ctx, matrix, size, items, version);
+					}
 					ctx.restore();
 				}
 			}
@@ -10968,13 +11141,15 @@ return /******/ (function(modules) { // webpackBootstrap
 				var owner = this._getOwner(),
 					project = this._project,
 					index = this._index;
-				if (owner && index != null) {
-					if (project._activeLayer === this)
-						project._activeLayer = this.getNextSibling()
-								|| this.getPreviousSibling();
+				if (owner) {
+					if (index != null) {
+						if (project._activeLayer === this)
+							project._activeLayer = this.getNextSibling()
+									|| this.getPreviousSibling();
+						Base.splice(owner._children, null, index, 1);
+					}
 					if (this._name)
 						this._removeNamed();
-					Base.splice(owner._children, null, index, 1);
 					this._installEvents(false);
 					if (notifySelf && project._changes)
 						this._changed(5);
@@ -12380,6 +12555,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		var Segment = Base.extend({
 			_class: 'Segment',
 			beans: true,
+			_selection: 0,
 		
 			initialize: function Segment(arg0, arg1, arg2, arg3, arg4, arg5) {
 				var count = arguments.length,
@@ -12471,35 +12647,32 @@ return /******/ (function(modules) { // webpackBootstrap
 				this._handleOut.set(0, 0);
 			},
 		
-			_selectionState: 0,
+			_getSelectionFlag: function(point) {
+				return !point ? 7
+						: point === this._point ? 4
+						: point === this._handleIn ? 1
+						: point === this._handleOut ? 2
+						: 0;
+			},
 		
 			isSelected: function(_point) {
-				var state = this._selectionState;
-				return !_point ? !!(state & 7)
-					: _point === this._point ? !!(state & 4)
-					: _point === this._handleIn ? !!(state & 1)
-					: _point === this._handleOut ? !!(state & 2)
-					: false;
+				return !!(this._selection & this._getSelectionFlag(_point));
 			},
 		
 			setSelected: function(selected, _point) {
 				var path = this._path,
 					selected = !!selected,
-					state = this._selectionState,
-					oldState = state,
-					flag = !_point ? 7
-							: _point === this._point ? 4
-							: _point === this._handleIn ? 1
-							: _point === this._handleOut ? 2
-							: 0;
+					selection = this._selection,
+					oldSelection = selection,
+					flag = this._getSelectionFlag(_point);
 				if (selected) {
-					state |= flag;
+					selection |= flag;
 				} else {
-					state &= ~flag;
+					selection &= ~flag;
 				}
-				this._selectionState = state;
-				if (path && state !== oldState) {
-					path._updateSelection(this, oldState, state);
+				this._selection = selection;
+				if (path && selection !== oldSelection) {
+					path._updateSelection(this, oldSelection, selection);
 					path._changed(129);
 				}
 			},
@@ -13209,14 +13382,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			getArea: function(v) {
 				var p1x = v[0], p1y = v[1],
-					p2x = v[6], p2y = v[7],
-					h1x = (v[2] + p1x) / 2,
-					h1y = (v[3] + p1y) / 2,
-					h2x = (v[4] + v[6]) / 2,
-					h2y = (v[5] + v[7]) / 2;
-				return 6 * ((p1x - h1x) * (h1y + p1y)
-						  + (h1x - h2x) * (h2y + h1y)
-						  + (h2x - p2x) * (p2y + h2y)) / 10;
+					c1x = v[2], c1y = v[3],
+					c2x = v[4], c2y = v[5],
+					p2x = v[6], p2y = v[7];
+				return (6 * (p1x*c1y-p1y*c1x+c2x*p2y-p2x*c2y) +
+						3 * (c1x*p2y-c1y*p2x+p1x*c2y-c2x*p1y+c1x*c2y-c1y*c2x) +
+						1 * (p1x*p2y-p1y*p2x)) / 20;
 			},
 		
 			getBounds: function(v) {
@@ -14537,7 +14708,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					this.setSegments(segments);
 				} else {
 					this._curves = undefined;
-					this._selectedSegmentState = 0;
+					this._segmentSelection = 0;
 					if (!segments && typeof arg === 'string') {
 						this.setPathData(arg);
 						arg = null;
@@ -14587,7 +14758,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			setSegments: function(segments) {
 				var fullySelected = this.isFullySelected();
 				this._segments.length = 0;
-				this._selectedSegmentState = 0;
+				this._segmentSelection = 0;
 				this._curves = undefined;
 				if (segments && segments.length > 0)
 					this._add(Segment.readAll(segments));
@@ -14719,8 +14890,8 @@ return /******/ (function(modules) { // webpackBootstrap
 						segment = segs[i] = segment.clone();
 					segment._path = this;
 					segment._index = index + i;
-					if (segment._selectionState)
-						this._updateSelection(segment, 0, segment._selectionState);
+					if (segment._selection)
+						this._updateSelection(segment, 0, segment._selection);
 				}
 				if (append) {
 					segments.push.apply(segments, segs);
@@ -14818,8 +14989,8 @@ return /******/ (function(modules) { // webpackBootstrap
 					return removed;
 				for (var i = 0; i < amount; i++) {
 					var segment = removed[i];
-					if (segment._selectionState)
-						this._updateSelection(segment, segment._selectionState, 0);
+					if (segment._selection)
+						this._updateSelection(segment, segment._selection, 0);
 					segment._index = segment._path = null;
 				}
 				for (var i = start, l = segments.length; i < l; i++)
@@ -14896,7 +15067,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			isFullySelected: function() {
 				var length = this._segments.length;
-				return this._selected && length > 0 && this._selectedSegmentState
+				return this._selected && length > 0 && this._segmentSelection
 						=== length * 7;
 			},
 		
@@ -14914,17 +15085,18 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			_selectSegments: function(selected) {
 				var length = this._segments.length;
-				this._selectedSegmentState = selected
+				this._segmentSelection = selected
 						? length * 7 : 0;
-				for (var i = 0; i < length; i++)
-					this._segments[i]._selectionState = selected
+				for (var i = 0; i < length; i++) {
+					this._segments[i]._selection = selected
 							? 7 : 0;
+				}
 			},
 		
-			_updateSelection: function(segment, oldState, newState) {
-				segment._selectionState = newState;
-				var total = this._selectedSegmentState += newState - oldState;
-				if (total > 0)
+			_updateSelection: function(segment, oldSelection, newSelection) {
+				segment._selection = newSelection;
+				var selection = this._segmentSelection += newSelection - oldSelection;
+				if (selection > 0)
 					this.setSelected(true);
 			},
 		
@@ -15445,15 +15617,15 @@ return /******/ (function(modules) { // webpackBootstrap
 				for (var i = 0, l = segments.length; i < l; i++) {
 					var segment = segments[i];
 					segment._transformCoordinates(matrix, coords);
-					var state = segment._selectionState,
+					var selection = segment._selection,
 						pX = coords[0],
 						pY = coords[1];
-					if (state & 1)
+					if (selection & 1)
 						drawHandle(2);
-					if (state & 2)
+					if (selection & 2)
 						drawHandle(4);
 					ctx.fillRect(pX - half, pY - half, size, size);
-					if (!(state & 4)) {
+					if (!(selection & 4)) {
 						var fillStyle = ctx.fillStyle;
 						ctx.fillStyle = '#ffffff';
 						ctx.fillRect(pX - half + 1, pY - half + 1, size - 2, size - 2);
@@ -16299,9 +16471,10 @@ return /******/ (function(modules) { // webpackBootstrap
 				for (var i = 0, l = children.length; i < l; i++) {
 					var child = children[i],
 						mx = child._matrix;
-					if (!selectedItems[child._id])
+					if (!selectedItems[child._id]) {
 						child._drawSelected(ctx, mx.isIdentity() ? matrix
 								: matrix.appended(mx));
+					}
 				}
 			}
 		},
@@ -19003,6 +19176,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			});
 		
 			var called = false,
+				prevented = false,
 				fallbacks = {
 					doubleclick: 'click',
 					mousedrag: 'mousemove'
@@ -19010,7 +19184,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			function emitMouseEvent(obj, type, event, point, prevPoint, stopItem) {
 				var target = obj,
-					prevented = false,
+					stopped = false,
 					mouseEvent;
 		
 				function emit(obj, type) {
@@ -19024,7 +19198,7 @@ return /******/ (function(modules) { // webpackBootstrap
 							if (mouseEvent.prevented)
 								prevented = true;
 							if (mouseEvent.stopped)
-								return true;
+								return stopped = true;
 						}
 					} else {
 						var fallback = fallbacks[type];
@@ -19038,12 +19212,12 @@ return /******/ (function(modules) { // webpackBootstrap
 						break;
 					obj = obj._parent;
 				}
-				return prevented;
+				return stopped;
 			}
 		
 			function emitMouseEvents(view, item, type, event, point, prevPoint) {
 				view._project.removeOn(type);
-				called = false;
+				prevented = called = false;
 				return (dragItem && emitMouseEvent(dragItem, type, event, point,
 							prevPoint)
 					|| item && item !== dragItem && !item.isDescendant(dragItem)
@@ -19134,14 +19308,13 @@ return /******/ (function(modules) { // webpackBootstrap
 					}
 					wasInView = inView;
 					if (mouse.down && inView || mouse.up && downPoint) {
-						var prevented = emitMouseEvents(this, item, type, event, point,
-								downPoint);
+						emitMouseEvents(this, item, type, event, point, downPoint);
 						if (mouse.down) {
 							dblClick = item === clickItem
 								&& (Date.now() - clickTime < 300);
 							downItem = clickItem = item;
 							dragItem = !prevented && item;
-							downPoint = lastPoint = point;
+							downPoint = point;
 						} else if (mouse.up) {
 							if (!prevented && item === downItem) {
 								clickTime = Date.now();
@@ -19564,9 +19737,8 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 		
 			getCount: function() {
-				return /^mouse(down|up)$/.test(this.type)
-						? this.tool._downCount
-						: this.tool._count;
+				return this.tool[/^mouse(down|up)$/.test(this.type)
+						? '_downCount' : '_moveCount'];
 			},
 		
 			setCount: function(count) {
@@ -19613,8 +19785,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			initialize: function Tool(props) {
 				PaperScopeItem.call(this);
-				this._firstMove = true;
-				this._count = 0;
+				this._moveCount = -1;
 				this._downCount = -1;
 				this._set(props);
 			},
@@ -19654,22 +19825,21 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			_handleMouseEvent: function(type, event, point, mouse) {
 				paper = this._scope;
-				var move = mouse.move || mouse.drag && !this.responds(type);
-				if (move)
+				if (mouse.drag && !this.responds(type))
 					type = 'mousemove';
-				var responds = this.responds(type),
+				var move = mouse.move || mouse.drag,
+					responds = this.responds(type),
 					minDistance = this.minDistance,
 					maxDistance = this.maxDistance,
 					called = false,
 					tool = this;
-				function update(start, minDistance, maxDistance) {
-					var toolPoint = tool._point,
-						pt = point;
-					if (start) {
-						tool._count = 0;
-					} else {
-						if (pt.equals(toolPoint))
+				function update(minDistance, maxDistance) {
+					var pt = point,
+						toolPoint = move ? tool._point : tool._downPoint || pt;
+					if (move) {
+						if (tool._moveCount && pt.equals(toolPoint)) {
 							return false;
+						}
 						if (minDistance != null || maxDistance != null) {
 							var vector = pt.subtract(toolPoint),
 								distance = vector.getLength();
@@ -19680,38 +19850,34 @@ return /******/ (function(modules) { // webpackBootstrap
 										Math.min(distance, maxDistance)));
 							}
 						}
-						tool._count++;
+						tool._moveCount++;
 					}
-					if (responds) {
-						tool._point = pt;
-						tool._lastPoint = move || mouse.drag
-							? start && move ? pt : toolPoint
-							: tool._downPoint || pt;
-					}
+					tool._point = pt;
+					tool._lastPoint = toolPoint;
 					if (mouse.down) {
+						tool._moveCount = -1;
 						tool._downPoint = pt;
 						tool._downCount++;
 					}
 					return true;
 				}
 		
-				function emit(firstMove) {
+				function emit() {
 					if (responds) {
 						called = tool.emit(type, new ToolEvent(tool, type, event))
 								|| called;
-						tool._firstMove = firstMove;
 					}
 				}
 		
 				if (mouse.down) {
-					update(responds);
-					emit(false);
+					update();
+					emit();
 				} else if (mouse.up) {
-					update(false, null, maxDistance);
-					emit(true);
+					update(null, maxDistance);
+					emit();
 				} else if (responds) {
-					while (update(this._firstMove, minDistance, maxDistance))
-						emit(false);
+					while (update(minDistance, maxDistance))
+						emit();
 				}
 				return called;
 			}
@@ -20055,7 +20221,9 @@ return /******/ (function(modules) { // webpackBootstrap
 				xlink = 'http://www.w3.org/1999/xlink',
 				attributeNamespace = {
 					href: xlink,
-					xlink: xmlns
+					xlink: xmlns,
+					xmlns: xmlns,
+					'xmlns:xlink': xmlns
 				};
 		
 			function create(tag, attributes, formatter) {
@@ -20077,7 +20245,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					if (typeof value === 'number' && formatter)
 						value = formatter.number(value);
 					if (namespace) {
-						node.setAttributeNS(namespace, name, value);
+						node.setAttributeNS(namespace + '/', name, value);
 					} else {
 						node.setAttribute(name, value);
 					}
@@ -21416,9 +21584,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			var a = document.createElement('a');
 		
-			var triggerDownload = function( font, arrayBuffer ) {
+			var triggerDownload = function( font, arrayBuffer, filename ) {
 				var reader = new FileReader();
-				var enFamilyName = font.ot.getEnglishName('fontFamily');
+				var enFamilyName = filename || font.ot.getEnglishName('fontFamily');
 		
 				reader.onloadend = function() {
 					a.download = enFamilyName + '.otf';
@@ -21455,7 +21623,7 @@ return /******/ (function(modules) { // webpackBootstrap
 						}.bind(this));
 		
 				} else {
-					triggerDownload( this, arrayBuffer );
+					triggerDownload( this, arrayBuffer, name.family + ' ' + name.style);
 				}
 		
 				return this;
@@ -22392,159 +22560,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=plumin.js.map
 
 /***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Code refactored from Mozilla Developer Network:
-	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-	 */
-	
-	'use strict';
-	
-	function assign(target, firstSource) {
-	  if (target === undefined || target === null) {
-	    throw new TypeError('Cannot convert first argument to object');
-	  }
-	
-	  var to = Object(target);
-	  for (var i = 1; i < arguments.length; i++) {
-	    var nextSource = arguments[i];
-	    if (nextSource === undefined || nextSource === null) {
-	      continue;
-	    }
-	
-	    var keysArray = Object.keys(Object(nextSource));
-	    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-	      var nextKey = keysArray[nextIndex];
-	      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-	      if (desc !== undefined && desc.enumerable) {
-	        to[nextKey] = nextSource[nextKey];
-	      }
-	    }
-	  }
-	  return to;
-	}
-	
-	function polyfill() {
-	  if (!Object.assign) {
-	    Object.defineProperty(Object, 'assign', {
-	      enumerable: false,
-	      configurable: true,
-	      writable: true,
-	      value: assign
-	    });
-	  }
-	}
-	
-	module.e = {
-	  assign: assign,
-	  polyfill: polyfill
-	};
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @type {Function}
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */
-	var isArray = Array.isArray;
-	
-	module.e = isArray;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
-	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-	
-	module.e = isObject;
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-	
-	module.e = isObjectLike;
-
-
-/***/ },
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23057,10 +23072,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var plumin = __webpack_require__(7),
+	var plumin = __webpack_require__(11),
 		DepTree = __webpack_require__(30),
 		cloneDeep = __webpack_require__(84),
-		assign = __webpack_require__(8).assign,
+		assign = __webpack_require__(7).assign,
 		updateUtils = __webpack_require__(92);
 	
 	var paper = plumin.paper,
@@ -23697,8 +23712,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/*jshint -W098 */
-	var plumin = __webpack_require__(7),
-		assign = __webpack_require__(8).assign,
+	var plumin = __webpack_require__(11),
+		assign = __webpack_require__(7).assign,
 		Utils = __webpack_require__(28),
 		naive = __webpack_require__(91);
 	
@@ -24280,10 +24295,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    initCloneArray = __webpack_require__(68),
 	    initCloneByTag = __webpack_require__(69),
 	    initCloneObject = __webpack_require__(70),
-	    isArray = __webpack_require__(9),
+	    isArray = __webpack_require__(8),
 	    isBuffer = __webpack_require__(88),
 	    isHostObject = __webpack_require__(21),
-	    isObject = __webpack_require__(10);
+	    isObject = __webpack_require__(9);
 	
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -24403,7 +24418,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(10);
+	var isObject = __webpack_require__(9);
 	
 	/** Built-in value references. */
 	var objectCreate = Object.create;
@@ -25041,7 +25056,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var baseTimes = __webpack_require__(49),
 	    isArguments = __webpack_require__(86),
-	    isArray = __webpack_require__(9),
+	    isArray = __webpack_require__(8),
 	    isLength = __webpack_require__(25),
 	    isString = __webpack_require__(90);
 	
@@ -25672,7 +25687,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var isArrayLike = __webpack_require__(24),
-	    isObjectLike = __webpack_require__(11);
+	    isObjectLike = __webpack_require__(10);
 	
 	/**
 	 * This method is like `_.isArrayLike` except that it also checks if `value`
@@ -25765,7 +25780,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var isFunction = __webpack_require__(6),
 	    isHostObject = __webpack_require__(21),
-	    isObjectLike = __webpack_require__(11);
+	    isObjectLike = __webpack_require__(10);
 	
 	/** Used to match `RegExp` [syntax characters](http://ecma-international.org/ecma-262/6.0/#sec-patterns). */
 	var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
@@ -25822,8 +25837,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(9),
-	    isObjectLike = __webpack_require__(11);
+	var isArray = __webpack_require__(8),
+	    isObjectLike = __webpack_require__(10);
 	
 	/** `Object#toString` result references. */
 	var stringTag = '[object String]';
@@ -25865,8 +25880,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var plumin = __webpack_require__(7),
-		assign = __webpack_require__(8).assign,
+	var plumin = __webpack_require__(11),
+		assign = __webpack_require__(7).assign,
 		Utils = __webpack_require__(28);
 	
 	var paper = plumin.paper,
