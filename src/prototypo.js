@@ -237,26 +237,19 @@ psProto.Outline.prototype.prepareDataUpdate = function() {
 	this.isPrepared = true;
 };
 
-var updateSVGData =
-		paper.PaperScope.prototype.Outline.prototype.updateSVGData,
-	updateOTCommands =
-		paper.PaperScope.prototype.Outline.prototype.updateOTCommands;
+// for the following plumin methods, the outline must be prepared beforehand
+// to be usable in prototypo.js
+[ 'updateSVGData', 'updateOTCommands', 'combineTo' ].forEach(function(name) {
+	var method = paper.PaperScope.prototype.Outline.prototype[ name ];
 
-psProto.Outline.prototype.updateSVGData = function() {
-	if ( !this.isPrepared ) {
-		this.prepareDataUpdate();
-	}
+	psProto.Outline.prototype[ name ] = function() {
+		if ( !this.isPrepared ) {
+			this.prepareDataUpdate();
+			this.isPrepared = true;
+		}
 
-	updateSVGData.apply( this, arguments );
-};
-
-psProto.Outline.prototype.updateOTCommands = function() {
-	if ( !this.isPrepared ) {
-		this.prepareDataUpdate();
-		this.isPrepared = true;
-	}
-
-	updateOTCommands.apply( this, arguments );
-};
+		return method.apply( this, arguments );
+	};
+});
 
 module.exports = plumin;
