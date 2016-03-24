@@ -16791,14 +16791,14 @@ return /******/ (function(modules) { // webpackBootstrap
 						return inter;
 					while (inter) {
 						var seg = inter._segment,
-							nextSeg = seg.getNext(),
+							nextSeg = seg && seg.getNext(),
 							nextInter = nextSeg && nextSeg._intersection;
 						if (seg !== exclude && (isStart(seg) || isStart(nextSeg)
 							|| !seg._visited && !(nextSeg && nextSeg._visited)
 							&& (!operator
 								|| (!strict || isValid(seg))
 								&& (!(strict && nextInter && nextInter._overlap)
-									&& isValid(nextSeg)
+									&& nextSeg && isValid(nextSeg)
 									|| !strict && nextInter
 									&& isValid(nextInter._segment))
 							)))
@@ -16855,7 +16855,7 @@ return /******/ (function(modules) { // webpackBootstrap
 							seg._visited = true;
 							break;
 						}
-						if (seg._path._validOverlapsOnly && !isValid(seg))
+						if (!seg._path || (seg._path._validOverlapsOnly && !isValid(seg)))
 							break;
 						if (!path) {
 							path = new Path(Item.NO_INSERT);
