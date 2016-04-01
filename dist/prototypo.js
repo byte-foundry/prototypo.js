@@ -197,7 +197,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(10);
+	var isObject = __webpack_require__(9);
 	
 	/** `Object#toString` result references. */
 	var funcTag = '[object Function]',
@@ -241,6 +241,159 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Code refactored from Mozilla Developer Network:
+	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+	 */
+	
+	'use strict';
+	
+	function assign(target, firstSource) {
+	  if (target === undefined || target === null) {
+	    throw new TypeError('Cannot convert first argument to object');
+	  }
+	
+	  var to = Object(target);
+	  for (var i = 1; i < arguments.length; i++) {
+	    var nextSource = arguments[i];
+	    if (nextSource === undefined || nextSource === null) {
+	      continue;
+	    }
+	
+	    var keysArray = Object.keys(Object(nextSource));
+	    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+	      var nextKey = keysArray[nextIndex];
+	      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+	      if (desc !== undefined && desc.enumerable) {
+	        to[nextKey] = nextSource[nextKey];
+	      }
+	    }
+	  }
+	  return to;
+	}
+	
+	function polyfill() {
+	  if (!Object.assign) {
+	    Object.defineProperty(Object, 'assign', {
+	      enumerable: false,
+	      configurable: true,
+	      writable: true,
+	      value: assign
+	    });
+	  }
+	}
+	
+	module.e = {
+	  assign: assign,
+	  polyfill: polyfill
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is classified as an `Array` object.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @type {Function}
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
+	 * @example
+	 *
+	 * _.isArray([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isArray(document.body.children);
+	 * // => false
+	 *
+	 * _.isArray('abc');
+	 * // => false
+	 *
+	 * _.isArray(_.noop);
+	 * // => false
+	 */
+	var isArray = Array.isArray;
+	
+	module.e = isArray;
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
+	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+	 * @example
+	 *
+	 * _.isObject({});
+	 * // => true
+	 *
+	 * _.isObject([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObject(_.noop);
+	 * // => true
+	 *
+	 * _.isObject(null);
+	 * // => false
+	 */
+	function isObject(value) {
+	  var type = typeof value;
+	  return !!value && (type == 'object' || type == 'function');
+	}
+	
+	module.e = isObject;
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Checks if `value` is object-like. A value is object-like if it's not `null`
+	 * and has a `typeof` result of "object".
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Lang
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+	 * @example
+	 *
+	 * _.isObjectLike({});
+	 * // => true
+	 *
+	 * _.isObjectLike([1, 2, 3]);
+	 * // => true
+	 *
+	 * _.isObjectLike(_.noop);
+	 * // => false
+	 *
+	 * _.isObjectLike(null);
+	 * // => false
+	 */
+	function isObjectLike(value) {
+	  return !!value && typeof value == 'object';
+	}
+	
+	module.e = isObjectLike;
+
+
+/***/ },
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	(function webpackUniversalModuleDefinition(root, factory) {
@@ -1866,7 +2019,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makeTableRecord(tag, checkSum, offset, length) {
-		    return new table.Table('Table Record', [
+		    return new table.Record('Table Record', [
 		        {name: 'tag', type: 'TAG', value: tag !== undefined ? tag : ''},
 		        {name: 'checkSum', type: 'ULONG', value: checkSum !== undefined ? checkSum : 0},
 		        {name: 'offset', type: 'ULONG', value: offset !== undefined ? offset : 0},
@@ -1903,8 +2056,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		        check.argument(t.tableName.length === 4, 'Table name' + t.tableName + ' is invalid.');
 		        var tableLength = t.sizeOf();
 		        var tableRecord = makeTableRecord(t.tableName, computeCheckSum(t.encode()), offset, tableLength);
-		        recordFields.push({name: tableRecord.tag + ' Table Record', type: 'TABLE', value: tableRecord});
-		        tableFields.push({name: t.tableName + ' table', type: 'TABLE', value: t});
+		        recordFields.push({name: tableRecord.tag + ' Table Record', type: 'RECORD', value: tableRecord});
+		        tableFields.push({name: t.tableName + ' table', type: 'RECORD', value: t});
 		        offset += tableLength;
 		        check.argument(!isNaN(offset), 'Something went wrong calculating the offset.');
 		        while (offset % 4 !== 0) {
@@ -1971,6 +2124,11 @@ return /******/ (function(modules) { // webpackBootstrap
 		    for (var i = 0; i < font.glyphs.length; i += 1) {
 		        var glyph = font.glyphs.get(i);
 		        var unicode = glyph.unicode | 0;
+		
+		        if (typeof glyph.advanceWidth === 'undefined') {
+		            throw new Error('Glyph ' + glyph.name + ' (' + i + '): advanceWidth is required.');
+		        }
+		
 		        if (firstCharIndex > unicode || firstCharIndex === null) {
 		            firstCharIndex = unicode;
 		        }
@@ -2175,7 +2333,6 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 		'use strict';
 		
-		var check = __webpack_require__(8);
 		var encode = __webpack_require__(10).encode;
 		var sizeOf = __webpack_require__(10).sizeOf;
 		
@@ -2200,32 +2357,15 @@ return /******/ (function(modules) { // webpackBootstrap
 		    }
 		}
 		
-		Table.prototype.sizeOf = function() {
-		    var v = 0;
-		    for (var i = 0; i < this.fields.length; i += 1) {
-		        var field = this.fields[i];
-		        var value = this[field.name];
-		        if (value === undefined) {
-		            value = field.value;
-		        }
-		
-		        if (typeof value.sizeOf === 'function') {
-		            v += value.sizeOf();
-		        } else {
-		            var sizeOfFunction = sizeOf[field.type];
-		            check.assert(typeof sizeOfFunction === 'function', 'Could not find sizeOf function for field' + field.name);
-		            v += sizeOfFunction(value);
-		        }
-		    }
-		
-		    return v;
-		};
-		
 		Table.prototype.encode = function() {
 		    return encode.TABLE(this);
 		};
 		
-		exports.Table = Table;
+		Table.prototype.sizeOf = function() {
+		    return sizeOf.TABLE(this);
+		};
+		
+		exports.Record = exports.Table = Table;
 	
 	
 	/***/ },
@@ -2814,7 +2954,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		        }
 		
 		        var bytes = encodingFunction(value);
-		        if (field.type === 'SUBTABLE') {
+		
+		        if (field.type === 'TABLE') {
 		            subtableOffsets.push(d.length);
 		            d = d.concat([0, 0]);
 		            subtables.push(bytes);
@@ -2826,7 +2967,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		    for (i = 0; i < subtables.length; i += 1) {
 		        var o = subtableOffsets[i];
 		        var offset = d.length;
-		        check.argument(offset < 65536, 'Table ' + table.name + ' too big.');
+		        check.argument(offset < 65536, 'Table ' + table.tableName + ' too big.');
 		        d[o] = offset >> 8;
 		        d[o + 1] = offset & 0xff;
 		        d = d.concat(subtables[i]);
@@ -2851,7 +2992,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		        numBytes += sizeOfFunction(value);
 		
 		        // Subtables take 2 more bytes for offsets.
-		        if (field.type === 'SUBTABLE') {
+		        if (field.type === 'TABLE') {
 		            numBytes += 2;
 		        }
 		    }
@@ -2859,8 +3000,8 @@ return /******/ (function(modules) { // webpackBootstrap
 		    return numBytes;
 		};
 		
-		encode.SUBTABLE = encode.TABLE;
-		sizeOf.SUBTABLE = sizeOf.TABLE;
+		encode.RECORD = encode.TABLE;
+		sizeOf.RECORD = sizeOf.TABLE;
 		
 		// Merge in a list of bytes.
 		encode.LITERAL = function(v) {
@@ -4149,7 +4290,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makeHeader() {
-		    return new table.Table('Header', [
+		    return new table.Record('Header', [
 		        {name: 'major', type: 'Card8', value: 1},
 		        {name: 'minor', type: 'Card8', value: 0},
 		        {name: 'hdrSize', type: 'Card8', value: 4},
@@ -4158,7 +4299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makeNameIndex(fontNames) {
-		    var t = new table.Table('Name INDEX', [
+		    var t = new table.Record('Name INDEX', [
 		        {name: 'names', type: 'INDEX', value: []}
 		    ]);
 		    t.names = [];
@@ -4189,7 +4330,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 		// The Top DICT houses the global font attributes.
 		function makeTopDict(attrs, strings) {
-		    var t = new table.Table('Top DICT', [
+		    var t = new table.Record('Top DICT', [
 		        {name: 'dict', type: 'DICT', value: {}}
 		    ]);
 		    t.dict = makeDict(TOP_DICT_META, attrs, strings);
@@ -4197,7 +4338,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makeTopDictIndex(topDict) {
-		    var t = new table.Table('Top DICT INDEX', [
+		    var t = new table.Record('Top DICT INDEX', [
 		        {name: 'topDicts', type: 'INDEX', value: []}
 		    ]);
 		    t.topDicts = [{name: 'topDict_0', type: 'TABLE', value: topDict}];
@@ -4205,7 +4346,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makeStringIndex(strings) {
-		    var t = new table.Table('String INDEX', [
+		    var t = new table.Record('String INDEX', [
 		        {name: 'strings', type: 'INDEX', value: []}
 		    ]);
 		    t.strings = [];
@@ -4218,13 +4359,13 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 		function makeGlobalSubrIndex() {
 		    // Currently we don't use subroutines.
-		    return new table.Table('Global Subr INDEX', [
+		    return new table.Record('Global Subr INDEX', [
 		        {name: 'subrs', type: 'INDEX', value: []}
 		    ]);
 		}
 		
 		function makeCharsets(glyphNames, strings) {
-		    var t = new table.Table('Charsets', [
+		    var t = new table.Record('Charsets', [
 		        {name: 'format', type: 'Card8', value: 0}
 		    ]);
 		    for (var i = 0; i < glyphNames.length; i += 1) {
@@ -4306,7 +4447,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makeCharStringsIndex(glyphs) {
-		    var t = new table.Table('CharStrings INDEX', [
+		    var t = new table.Record('CharStrings INDEX', [
 		        {name: 'charStrings', type: 'INDEX', value: []}
 		    ]);
 		
@@ -4320,7 +4461,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makePrivateDict(attrs, strings) {
-		    var t = new table.Table('Private DICT', [
+		    var t = new table.Record('Private DICT', [
 		        {name: 'dict', type: 'DICT', value: {}}
 		    ]);
 		    t.dict = makeDict(PRIVATE_DICT_META, attrs, strings);
@@ -4329,14 +4470,14 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 		function makeCFFTable(glyphs, options) {
 		    var t = new table.Table('CFF ', [
-		        {name: 'header', type: 'TABLE'},
-		        {name: 'nameIndex', type: 'TABLE'},
-		        {name: 'topDictIndex', type: 'TABLE'},
-		        {name: 'stringIndex', type: 'TABLE'},
-		        {name: 'globalSubrIndex', type: 'TABLE'},
-		        {name: 'charsets', type: 'TABLE'},
-		        {name: 'charStringsIndex', type: 'TABLE'},
-		        {name: 'privateDict', type: 'TABLE'}
+		        {name: 'header', type: 'RECORD'},
+		        {name: 'nameIndex', type: 'RECORD'},
+		        {name: 'topDictIndex', type: 'RECORD'},
+		        {name: 'stringIndex', type: 'RECORD'},
+		        {name: 'globalSubrIndex', type: 'RECORD'},
+		        {name: 'charsets', type: 'RECORD'},
+		        {name: 'charStringsIndex', type: 'RECORD'},
+		        {name: 'privateDict', type: 'RECORD'}
 		    ]);
 		
 		    var fontScale = 1 / options.unitsPerEm;
@@ -5783,7 +5924,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		}
 		
 		function makeNameRecord(platformID, encodingID, languageID, nameID, length, offset) {
-		    return new table.Table('NameRecord', [
+		    return new table.Record('NameRecord', [
 		        {name: 'platformID', type: 'USHORT', value: platformID},
 		        {name: 'encodingID', type: 'USHORT', value: encodingID},
 		        {name: 'languageID', type: 'USHORT', value: languageID},
@@ -5916,7 +6057,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		    ]);
 		
 		    for (var r = 0; r < nameRecords.length; r++) {
-		        t.fields.push({name: 'record_' + r, type: 'TABLE', value: nameRecords[r]});
+		        t.fields.push({name: 'record_' + r, type: 'RECORD', value: nameRecords[r]});
 		    }
 		
 		    t.fields.push({name: 'strings', type: 'LITERAL', value: stringPool});
@@ -7093,7 +7234,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/***/ function(module, exports, __webpack_require__) {
 	
 		var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-		 * Paper.js v0.9.25-fix/findBestIntersection - The Swiss Army Knife of Vector Graphics Scripting.
+		 * Paper.js v0.9.25-develop - The Swiss Army Knife of Vector Graphics Scripting.
 		 * http://paperjs.org/
 		 *
 		 * Copyright (c) 2011 - 2016, Juerg Lehni & Jonathan Puckey
@@ -7103,7 +7244,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		 *
 		 * All rights reserved.
 		 *
-		 * Date: Thu Mar 24 14:28:41 2016 +0100
+		 * Date: Mon Mar 28 08:17:27 2016 -0700
 		 *
 		 ***
 		 *
@@ -7861,7 +8002,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				}
 			},
 		
-			version: "0.9.25-fix/findBestIntersection",
+			version: "0.9.25-develop",
 		
 			getView: function() {
 				var project = this.project;
@@ -10944,12 +11085,12 @@ return /******/ (function(modules) { // webpackBootstrap
 					}
 					Base.splice(children, items, index, 0);
 					var project = this._project,
-						notifySelf = project && project._changes;
+						notifySelf = project._changes;
 					for (var i = 0, l = items.length; i < l; i++) {
 						var item = items[i],
 							name = item._name;
 						item._parent = this;
-						item._setProject(this._project, true);
+						item._setProject(project, true);
 						if (name)
 							item.setName(name);
 						if (notifySelf)
@@ -13312,9 +13453,9 @@ return /******/ (function(modules) { // webpackBootstrap
 					c1x = v[2], c1y = v[3],
 					c2x = v[4], c2y = v[5],
 					p2x = v[6], p2y = v[7];
-				return (6 * (p1x*c1y-p1y*c1x+c2x*p2y-p2x*c2y) +
-						3 * (c1x*p2y-c1y*p2x+p1x*c2y-c2x*p1y+c1x*c2y-c1y*c2x) +
-						1 * (p1x*p2y-p1y*p2x)) / 20;
+				return 3 * ((p2y - p1y) * (c1x + c2x) - (p2x - p1x) * (c1y + c2y)
+						+ c1y * (p1x - c2x) - c1x * (p1y - c2y)
+						+ p2y * (c2x + p1x / 3) - p2x * (c2y + p1y / 3)) / 20;
 			},
 		
 			getBounds: function(v) {
@@ -15962,7 +16103,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 		
 			getStrokeBounds: function(segments, closed, path, matrix, options) {
-				var style = path._style,
+				var style = path.getStyle(),
 					stroke = style.hasStroke(),
 					strokeWidth = style.getStrokeWidth(),
 					strokeMatrix = stroke && path._getStrokeMatrix(matrix, options),
@@ -16086,7 +16227,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			},
 		
 			getHandleBounds: function(segments, closed, path, matrix, options) {
-				var style = path._style,
+				var style = path.getStyle(),
 					stroke = options.stroke && style.hasStroke(),
 					strokePadding,
 					joinPadding;
@@ -16792,9 +16933,9 @@ return /******/ (function(modules) { // webpackBootstrap
 					while (inter) {
 						var seg = inter._segment,
 							nextSeg = seg.getNext(),
-							nextInter = nextSeg && nextSeg._intersection;
+							nextInter = nextSeg._intersection;
 						if (seg !== exclude && (isStart(seg) || isStart(nextSeg)
-							|| !seg._visited && !(nextSeg && nextSeg._visited)
+							|| !seg._visited && !nextSeg._visited
 							&& (!operator
 								|| (!strict || isValid(seg))
 								&& (!(strict && nextInter && nextInter._overlap)
@@ -19777,7 +19918,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					tool = this;
 				function update(minDistance, maxDistance) {
 					var pt = point,
-						toolPoint = move ? tool._point : tool._downPoint || pt;
+						toolPoint = (move ? tool._point : tool._downPoint) || pt;
 					if (move) {
 						if (tool._moveCount && pt.equals(toolPoint)) {
 							return false;
@@ -21547,11 +21688,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			var a = document.createElement('a');
 		
-			Font.prototype.download = function( arrayBuffer, name ) {
+			var triggerDownload = function( font, arrayBuffer, filename ) {
 				var reader = new FileReader();
-				var enFamilyName = typeof name === 'object' ?
-					name.family + ' ' + name.style :
-					name || this.ot.getEnglishName('fontFamily');
+				var enFamilyName = filename || font.ot.getEnglishName('fontFamily');
 		
 				reader.onloadend = function() {
 					a.download = enFamilyName + '.otf';
@@ -21565,9 +21704,32 @@ return /******/ (function(modules) { // webpackBootstrap
 				};
 		
 				reader.readAsDataURL(new Blob(
-					[ new DataView( arrayBuffer || this.toArrayBuffer() ) ],
+					[ new DataView( arrayBuffer || font.toArrayBuffer() ) ],
 					{ type: 'font/opentype' }
 				));
+			};
+		
+			Font.prototype.download = function( arrayBuffer, merged, name, user ) {
+				if ( merged ) {
+					// TODO: replace that with client-side font merging
+					fetch('https://merge.prototypo.io/' +
+						name.family + '/' +
+						name.style + '/' + user, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/otf' },
+							body: arrayBuffer
+					})
+					.then(function( response ) {
+						return response.arrayBuffer();
+					})
+					.then(function( bufferToDownload ) {
+						triggerDownload( this, bufferToDownload );
+					}.bind(this));
+		
+				} else {
+					triggerDownload(
+						this, arrayBuffer, name && ( name.family + ' ' + name.style ) );
+				}
 		
 				return this;
 			};
@@ -22190,159 +22352,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	//# sourceMappingURL=plumin.js.map
 
 /***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Code refactored from Mozilla Developer Network:
-	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-	 */
-	
-	'use strict';
-	
-	function assign(target, firstSource) {
-	  if (target === undefined || target === null) {
-	    throw new TypeError('Cannot convert first argument to object');
-	  }
-	
-	  var to = Object(target);
-	  for (var i = 1; i < arguments.length; i++) {
-	    var nextSource = arguments[i];
-	    if (nextSource === undefined || nextSource === null) {
-	      continue;
-	    }
-	
-	    var keysArray = Object.keys(Object(nextSource));
-	    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-	      var nextKey = keysArray[nextIndex];
-	      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-	      if (desc !== undefined && desc.enumerable) {
-	        to[nextKey] = nextSource[nextKey];
-	      }
-	    }
-	  }
-	  return to;
-	}
-	
-	function polyfill() {
-	  if (!Object.assign) {
-	    Object.defineProperty(Object, 'assign', {
-	      enumerable: false,
-	      configurable: true,
-	      writable: true,
-	      value: assign
-	    });
-	  }
-	}
-	
-	module.e = {
-	  assign: assign,
-	  polyfill: polyfill
-	};
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is classified as an `Array` object.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @type {Function}
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is correctly classified, else `false`.
-	 * @example
-	 *
-	 * _.isArray([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isArray(document.body.children);
-	 * // => false
-	 *
-	 * _.isArray('abc');
-	 * // => false
-	 *
-	 * _.isArray(_.noop);
-	 * // => false
-	 */
-	var isArray = Array.isArray;
-	
-	module.e = isArray;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is the [language type](https://es5.github.io/#x8) of `Object`.
-	 * (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is an object, else `false`.
-	 * @example
-	 *
-	 * _.isObject({});
-	 * // => true
-	 *
-	 * _.isObject([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObject(_.noop);
-	 * // => true
-	 *
-	 * _.isObject(null);
-	 * // => false
-	 */
-	function isObject(value) {
-	  var type = typeof value;
-	  return !!value && (type == 'object' || type == 'function');
-	}
-	
-	module.e = isObject;
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Checks if `value` is object-like. A value is object-like if it's not `null`
-	 * and has a `typeof` result of "object".
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Lang
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-	 * @example
-	 *
-	 * _.isObjectLike({});
-	 * // => true
-	 *
-	 * _.isObjectLike([1, 2, 3]);
-	 * // => true
-	 *
-	 * _.isObjectLike(_.noop);
-	 * // => false
-	 *
-	 * _.isObjectLike(null);
-	 * // => false
-	 */
-	function isObjectLike(value) {
-	  return !!value && typeof value == 'object';
-	}
-	
-	module.e = isObjectLike;
-
-
-/***/ },
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -22855,10 +22864,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var plumin = __webpack_require__(7),
+	var plumin = __webpack_require__(11),
 		DepTree = __webpack_require__(30),
 		cloneDeep = __webpack_require__(84),
-		assign = __webpack_require__(8).assign,
+		assign = __webpack_require__(7).assign,
 		updateUtils = __webpack_require__(92);
 	
 	var paper = plumin.paper,
@@ -23495,8 +23504,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	/*jshint -W098 */
-	var plumin = __webpack_require__(7),
-		assign = __webpack_require__(8).assign,
+	var plumin = __webpack_require__(11),
+		assign = __webpack_require__(7).assign,
 		Utils = __webpack_require__(28),
 		naive = __webpack_require__(91);
 	
@@ -24071,10 +24080,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    initCloneArray = __webpack_require__(68),
 	    initCloneByTag = __webpack_require__(69),
 	    initCloneObject = __webpack_require__(70),
-	    isArray = __webpack_require__(9),
+	    isArray = __webpack_require__(8),
 	    isBuffer = __webpack_require__(88),
 	    isHostObject = __webpack_require__(21),
-	    isObject = __webpack_require__(10);
+	    isObject = __webpack_require__(9);
 	
 	/** `Object#toString` result references. */
 	var argsTag = '[object Arguments]',
@@ -24194,7 +24203,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 43 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isObject = __webpack_require__(10);
+	var isObject = __webpack_require__(9);
 	
 	/** Built-in value references. */
 	var objectCreate = Object.create;
@@ -24832,7 +24841,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var baseTimes = __webpack_require__(49),
 	    isArguments = __webpack_require__(86),
-	    isArray = __webpack_require__(9),
+	    isArray = __webpack_require__(8),
 	    isLength = __webpack_require__(25),
 	    isString = __webpack_require__(90);
 	
@@ -25463,7 +25472,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var isArrayLike = __webpack_require__(24),
-	    isObjectLike = __webpack_require__(11);
+	    isObjectLike = __webpack_require__(10);
 	
 	/**
 	 * This method is like `_.isArrayLike` except that it also checks if `value`
@@ -25556,7 +25565,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var isFunction = __webpack_require__(6),
 	    isHostObject = __webpack_require__(21),
-	    isObjectLike = __webpack_require__(11);
+	    isObjectLike = __webpack_require__(10);
 	
 	/** Used to match `RegExp` [syntax characters](http://ecma-international.org/ecma-262/6.0/#sec-patterns). */
 	var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
@@ -25613,8 +25622,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 90 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var isArray = __webpack_require__(9),
-	    isObjectLike = __webpack_require__(11);
+	var isArray = __webpack_require__(8),
+	    isObjectLike = __webpack_require__(10);
 	
 	/** `Object#toString` result references. */
 	var stringTag = '[object String]';
@@ -25656,8 +25665,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 91 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var plumin = __webpack_require__(7),
-		assign = __webpack_require__(8).assign,
+	var plumin = __webpack_require__(11),
+		assign = __webpack_require__(7).assign,
 		Utils = __webpack_require__(28);
 	
 	var paper = plumin.paper,
