@@ -542,13 +542,16 @@ Utils.updateIndividualParameters = function( leaf, params ) {
 		});
 };
 
-Utils.updateProperties = function( leaf, params ) {
+Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 	if ( !leaf.solvingOrder ) {
 		return;
 	}
+	var errored;
 
-	leaf.solvingOrder.forEach(function(_cursor) {
-		var cursor = _cursor.cursor,
+	// don't use forEach here as we might add items to the array during the loop
+	for ( var i = 0; i < leaf.solvingOrder.length; i++ ) {
+		var _cursor = leaf.solvingOrder[i],
+			cursor = _cursor.cursor,
 			propName = cursor[ cursor.length - 1 ],
 			src = _cursor.src || ( _cursor.src =
 				Utils.propFromCursor( cursor, leaf.src ) ),
@@ -575,7 +578,7 @@ Utils.updateProperties = function( leaf, params ) {
 				/* eslint-disable no-console */
 				console.error(
 					[
-						'Cannot update property',
+						'Could not update property',
 						cursor.join('.'),
 						'from component',
 						leaf.name
@@ -583,6 +586,10 @@ Utils.updateProperties = function( leaf, params ) {
 					e
 				);
 				/* eslint-enable no-console */
+
+				// add the failing properties at the end of the solvingOrder
+				leaf.solvingOrder.push(_cursor);
+				errored = true;
 			}
 		}
 
@@ -591,7 +598,17 @@ Utils.updateProperties = function( leaf, params ) {
 		if ( result !== undefined ) {
 			obj[propName] = result;
 		}
-	}, this);
+	}
+
+	// If one update errored, we're going to try once more, hoping things will
+	// get resolved on the second pass.
+	if ( errored && !erroredPreviously ) {
+		Utils.updateProperties( leaf, params, true );
+
+	// any error on the second try will cause it to throw
+	} else if ( errored && erroredPreviously ) {
+		throw 'Too much update errors, giving up.';
+	}
 };
 
 // The ascender and descender properties must be set to their maximum

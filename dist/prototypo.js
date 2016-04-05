@@ -21547,11 +21547,9 @@ return /******/ (function(modules) { // webpackBootstrap
 		
 			var a = document.createElement('a');
 		
-			Font.prototype.download = function( arrayBuffer, name ) {
+			var triggerDownload = function( font, arrayBuffer, filename ) {
 				var reader = new FileReader();
-				var enFamilyName = typeof name === 'object' ?
-					name.family + ' ' + name.style :
-					name || this.ot.getEnglishName('fontFamily');
+				var enFamilyName = filename || font.ot.getEnglishName('fontFamily');
 		
 				reader.onloadend = function() {
 					a.download = enFamilyName + '.otf';
@@ -21565,9 +21563,32 @@ return /******/ (function(modules) { // webpackBootstrap
 				};
 		
 				reader.readAsDataURL(new Blob(
-					[ new DataView( arrayBuffer || this.toArrayBuffer() ) ],
+					[ new DataView( arrayBuffer || font.toArrayBuffer() ) ],
 					{ type: 'font/opentype' }
 				));
+			};
+		
+			Font.prototype.download = function( arrayBuffer, merged, name, user ) {
+				if ( merged ) {
+					// TODO: replace that with client-side font merging
+					fetch('https://merge.prototypo.io/' +
+						name.family + '/' +
+						name.style + '/' + user, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/otf' },
+							body: arrayBuffer
+					})
+					.then(function( response ) {
+						return response.arrayBuffer();
+					})
+					.then(function( bufferToDownload ) {
+						triggerDownload( this, bufferToDownload );
+					}.bind(this));
+		
+				} else {
+					triggerDownload(
+						this, arrayBuffer, name && ( name.family + ' ' + name.style ) );
+				}
 		
 				return this;
 			};
@@ -23399,13 +23420,16 @@ return /******/ (function(modules) { // webpackBootstrap
 			});
 	};
 	
-	Utils.updateProperties = function( leaf, params ) {
+	Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 		if ( !leaf.solvingOrder ) {
 			return;
 		}
+		var errored;
 	
-		leaf.solvingOrder.forEach(function(_cursor) {
-			var cursor = _cursor.cursor,
+		// don't use forEach here as we might add items to the array during the loop
+		for ( var i = 0; i < leaf.solvingOrder.length; i++ ) {
+			var _cursor = leaf.solvingOrder[i],
+				cursor = _cursor.cursor,
 				propName = cursor[ cursor.length - 1 ],
 				src = _cursor.src || ( _cursor.src =
 					Utils.propFromCursor( cursor, leaf.src ) ),
@@ -23432,7 +23456,7 @@ return /******/ (function(modules) { // webpackBootstrap
 					/* eslint-disable no-console */
 					console.error(
 						[
-							'Cannot update property',
+							'Could not update property',
 							cursor.join('.'),
 							'from component',
 							leaf.name
@@ -23440,6 +23464,10 @@ return /******/ (function(modules) { // webpackBootstrap
 						e
 					);
 					/* eslint-enable no-console */
+	
+					// add the failing properties at the end of the solvingOrder
+					leaf.solvingOrder.push(_cursor);
+					errored = true;
 				}
 			}
 	
@@ -23448,7 +23476,17 @@ return /******/ (function(modules) { // webpackBootstrap
 			if ( result !== undefined ) {
 				obj[propName] = result;
 			}
-		}, this);
+		}
+	
+		// If one update errored, we're going to try once more, hoping things will
+		// get resolved on the second pass.
+		if ( errored && !erroredPreviously ) {
+			Utils.updateProperties( leaf, params, true );
+	
+		// any error on the second try will cause it to throw
+		} else if ( errored && erroredPreviously ) {
+			throw 'Too much update errors, giving up.';
+		}
 	};
 	
 	// The ascender and descender properties must be set to their maximum
