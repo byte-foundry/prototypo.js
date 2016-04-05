@@ -5,7 +5,7 @@
   "dependencies": {
     "es6-object-assign": "^1.0.1",
     "deptree": "^0.1.0",
-    "plumin.js": "^1.1.1",
+    "plumin.js": "^1.7.2",
     "lodash": "^4.5.1",
     "whatwg-fetch": "^0.11.0"
   },
