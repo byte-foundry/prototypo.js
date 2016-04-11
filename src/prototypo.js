@@ -2,7 +2,8 @@
 var plumin = require('plumin.js'),
 	assign = require('es6-object-assign').assign,
 	Utils = require('./Utils.js'),
-	naive = require('./naive.js');
+	naive = require('./naive.js'),
+	ComponentMenu = require('./componentMenu.js');
 
 var paper = plumin.paper,
 	psProto = paper.PaperScope.prototype,
@@ -234,6 +235,18 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 	return this;
 };
+
+psProto.Glyph.prototype.displayComponentList = function( componentId, point ) {
+	point.y = -point.y
+	new ComponentMenu({
+		point: point,
+	});
+	//var text = new paper.PointText(point);
+	//text.fontSize = 60;
+	//text.scale(1, -1);
+	//text.content = this.componentLists[componentId].join(' ');
+	//text.fillColor = 'black';
+}
 
 // Before updating SVG or OpenType data, we must determine paths exports
 // directions. Basically, everything needs to be clockwise.
