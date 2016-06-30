@@ -21924,7 +21924,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				this.ot.advanceWidth = value;
 			},
 			get: function() {
-				return this.ot.advanceWidth || 0;
+				return this.ot.advanceWidth;
 			}
 		});
 		
@@ -23550,10 +23550,37 @@ return /******/ (function(modules) { // webpackBootstrap
 							leaf.parentAnchors, Utils
 						].concat(
 							( src._parameters || [] ).map(function(_name) {
+								if ( !(_name in params) ) {
+									/* eslint-disable no-console */
+									console.error(
+										[
+											'undefined parameter',
+											_name,
+											'used in property',
+											cursor.join('.'),
+											'from component',
+											leaf.name
+										].join(' ')
+									);
+									/* eslint-enable no-console */
+								}
 								return params[_name];
 							})
 						)
 					);
+	
+					if ( result !== undefined && isNaN(result) ) {
+						/* eslint-disable no-console */
+						console.error(
+							[
+								'NaN returned by property',
+								cursor.join('.'),
+								'from component',
+								leaf.name
+							].join(' ')
+						);
+						/* eslint-enable no-console */
+					}
 	
 				} catch (e) {
 					/* eslint-disable no-console */
