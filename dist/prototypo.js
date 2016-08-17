@@ -284,143 +284,6 @@ module.exports = isObject;
 
 /***/ },
 /* 8 */
-/***/ function(module, exports) {
-
-"use strict";
-/**
- * Code refactored from Mozilla Developer Network:
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
- */
-
-'use strict';
-
-function assign(target, firstSource) {
-  if (target === undefined || target === null) {
-    throw new TypeError('Cannot convert first argument to object');
-  }
-
-  var to = Object(target);
-  for (var i = 1; i < arguments.length; i++) {
-    var nextSource = arguments[i];
-    if (nextSource === undefined || nextSource === null) {
-      continue;
-    }
-
-    var keysArray = Object.keys(Object(nextSource));
-    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-      var nextKey = keysArray[nextIndex];
-      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-      if (desc !== undefined && desc.enumerable) {
-        to[nextKey] = nextSource[nextKey];
-      }
-    }
-  }
-  return to;
-}
-
-function polyfill() {
-  if (!Object.assign) {
-    Object.defineProperty(Object, 'assign', {
-      enumerable: false,
-      configurable: true,
-      writable: true,
-      value: assign
-    });
-  }
-}
-
-module.exports = {
-  assign: assign,
-  polyfill: polyfill
-};
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-var Uint8Array = __webpack_require__(36);
-
-/**
- * Creates a clone of `arrayBuffer`.
- *
- * @private
- * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
- * @returns {ArrayBuffer} Returns the cloned array buffer.
- */
-function cloneArrayBuffer(arrayBuffer) {
-  var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
-  new Uint8Array(result).set(new Uint8Array(arrayBuffer));
-  return result;
-}
-
-module.exports = cloneArrayBuffer;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseHas = __webpack_require__(46),
-    baseKeys = __webpack_require__(48),
-    indexKeys = __webpack_require__(71),
-    isArrayLike = __webpack_require__(22),
-    isIndex = __webpack_require__(75),
-    isPrototype = __webpack_require__(19);
-
-/**
- * Creates an array of the own enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects. See the
- * [ES spec](http://ecma-international.org/ecma-262/6.0/#sec-object.keys)
- * for more details.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keys(new Foo);
- * // => ['a', 'b'] (iteration order is not guaranteed)
- *
- * _.keys('hi');
- * // => ['0', '1']
- */
-function keys(object) {
-  var isProto = isPrototype(object);
-  if (!(isProto || isArrayLike(object))) {
-    return baseKeys(object);
-  }
-  var indexes = indexKeys(object),
-      skipIndexes = !!indexes,
-      result = indexes || [],
-      length = result.length;
-
-  for (var key in object) {
-    if (baseHas(object, key) &&
-        !(skipIndexes && (key == 'length' || isIndex(key, length))) &&
-        !(isProto && key == 'constructor')) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-module.exports = keys;
-
-
-/***/ },
-/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -23246,6 +23109,143 @@ return /******/ (function(modules) { // webpackBootstrap
 //# sourceMappingURL=plumin.js.map
 
 /***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+"use strict";
+/**
+ * Code refactored from Mozilla Developer Network:
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+ */
+
+'use strict';
+
+function assign(target, firstSource) {
+  if (target === undefined || target === null) {
+    throw new TypeError('Cannot convert first argument to object');
+  }
+
+  var to = Object(target);
+  for (var i = 1; i < arguments.length; i++) {
+    var nextSource = arguments[i];
+    if (nextSource === undefined || nextSource === null) {
+      continue;
+    }
+
+    var keysArray = Object.keys(Object(nextSource));
+    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+      var nextKey = keysArray[nextIndex];
+      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+      if (desc !== undefined && desc.enumerable) {
+        to[nextKey] = nextSource[nextKey];
+      }
+    }
+  }
+  return to;
+}
+
+function polyfill() {
+  if (!Object.assign) {
+    Object.defineProperty(Object, 'assign', {
+      enumerable: false,
+      configurable: true,
+      writable: true,
+      value: assign
+    });
+  }
+}
+
+module.exports = {
+  assign: assign,
+  polyfill: polyfill
+};
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+var Uint8Array = __webpack_require__(36);
+
+/**
+ * Creates a clone of `arrayBuffer`.
+ *
+ * @private
+ * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
+ * @returns {ArrayBuffer} Returns the cloned array buffer.
+ */
+function cloneArrayBuffer(arrayBuffer) {
+  var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+  new Uint8Array(result).set(new Uint8Array(arrayBuffer));
+  return result;
+}
+
+module.exports = cloneArrayBuffer;
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+var baseHas = __webpack_require__(46),
+    baseKeys = __webpack_require__(48),
+    indexKeys = __webpack_require__(71),
+    isArrayLike = __webpack_require__(22),
+    isIndex = __webpack_require__(75),
+    isPrototype = __webpack_require__(19);
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/6.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  var isProto = isPrototype(object);
+  if (!(isProto || isArrayLike(object))) {
+    return baseKeys(object);
+  }
+  var indexes = indexKeys(object),
+      skipIndexes = !!indexes,
+      result = indexes || [],
+      length = result.length;
+
+  for (var key in object) {
+    if (baseHas(object, key) &&
+        !(skipIndexes && (key == 'length' || isIndex(key, length))) &&
+        !(isProto && key == 'constructor')) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+module.exports = keys;
+
+
+/***/ },
 /* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -23703,10 +23703,10 @@ module.exports = isObjectLike;
 /* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
-var plumin = __webpack_require__(11),
+var plumin = __webpack_require__(8),
 	DepTree = __webpack_require__(28),
 	cloneDeep = __webpack_require__(95),
-	assign = __webpack_require__(8).assign,
+	assign = __webpack_require__(9).assign,
 	updateUtils = __webpack_require__(105);
 
 var paper = plumin.paper,
@@ -24390,8 +24390,8 @@ module.exports = Utils;
 /***/ function(module, exports, __webpack_require__) {
 
 /*jshint -W098 */
-var plumin = __webpack_require__(11),
-	assign = __webpack_require__(8).assign,
+var plumin = __webpack_require__(8),
+	assign = __webpack_require__(9).assign,
 	Utils = __webpack_require__(26),
 	naive = __webpack_require__(104);
 
@@ -24993,7 +24993,7 @@ module.exports = arrayPush;
 /***/ function(module, exports, __webpack_require__) {
 
 var copyObject = __webpack_require__(15),
-    keys = __webpack_require__(10);
+    keys = __webpack_require__(11);
 
 /**
  * The base implementation of `_.assign` without support for multiple sources
@@ -25031,7 +25031,7 @@ var Stack = __webpack_require__(34),
     isBuffer = __webpack_require__(98),
     isHostObject = __webpack_require__(18),
     isObject = __webpack_require__(7),
-    keys = __webpack_require__(10);
+    keys = __webpack_require__(11);
 
 /** `Object#toString` result references. */
 var argsTag = '[object Arguments]',
@@ -25405,7 +25405,7 @@ module.exports = cloneBuffer;
 /* 53 */
 /***/ function(module, exports, __webpack_require__) {
 
-var cloneArrayBuffer = __webpack_require__(9);
+var cloneArrayBuffer = __webpack_require__(10);
 
 /**
  * Creates a clone of `dataView`.
@@ -25524,7 +25524,7 @@ module.exports = cloneSymbol;
 /* 58 */
 /***/ function(module, exports, __webpack_require__) {
 
-var cloneArrayBuffer = __webpack_require__(9);
+var cloneArrayBuffer = __webpack_require__(10);
 
 /**
  * Creates a clone of `typedArray`.
@@ -25608,7 +25608,7 @@ module.exports = coreJsData;
 
 var baseGetAllKeys = __webpack_require__(45),
     getSymbols = __webpack_require__(17),
-    keys = __webpack_require__(10);
+    keys = __webpack_require__(11);
 
 /**
  * Creates an array of own enumerable property names and symbols of `object`.
@@ -25941,7 +25941,7 @@ module.exports = initCloneArray;
 /* 73 */
 /***/ function(module, exports, __webpack_require__) {
 
-var cloneArrayBuffer = __webpack_require__(9),
+var cloneArrayBuffer = __webpack_require__(10),
     cloneDataView = __webpack_require__(53),
     cloneMap = __webpack_require__(54),
     cloneRegExp = __webpack_require__(55),
@@ -26854,8 +26854,8 @@ module.exports = function(module) {
 /* 104 */
 /***/ function(module, exports, __webpack_require__) {
 
-var plumin = __webpack_require__(11),
-	assign = __webpack_require__(8).assign,
+var plumin = __webpack_require__(8),
+	assign = __webpack_require__(9).assign,
 	Utils = __webpack_require__(26);
 
 var paper = plumin.paper,
@@ -27413,7 +27413,10 @@ module.exports = naive;
 
 /***/ },
 /* 105 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
+
+var plumin = __webpack_require__(8),
+	paper = plumin.paper;
 
 var Utils = {};
 
@@ -27516,6 +27519,13 @@ Utils.lineAngle = function( p0, p1 ) {
 };
 
 Utils.onLine = function( params ) {
+	if ( params.on[0].x === params.on[1].x &&
+		params.on[0].y === params.on[1].y ) {
+		return 'x' in params ?
+			params.on[0].y :
+			params.on[0].x;
+	}
+
 	var origin = params.on[0],
 		vector = [
 			params.on[1].x - params.on[0].x,
@@ -27554,7 +27564,7 @@ Utils.pointOnCurve = function(pointHandleOut,
 	}
 
 	for (var i = 0; i < linePrecision; i++) {
-		var point = Utils.deCasteljau(points,
+		var point = Utils.getPointOnCurve(points,
 			( i / ( linePrecision - 1 ) ) );
 
 		if (previousPoint) {
@@ -27572,42 +27582,200 @@ Utils.pointOnCurve = function(pointHandleOut,
 
 	t = Math.max(0.001, Math.min(1, t));
 
-    return Utils.deCasteljau(points, t);
+    return Utils.getPointOnCurve(points, t);
 };
 
-Utils.deCasteljau = function(points, t) {
-	var newPoints = [];
-	for (var i = 1; i < points.length; i++) {
-		newPoints.push(
-			points[i - 1]
-				.multiply(1 - t)
-				.add(
-					points[i]
-						.multiply(t)
-				)
-			);
+Utils.getPointOnCurve = function(points, t) {
+	var inverseT = 1 - t;
+	var a = inverseT * inverseT * inverseT;
+	var b = inverseT * inverseT * t * 3;
+	var c = inverseT * t * t * 3;
+	var d = t * t * t;
+
+	return {
+		x: a * points[0].x + b * points[1].x + c * points[2].x + d * points[3].x,
+		y: a * points[0].y + b * points[1].y + c * points[2].y + d * points[3].y,
+		normal: Utils.lineAngle(
+			{
+				x: 0,
+				y: 0
+			},
+			{
+				x: (points[1].x - points[0].x) * inverseT * inverseT + 2 * ( points[2].x - points[1].x ) * t * inverseT + (points[3].x - points[2].x) * t * t,
+				y: (points[1].y - points[0].y) * inverseT * inverseT + 2 * ( points[2].y - points[1].y ) * t * inverseT + (points[3].y - points[2].y) * t * t,
+			}
+		)
+	}
+}
+
+Utils.split = function(points, t) {
+	var result = points;
+	while (points.length > 1) {
+		var newPoints = [];
+		for (var i = 1; i < points.length; i++) {
+			newPoints.push(
+				points[i - 1]
+					.multiply(1 - t)
+					.add(
+						points[i]
+							.multiply(t)
+					)
+				);
+		}
+
+		result = result.concat(newPoints);
+		points = newPoints;
 	}
 
-	if (newPoints.length === 1) {
-		var p0 = { x: 0, y: 0 },
-			p1 = {
-			x: points[1].x - points[0].x,
-			y: points[1].y - points[0].y
-		};
-
-		return {
-			x: newPoints[0].x,
-			y: newPoints[0].y,
-			normal: Utils.lineAngle(p0, p1)
-		};
-	} else {
-		return Utils.deCasteljau(newPoints, t);
-	}
+	var splitBezier = {
+		left: [
+			{
+				x: result[0].x,
+				y: result[0].y,
+				point: new paper.Point(
+					result[0].x,
+					result[0].y
+				),
+				handleOut:new paper.Point(
+					result[4].x - result[0].x,
+					result[4].y - result[0].y
+				),
+			},
+			{
+				x: result[9].x,
+				y: result[9].y,
+				point: new paper.Point(
+					result[9].x,
+					result[9].y
+				),
+				handleIn:new paper.Point(
+					result[7].x - result[9].x,
+					result[7].y - result[9].y
+				),
+				handleOut:new paper.Point(
+					result[8].x - result[9].x,
+					result[8].y - result[9].y
+				),
+			}
+		],
+		right: [
+			{
+				x: result[9].x,
+				y: result[9].y,
+				point: new paper.Point(
+					result[9].x,
+					result[9].y
+				),
+				handleIn:new paper.Point(
+					result[7].x - result[9].x,
+					result[7].y - result[9].y
+				),
+				handleOut:new paper.Point(
+					result[4].x - result[0].x,
+					result[4].y - result[0].y
+				),
+			},
+			{
+				x: result[3].x,
+				y: result[3].y,
+				point: new paper.Point(
+					result[3].x,
+					result[3].y
+				),
+				handleIn:new paper.Point(
+					result[6].x - result[3].x,
+					result[6].y - result[3].y
+				),
+			}
+		]
+	};
+	return splitBezier;
 };
 
 Utils.distance = function(x1, y1, x2, y2) {
 	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y1 - y2, 2));
 };
+
+Utils.align = function(points, lineStart, lineEnd) {
+	var tx = lineStart.x,
+	ty = lineStart.y,
+	a = -Math.atan2(lineEnd.y - ty, lineEnd.x - tx),
+	d = function(v) {
+		return {
+			x: (v.x - tx) * Math.cos(a) - (v.y - ty) * Math.sin(a),
+			y: (v.x - tx) * Math.sin(a) + (v.y - ty) * Math.cos(a)
+		};
+	};
+	return points.map(d);
+}
+
+function crt(v) {
+	return v < 0 ?
+		-Math.pow( -v, 1/3) :
+		Math.pow( v, 1/3);
+}
+
+// see https://github.com/Pomax/bezierjs/blob/gh-pages/lib/utils.js line 313
+Utils.lineCurveIntersection = function(pointHandleOut, pointHandleIn, lineStart, lineEnd) {
+	lineStart = lineStart || {x:0,y:0};
+	lineEnd = lineEnd || {x:1,y:0};
+	var points = [
+		pointHandleOut.point,
+		pointHandleOut.point.add(pointHandleOut.handleOut),
+		pointHandleIn.point.add(pointHandleIn.handleIn),
+		pointHandleIn.point
+	];
+	var p = Utils.align(points, lineStart, lineEnd);
+	var reduce = function(t) { return 0<=t && t <=1; };
+
+	// see http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
+	var pa = p[0].y;
+	var pb = p[1].y;
+	var pc = p[2].y;
+	var pd = p[3].y;
+	var d = (-pa + 3 * pb - 3 * pc + pd);
+	var a = (3 * pa - 6 * pb + 3 * pc) / d;
+	var b = (-3 * pa + 3 * pb) / d;
+	var c = pa / d;
+	var p3 = ((3 * b - a * a) / 3 ) / 3;
+	var q = (2 * a * a * a - 9 * a * b + 27 * c) / 27;
+	var q2 = q/2;
+	var discriminant = q2 * q2 + p3 * p3 * p3;
+	var u1;
+	var v1;
+	var x1;
+	var x2;
+	var x3;
+
+	var result;
+
+	if (discriminant < 0) {
+		var mp3 = -p3,
+		mp33 = mp3 * mp3 * mp3,
+		r = Math.sqrt( mp33 ),
+		t = -q / ( 2 * r ),
+		cosphi = t < -1 ? -1 : t > 1 ? 1 : t,
+		phi = Math.acos( cosphi ),
+		crtr = crt( r ),
+		t1 = 2 * crtr;
+		x1 = t1 * Math.cos( phi / 3) - a / 3;
+		x2 = t1 * Math.cos((phi+ Math.PI * 2)/3) - a / 3;
+		x3 = t1 * Math.cos((phi+ 4 * Math.PI)/3) - a / 3;
+		result = [x1, x2, x3].filter(reduce);
+	} else if(discriminant === 0) {
+		u1 = q2 < 0 ? crt(-q2) : -crt(q2);
+		x1 = 2 * u1 -a / 3;
+		x2 = -u1 - a / 3;
+		result = [x1,x2].filter(reduce);
+	} else {
+		var sd = Math.sqrt(discriminant);
+		u1 = crt(-q2 + sd);
+		v1 = crt(q2 + sd);
+		result = [u1 - v1 - a / 3].filter(reduce);
+	}
+
+	return Utils.split(points, result[0]);
+}
 
 Utils.log = function() {
 	/*eslint-disable no-console */
