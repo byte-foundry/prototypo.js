@@ -114,6 +114,15 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 	Utils.updateParameters( glyph, params );
 
+	// if we have special properties to compute
+	if (params.glyphSpecialProps && params.glyphSpecialProps[glyph.ot.unicode]) {
+		var propsToUpdate = params.glyphSpecialProps[glyph.ot.unicode];
+
+		Object.keys(propsToUpdate).forEach(function(property) {
+			params[property] = params[property] + propsToUpdate[property];
+		})
+	}
+
 	// parentParameters always overwrite glyph parameters. Use aliases
 	// (e.g. _width) to let glyph have the final word
 	_.assign( params, glyph.parentParameters );
