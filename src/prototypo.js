@@ -120,8 +120,11 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 		Object.keys(propsToUpdate).forEach(function(property) {
 			params[property] = params[property] + propsToUpdate[property];
-		})
+		});
 	}
+
+	glyph.spacingLeft = params.spacingLeft;
+	glyph.spacingRight = params.spacingRight;
 
 	// parentParameters always overwrite glyph parameters. Use aliases
 	// (e.g. _width) to let glyph have the final word
