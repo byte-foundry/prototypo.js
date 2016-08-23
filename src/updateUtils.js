@@ -55,16 +55,21 @@ Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
 		return null;
 	}
 
+	//We want to round a1, a2 and PI to avoid problems with approximation
+	a1 = a1.toFixed(6);
+	a2 = a2.toFixed(6);
+	var piOver2 = (Math.PI / 2).toFixed(6);
+
 	// Optimize frequent and easy special cases.
 	// Without optimization, results would be incorrect when cos(a) === 0
 	if ( a1 === 0 ) {
 		y = p1.y;
-	} else if ( a1 === Math.PI / 2 ) {
+	} else if ( a1 === piOver2 ) {
 		x = p1.x;
 	}
 	if ( a2 === 0 ) {
 		y = p2.y;
-	} else if ( a2 === Math.PI / 2 ) {
+	} else if ( a2 === piOver2 ) {
 		x = p2.x;
 	}
 
@@ -77,13 +82,13 @@ Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
 	if ( a1 === 0 ) {
 		return new Float32Array([ ( y - d ) / b, y ]);
 	}
-	if ( a1 === Math.PI / 2 ) {
+	if ( a1 === piOver2 ) {
 		return new Float32Array([ x, b * x + d ]);
 	}
 	if ( a2 === 0 ) {
 		return new Float32Array([ ( y - c ) / a, y ]);
 	}
-	if ( a2 === Math.PI / 2 ) {
+	if ( a2 === piOver2 ) {
 		return new Float32Array([ x, a * x + c ]);
 	}
 
@@ -192,6 +197,7 @@ Utils.getPointOnCurve = function(points, t) {
 }
 
 Utils.split = function(points, t) {
+	t = t || 1;
 	var result = points;
 	while (points.length > 1) {
 		var newPoints = [];
@@ -254,8 +260,8 @@ Utils.split = function(points, t) {
 					result[7].y - result[9].y
 				),
 				handleOut:new paper.Point(
-					result[4].x - result[0].x,
-					result[4].y - result[0].y
+					result[8].x - result[9].x,
+					result[8].y - result[9].y
 				),
 			},
 			{
@@ -366,5 +372,31 @@ Utils.log = function() {
 	/*eslint-enable no-console */
 	return arguments[0];
 };
+
+Utils.normalize = function(vector) {
+	var x = vector.x;
+	var y = vector.y;
+
+	var norm = Utils.distance(0, 0, x, y);
+
+	if (norm === 0) {
+		return {
+			x: 0,
+			y: 0
+		};
+	}
+
+	return {
+		x: x / norm,
+		y: y / norm
+	};
+}
+
+Utils.vectorFromPoints = function(a, b) {
+	return {
+		x:b.x - a.x,
+		y:b.y - a.y
+	}
+}
 
 module.exports = Utils;
