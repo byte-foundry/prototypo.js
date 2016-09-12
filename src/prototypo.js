@@ -231,11 +231,11 @@ psProto.Outline.prototype.prepareDataUpdate = function() {
 
 	this.children.forEach(function(contour) {
 		// expanded contours are handled from their skeleton
-		if ( contour.expandedFrom ) {
+		if ( contour.expandedFrom || contour.exportReversed) {
 			return;
 		}
 
-		if ( contour.skeleton !== true ) {
+		if ( contour.skeleton !== true) {
 			contour.exportReversed = !contour.isClockwise();
 
 		} else if ( !contour.expandedTo[1] ) {

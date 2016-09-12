@@ -26258,11 +26258,11 @@ psProto.Outline.prototype.prepareDataUpdate = function() {
 
 	this.children.forEach(function(contour) {
 		// expanded contours are handled from their skeleton
-		if ( contour.expandedFrom ) {
+		if ( contour.expandedFrom || contour.exportReversed) {
 			return;
 		}
 
-		if ( contour.skeleton !== true ) {
+		if ( contour.skeleton !== true) {
 			contour.exportReversed = !contour.isClockwise();
 
 		} else if ( !contour.expandedTo[1] ) {
@@ -29072,6 +29072,7 @@ var plumin = __webpack_require__(2),
 
 var Utils = {};
 
+/* eslint-disable */
 // The following function should be useless, thanks to paper
 Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
 	var x1 = p1.x,
@@ -29203,6 +29204,9 @@ Utils.pointOnCurve = function(pointHandleOut,
 	var length = 0;
 	var previousPoint;
 
+	/* eslint-disable */
+	console.log(pointHandleOut, pointHandleIn);
+	/* eslint-enable */
 	var points;
 	if (!inverseOrientation) {
 		points = [
@@ -29265,7 +29269,7 @@ Utils.getPointOnCurve = function(points, t) {
 	}
 }
 
-Utils.split = function(points, t) {
+Utils.split = function(points, t, base) {
 	t = t || 1;
 	var result = points;
 	while (points.length > 1) {
@@ -29283,6 +29287,19 @@ Utils.split = function(points, t) {
 
 		result = result.concat(newPoints);
 		points = newPoints;
+	}
+
+	if (t === 1) {
+		return {
+			left: [
+				base[1],
+				base[0]
+			],
+			right: [
+				base[1],
+				base[1]
+			]
+		}
 	}
 
 	var splitBezier = {
@@ -29432,7 +29449,7 @@ Utils.lineCurveIntersection = function(pointHandleOut, pointHandleIn, lineStart,
 		result = [u1 - v1 - a / 3].filter(reduce);
 	}
 
-	return Utils.split(points, result[0]);
+	return Utils.split(points, result[0], [pointHandleIn, pointHandleOut]);
 }
 
 Utils.log = function() {
@@ -29467,6 +29484,115 @@ Utils.vectorFromPoints = function(a, b) {
 		y:b.y - a.y
 	}
 }
+
+Utils.parseInt = function(int) {
+	return parseInt(int);
+}
+
+Utils.makeCurveInsideSerif = function(
+	pAnchors,
+	serifHeight,
+	serifWidth,
+	serifMedian,
+	serifCurve,
+	serifRotate
+) {
+	var rotateRad = (serifRotate || 0) * Math.PI/180;
+	var base = pAnchors.base;
+	var opposite = pAnchors.opposite;
+
+	var topLeft = {
+		x: opposite.x - serifHeight * Math.cos(rotateRad) - (base.y - opposite.y + serifWidth) * Math.sin(rotateRad),
+		y: opposite.y + (base.y - opposite.y + serifWidth) * Math.cos(rotateRad) - serifHeight * Math.sin(rotateRad),
+	};
+	var bottomLeft = {
+		x: opposite.x - serifHeight * Math.cos(rotateRad),
+		y: opposite.y - serifHeight * Math.sin(rotateRad),
+	}
+	var innerWall = topLeft.x;
+	var outerWall = opposite.x;
+	var topWall = topLeft.y;
+	var splitBase = Utils.lineCurveIntersection(
+		pAnchors.base,
+		pAnchors.curveEnd,
+		{x: topLeft.x, y: topLeft.y},
+		{x: bottomLeft.x, y: bottomLeft.y}
+	);
+	var serifCenter = splitBase.right[0];
+	var splitCurveEnd = splitBase.right[1];
+	var serifDirection = Utils.vectorFromPoints(
+		serifCenter,
+		{
+			x: opposite.x - serifHeight * serifMedian * Math.cos(rotateRad) - (base.y - opposite.y + serifWidth) * Math.sin(rotateRad),
+			y: opposite.y + (base.y - opposite.y + serifWidth) * Math.cos(rotateRad) - serifHeight * serifMedian * Math.sin(rotateRad),
+		}
+	);
+
+	var serifBasis = Utils.normalize(serifDirection);
+	var serifRadDirection = Math.atan2(serifBasis.y, serifBasis.x);
+
+	var pointOnCurve;
+	var pointOnSerif;
+	if (serifCurve > 0) {
+		var pointWithCurve = Utils.pointOnCurve(serifCenter, splitCurveEnd, serifCurve, false, 200)
+		pointOnCurve = {
+			x: pointWithCurve.x,
+			y: pointWithCurve.y,
+			dirOut: pointWithCurve.normal,
+			type:'corner'
+		};
+		var curveRatio = Math.min(serifCurve / Utils.distance(0, 0, serifDirection.x, serifDirection.y), 0.75);
+		pointOnSerif = {
+			x: serifCenter.x + serifDirection.x * curveRatio,
+			y: serifCenter.y + serifDirection.y * curveRatio,
+			dirIn: serifRadDirection,
+			dirOut: serifRadDirection,
+			type:'corner'
+		};
+	}
+	else {
+		pointOnCurve = {
+			x: serifCenter.x,
+			y: serifCenter.y,
+			type:'corner'
+		};
+		pointOnSerif = {
+			x: serifCenter.x,
+			y: serifCenter.y,
+			type:'corner'
+		};
+	}
+	var leftEdge = {
+		x: serifCenter.x + serifDirection.x,
+		y: serifCenter.y + serifDirection.y,
+		dirIn: serifRadDirection,
+		dirOut: rotateRad,
+	};
+	var rightEdge = {
+		x: opposite.x - (base.y - opposite.y + serifWidth) * Math.sin(rotateRad),
+		y: opposite.y + (base.y - opposite.y + serifWidth) * Math.cos(rotateRad),
+		dirIn: rotateRad,
+		typeOut: 'line'
+	};
+
+	return [
+		pointOnCurve,
+		pointOnSerif,
+		leftEdge,
+		{
+			x: (leftEdge.x + rightEdge.x) / 2,
+			y: (leftEdge.y + rightEdge.y) / 2,
+			dirIn: rotateRad,
+			dirOut: rotateRad,
+		},
+		rightEdge,
+		{
+			x: opposite.x,
+			y: opposite.y,
+		}
+	]
+}
+/* eslint-enable */
 
 module.exports = Utils;
 
