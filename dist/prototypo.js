@@ -29495,36 +29495,82 @@ Utils.makeCurveInsideSerif = function(
 	serifWidth,
 	serifMedian,
 	serifCurve,
+	serifTerminal,
+	thickness,
+	midWidth,
 	serifRotate
 ) {
-	var rotateRad = (serifRotate || 0) * Math.PI/180;
+	var yDir = pAnchors.down ? -1 : 1;
+	var xDir = pAnchors.left ? -1 : 1;
+	var realThickness = pAnchors.thickness || thickness;
+
+	var rotateRad = (serifRotate * pAnchors.rotationAngle || 0) * Math.PI/180;
 	var base = pAnchors.base;
 	var opposite = pAnchors.opposite;
-
+	var rotationCenter = pAnchors.rotationCenter;
 	var topLeft = {
-		x: opposite.x - serifHeight * Math.cos(rotateRad) - (base.y - opposite.y + serifWidth) * Math.sin(rotateRad),
-		y: opposite.y + (base.y - opposite.y + serifWidth) * Math.cos(rotateRad) - serifHeight * Math.sin(rotateRad),
+		x: rotationCenter.x + (opposite.x - rotationCenter.x - serifHeight * xDir) * Math.cos(rotateRad) - (base.y - rotationCenter.y + serifWidth * yDir) * Math.sin(rotateRad),
+		y: rotationCenter.y + (base.y - rotationCenter.y + serifWidth * yDir) * Math.cos(rotateRad) + (opposite.x - rotationCenter.x - serifHeight * xDir) * Math.sin(rotateRad),
 	};
 	var bottomLeft = {
-		x: opposite.x - serifHeight * Math.cos(rotateRad),
-		y: opposite.y - serifHeight * Math.sin(rotateRad),
+		x: rotationCenter.x + (opposite.x - rotationCenter.x - serifHeight * xDir) * Math.cos(rotateRad) - (opposite.y - rotationCenter.y) * Math.sin(rotateRad),
+		y: rotationCenter.y + (opposite.y - rotationCenter.y) * Math.cos(rotateRad) + (opposite.x - rotationCenter.x - serifHeight * xDir) * Math.sin(rotateRad),
 	}
-	var innerWall = topLeft.x;
-	var outerWall = opposite.x;
-	var topWall = topLeft.y;
-	var splitBase = Utils.lineCurveIntersection(
-		pAnchors.base,
-		pAnchors.curveEnd,
-		{x: topLeft.x, y: topLeft.y},
-		{x: bottomLeft.x, y: bottomLeft.y}
-	);
-	var serifCenter = splitBase.right[0];
-	var splitCurveEnd = splitBase.right[1];
+
+	//We get the intersection with the left edge of the serif and the curve support
+	//this operation is direction dependent
+	var splitBase;
+	if (yDir !== 1) {
+		splitBase = Utils.lineCurveIntersection(
+			pAnchors.curveEnd,
+			pAnchors.base,
+			{x: topLeft.x, y: topLeft.y},
+			{x: bottomLeft.x, y: bottomLeft.y}
+		);
+	}
+	else {
+		splitBase = Utils.lineCurveIntersection(
+			pAnchors.base,
+			pAnchors.curveEnd,
+			{x: topLeft.x, y: topLeft.y},
+			{x: bottomLeft.x, y: bottomLeft.y}
+		);
+	}
+
+
+	// We chose a serifCenter depending on if the left edge intersect or not with
+	// the curve support
+	var serifCenter;
+	var splitCurveEnd;
+
+	if (yDir == 1) {
+		if (splitBase.right[0].x !== splitBase.right[1].x || splitBase.right[0].y !== splitBase.right[1].y) {
+			serifCenter = splitBase.right[0];
+			splitCurveEnd = splitBase.right[1];
+		}
+		else {
+			serifCenter = splitBase.left[0];
+			splitCurveEnd = splitBase.left[1];
+		}
+	}
+	else {
+		if (splitBase.left[0].x !== splitBase.left[1].x || splitBase.left[0].y !== splitBase.left[1].y) {
+			serifCenter = splitBase.left[1];
+			splitCurveEnd = splitBase.left[0];
+		}
+		else {
+			serifCenter = splitBase.right[1];
+			splitCurveEnd = splitBase.right[0];
+		}
+	}
+
+	// The serif direction is the line from the serif center
+	// to the serif left edge
 	var serifDirection = Utils.vectorFromPoints(
 		serifCenter,
 		{
-			x: opposite.x - serifHeight * serifMedian * Math.cos(rotateRad) - (base.y - opposite.y + serifWidth) * Math.sin(rotateRad),
-			y: opposite.y + (base.y - opposite.y + serifWidth) * Math.cos(rotateRad) - serifHeight * serifMedian * Math.sin(rotateRad),
+			x: rotationCenter.x + (opposite.x - rotationCenter.x - serifHeight * xDir) * serifMedian * Math.cos(rotateRad) - (base.y - rotationCenter.y + serifWidth * yDir) * Math.sin(rotateRad),
+			y: rotationCenter.y + (base.y - rotationCenter.y + serifWidth * yDir) * Math.cos(rotateRad) + (opposite.x - rotationCenter.x - serifHeight * xDir) * serifMedian * Math.sin(rotateRad),
 		}
 	);
 
@@ -29533,22 +29579,42 @@ Utils.makeCurveInsideSerif = function(
 
 	var pointOnCurve;
 	var pointOnSerif;
+	var pointWithCurve = {};
 	if (serifCurve > 0) {
-		var pointWithCurve = Utils.pointOnCurve(serifCenter, splitCurveEnd, serifCurve, false, 200)
-		pointOnCurve = {
-			x: pointWithCurve.x,
-			y: pointWithCurve.y,
-			dirOut: pointWithCurve.normal,
-			type:'corner'
-		};
-		var curveRatio = Math.min(serifCurve / Utils.distance(0, 0, serifDirection.x, serifDirection.y), 0.75);
-		pointOnSerif = {
-			x: serifCenter.x + serifDirection.x * curveRatio,
-			y: serifCenter.y + serifDirection.y * curveRatio,
-			dirIn: serifRadDirection,
-			dirOut: serifRadDirection,
-			type:'corner'
-		};
+		if (yDir != 1) {
+			pointWithCurve = Utils.pointOnCurve(splitCurveEnd, serifCenter, serifCurve, true, 200)
+			pointOnCurve = {
+				x: pointWithCurve.x,
+				y: pointWithCurve.y,
+				dirOut: pointWithCurve.normal,
+				type:'corner'
+			};
+			var curveRatio = Math.min(serifCurve / Utils.distance(0, 0, serifDirection.x, serifDirection.y), 0.75);
+			pointOnSerif = {
+				x: serifCenter.x + serifDirection.x * curveRatio,
+				y: serifCenter.y + serifDirection.y * curveRatio,
+				dirIn: serifRadDirection,
+				dirOut: serifRadDirection,
+				type:'corner'
+			};
+		}
+		else {
+			pointWithCurve = Utils.pointOnCurve(serifCenter, splitCurveEnd, serifCurve, false, 200)
+			pointOnCurve = {
+				x: pointWithCurve.x,
+				y: pointWithCurve.y,
+				dirOut: pointWithCurve.normal,
+				type:'corner'
+			};
+			var curveRatio = Math.min(serifCurve / Utils.distance(0, 0, serifDirection.x, serifDirection.y), 0.75);
+			pointOnSerif = {
+				x: serifCenter.x + serifDirection.x * curveRatio,
+				y: serifCenter.y + serifDirection.y * curveRatio,
+				dirIn: serifRadDirection,
+				dirOut: serifRadDirection,
+				type:'corner'
+			};
+		}
 	}
 	else {
 		pointOnCurve = {
@@ -29569,27 +29635,69 @@ Utils.makeCurveInsideSerif = function(
 		dirOut: rotateRad,
 	};
 	var rightEdge = {
-		x: opposite.x - (base.y - opposite.y + serifWidth) * Math.sin(rotateRad),
-		y: opposite.y + (base.y - opposite.y + serifWidth) * Math.cos(rotateRad),
+		x: rotationCenter.x - (base.y - rotationCenter.y + serifWidth * midWidth * yDir) * Math.sin(rotateRad),
+		y: rotationCenter.y + (base.y - rotationCenter.y + serifWidth * midWidth * yDir) * Math.cos(rotateRad),
 		dirIn: rotateRad,
 		typeOut: 'line'
 	};
+	var serifRoot = {
+		x: opposite.x,
+		y: opposite.y,
+	};
+
+	var rootVector = Utils.normalize(Utils.vectorFromPoints(serifRoot, rightEdge));
+	var medianVector = Utils.normalize(Utils.vectorFromPoints(pointOnSerif, leftEdge));
+
+	var terminalVector = Utils.normalize({
+		x: rootVector.x + medianVector.x,
+		y: rootVector.y + medianVector.y,
+	});
+
+	var midPoint = {
+		x: (leftEdge.x + rightEdge.x) / 2 + serifTerminal * serifHeight * terminalVector.x * xDir,
+		y: (leftEdge.y + rightEdge.y) / 2 + serifTerminal * serifHeight * terminalVector.y * xDir,
+		dirIn: rotateRad,
+		dirOut: rotateRad,
+	};
+
+	if (serifTerminal !== 0) {
+		leftEdge.dirOut = Math.atan2(medianVector.y, medianVector.x);
+		rightEdge.dirIn = Math.atan2(rootVector.y, rootVector.x);
+	}
+	else if (midWidth !== 1) {
+		var dirOut = Math.atan2(leftEdge.y - rightEdge.y, leftEdge.x - rightEdge.x);
+		leftEdge.dirOut = dirOut;
+		rightEdge.dirIn = dirOut;
+		midPoint.dirIn = dirOut
+		midPoint.dirOut = dirOut
+	}
+
+	var lastPoint;
+	if (serifCurve > 0) {
+		lastPoint = {
+			x: pointOnCurve.x - realThickness / 2 * Math.sin(pointWithCurve.normal) * yDir * xDir,
+			y: pointOnCurve.y + realThickness / 2 * Math.cos(pointWithCurve.normal) * yDir * xDir,
+			dirIn: pointWithCurve.normal,
+			typeOut: 'line',
+			type: 'corner',
+		}
+	}
+	else {
+		lastPoint = {
+			x: (pointOnCurve.x + serifRoot.x) / 2,
+			y: (pointOnCurve.y + serifRoot.y) / 2
+		}
+	}
 
 	return [
 		pointOnCurve,
 		pointOnSerif,
 		leftEdge,
-		{
-			x: (leftEdge.x + rightEdge.x) / 2,
-			y: (leftEdge.y + rightEdge.y) / 2,
-			dirIn: rotateRad,
-			dirOut: rotateRad,
-		},
+		midPoint,
 		rightEdge,
-		{
-			x: opposite.x,
-			y: opposite.y,
-		}
+		rotationCenter,
+		serifRoot,
+		lastPoint
 	]
 }
 /* eslint-enable */
