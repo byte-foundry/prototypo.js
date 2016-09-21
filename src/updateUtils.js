@@ -135,9 +135,6 @@ Utils.pointOnCurve = function(pointHandleOut,
 	var length = 0;
 	var previousPoint;
 
-	/* eslint-disable */
-	console.log(pointHandleOut, pointHandleIn);
-	/* eslint-enable */
 	var points;
 	if (!inverseOrientation) {
 		points = [

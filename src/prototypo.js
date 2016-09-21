@@ -68,6 +68,15 @@ psProto.Font.prototype.update = function( params, set ) {
 	return this;
 };
 
+psProto.Path.prototype._drawOld = psProto.Path.prototype._draw;
+psProto.Path.prototype._draw = function(ctx, param) {
+	ctx.save();
+	ctx.transform(1, 0, 0, 1, 0, 0);
+	var realViewMatrix = new psProto.Matrix(this.view.zoom / 2.5, 0, 0, -this.view.zoom / 2.5, (-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / 2.5, (-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / 2.5);
+	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
+	ctx.restore();
+};
+
 /* Update the shape of the glyph, according to formula and parameters
  * 0. before running, nodes have already been created by ParametricFont
  *   (including expanded ones thanks to naive.expandSkeletons). And static
