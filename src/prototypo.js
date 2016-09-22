@@ -70,18 +70,15 @@ psProto.Font.prototype.update = function( params, set ) {
 };
 
 psProto.Path.prototype._drawOld = psProto.Path.prototype._draw;
-psProto.Path.prototype._draw = function(ctx, param) {
-	ctx.save();
-	ctx.transform(1, 0, 0, 1, 0, 0);
+psProto.Path.prototype._draw = function(ctx, param, viewMatrix) {
 	var realViewMatrix = new psProto.Matrix(
 		this.view.zoom / window.devicePixelRatio,
 		0,
-		0,
+		viewMatrix.c / window.devicePixelRatio,
 		-this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
 	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
-	ctx.restore();
 };
 
 /* Update the shape of the glyph, according to formula and parameters
@@ -238,9 +235,15 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 psProto.Glyph.prototype.displayComponentList = function( componentId, point ) {
 	point.y = -point.y
-	new ComponentMenu({
-		point: point,
-	});
+	if (this.componentMenu) {
+		this.componentMenu.move(point);
+	}
+	else {
+		var menu = new ComponentMenu({
+			point: point,
+		});
+		this.componentMenu = menu;
+	}
 	//var text = new paper.PointText(point);
 	//text.fontSize = 60;
 	//text.scale(1, -1);
