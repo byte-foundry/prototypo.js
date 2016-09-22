@@ -69,13 +69,13 @@ psProto.Font.prototype.update = function( params, set ) {
 };
 
 psProto.Path.prototype._drawOld = psProto.Path.prototype._draw;
-psProto.Path.prototype._draw = function(ctx, param) {
+psProto.Path.prototype._draw = function(ctx, param, viewMatrix) {
 	ctx.save();
 	ctx.transform(1, 0, 0, 1, 0, 0);
 	var realViewMatrix = new psProto.Matrix(
 		this.view.zoom / window.devicePixelRatio,
 		0,
-		0,
+		viewMatrix.c / window.devicePixelRatio,
 		-this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
