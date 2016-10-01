@@ -1,6 +1,7 @@
 /*jshint -W098 */
 var plumin = require('plumin.js'),
 	assign = require('es6-object-assign').assign,
+	cloneDeep = require('lodash/cloneDeep'),
 	Utils = require('./Utils.js'),
 	naive = require('./naive.js');
 
@@ -83,6 +84,13 @@ psProto.Path.prototype._draw = function(ctx, param) {
 	ctx.restore();
 };
 
+psProto.Font.prototype.changeCursorsToManual = function(glyphUnicode, cursors) {
+	var font = this;
+
+	// TODO manage alternates
+	font.altMap[glyphUnicode][0].changeCursorsToManual(cursors);
+}
+
 /* Update the shape of the glyph, according to formula and parameters
  * 0. before running, nodes have already been created by ParametricFont
  *   (including expanded ones thanks to naive.expandSkeletons). And static
@@ -150,6 +158,10 @@ psProto.Glyph.prototype.update = function( _params ) {
 	_.assign( params, glyph.parentParameters );
 
 	// 1. calculate node properties
+
+	if(_params.manualChanges) {
+		params.manualChanges = cloneDeep(_params.manualChanges[glyph.ot.unicode]);
+	}
 	Utils.updateProperties( glyph, params );
 
 	// 2. transform contours
@@ -233,6 +245,19 @@ psProto.Glyph.prototype.update = function( _params ) {
 	}
 
 	return this;
+};
+
+psProto.Glyph.prototype.changeCursorsToManual = function(cursorIdsToChange) {
+	var solvingOrder = this.solvingOrder;
+
+	for(var i = 0 ; i < solvingOrder.length ; i++) {
+		for(var j = 0 ; j < cursorIdsToChange.length ; j++) {
+			if (cursorIdsToChange[j] === solvingOrder[i].cursor.join('.')) {
+				cursorIdsToChange[j].manual = true;
+				break;
+			}
+		}
+	}
 };
 
 // Before updating SVG or OpenType data, we must determine paths exports
