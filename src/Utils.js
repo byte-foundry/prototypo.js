@@ -152,7 +152,7 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 		glyph.addAnchor( anchor );
 	});
 
-	(glyph.src.contours || []).forEach(function(contourSrc) {
+	(glyph.src.contours || []).forEach(function(contourSrc, contourIdx) {
 		var contour = new paper.Path();
 		contour.src = contourSrc;
 		Utils.mergeStatic( contour, contourSrc );
@@ -160,10 +160,12 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 		glyph.addContour( contour );
 
 		// TODO: handle oncurve/offcurve points
-		contourSrc.nodes.forEach(function(nodeSrc) {
+		contourSrc.nodes.forEach(function(nodeSrc, nodeIdx) {
 			var node = new paper.Node();
 			node.src = nodeSrc;
 			Utils.mergeStatic( node, nodeSrc );
+			node.contourIdx = contourIdx;
+			node.nodeIdx = nodeIdx;
 
 			contour.add( node );
 		});
@@ -656,8 +658,69 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 		// Assume that updaters returning undefined have their own
 		// assignment logic
 		if ( result !== undefined ) {
+			if (params.manualChanges && params.manualChanges.cursors) {
+				/*if (!_cursor.manual && params.manualChanges.cursors[cursor.join('.')] !== undefined) {
+					_cursor.manual = true;
+					params.manualChanges.dirty--;
+				}
+			}
+
+			if (_cursor.manual) {*/
+				var cursorName = cursor.join('.');
+				var changes = params.manualChanges.cursors[cursorName];
+
+				if (typeof changes === 'number') {
+					if (typeof result === 'string') {
+						result = (parseFloat(result) + changes / Math.PI * 180) + 'deg';
+					} else if (typeof result === 'number') {
+						result += changes;
+					}
+				}
+				else if (typeof changes === 'object') {
+					Object.keys(changes).forEach(key => {
+						if (result.hasOwnProperty(key)) {
+							if (key !== 'width') {
+								if (typeof result[key] === 'string') {
+									result[key] = (parseFloat(result[key]) + changes[key] / Math.PI * 180) + 'deg';
+								} else if (typeof result[key] === 'number') {
+									result[key] += changes[key];
+								}
+							}
+							else {
+								result[key] *= 1 + changes[key];
+							}
+						}
+					})
+				}
+
+				delete params.manualChanges.cursors[cursorName];
+				}
 			obj[propName] = result;
 		}
+	}
+
+	var cursorKeys = params.manualChanges && params.manualChanges.cursors ? Object.keys(params.manualChanges.cursors) : [];
+	if (cursorKeys.length > 0) {
+		for (i = 0; i < cursorKeys.length; i++) {
+			cursor = cursorKeys[i].split('.');
+			var tmpObj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 );
+			var tmpSrc = {
+				_updaters: [Utils.createUpdater({
+					_operation: JSON.stringify(tmpObj[cursor[cursor.length-1]] || 0),
+				})],
+			};
+			var newCursor = {
+				cursor: cursor,
+				obj: tmpObj,
+				src: tmpSrc,
+				manual: true,
+			};
+
+			leaf.solvingOrder.unshift(newCursor);
+			params.manualChanges.dirty--;
+		}
+		errored = true;
+		erroredPreviously = false;
 	}
 
 	// If one update errored, we're going to try once more, hoping things will
