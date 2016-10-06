@@ -173,35 +173,29 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 		return glyph;
 	}
 
+	glyph.componentLists = {};
+
 	// components can only be embedded once all glyphs have been generated
 	// from source
 	glyph.embedComponents = function() {
 		glyph.src.components.forEach(function(componentSrc) {
-			// components are glyphs, quite simply
-			var component = Utils.glyphFromSrc(
-					fontSrc.glyphs[componentSrc.base],
+			if (Array.isArray(componentSrc.base)) {
+				glyph.componentLists[componentSrc.id] = componentSrc.base;
+				Utils.selectGlyphComponent(
+					glyph,
+					componentSrc,
+					componentSrc.base[0],
 					fontSrc,
 					naive,
-					// components' subcomponents can be embedded immediatly
-					true
-				);
-
-			component.parentParameters = {};
-			Utils.mergeStatic(
-				component.parentParameters,
-				componentSrc.parentParameters
-			);
-
-			naive.annotator( component );
-			glyph.addComponent( component );
-
-			(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
-				var anchor = new paper.Node();
-				anchor.src = anchorSrc;
-				Utils.mergeStatic( anchor, anchorSrc );
-
-				component.addParentAnchor( anchor );
-			});
+					componentSrc.id);
+			} else {
+				Utils.selectGlyphComponent(
+					glyph,
+					componentSrc,
+					componentSrc.base,
+					fontSrc,
+					naive);
+			}
 		});
 
 		delete glyph.embedComponents;
@@ -213,6 +207,42 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 
 	return glyph;
 };
+
+Utils.selectGlyphComponent = function(
+	glyph,
+	componentSrc,
+	componentName,
+	fontSrc,
+	naive,
+	id) {
+	var component = Utils.glyphFromSrc(
+			fontSrc.glyphs[componentName],
+			fontSrc,
+			naive,
+			// components' subcomponents can be embedded immediatly
+			true
+		);
+
+	component.parentParameters = {};
+	Utils.mergeStatic(
+		component.parentParameters,
+		componentSrc.parentParameters
+	);
+
+	naive.annotator( component );
+	component.componentId = id;
+	component.choice = componentSrc.base;
+	component.chosen = componentName;
+	glyph.addComponent( component, id );
+
+	(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
+		var anchor = new paper.Node();
+		anchor.src = anchorSrc;
+		Utils.mergeStatic( anchor, anchorSrc );
+
+		component.addParentAnchor( anchor );
+	});
+}
 
 // build a full cursor from arguments
 // adds 'contours' and 'nodes' automagically when arguments start with a number
