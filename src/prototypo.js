@@ -2,8 +2,7 @@
 var plumin = require('plumin.js'),
 	assign = require('es6-object-assign').assign,
 	Utils = require('./Utils.js'),
-	naive = require('./naive.js'),
-	ComponentMenu = require('./componentMenu.js');
+	naive = require('./naive.js');
 
 var paper = plumin.paper,
 	psProto = paper.PaperScope.prototype,
@@ -81,6 +80,18 @@ psProto.Path.prototype._draw = function(ctx, param, viewMatrix) {
 	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
 };
 
+psProto.CompoundPath.prototype._drawOld = psProto.CompoundPath.prototype._draw;
+psProto.CompoundPath.prototype._draw = function(ctx, param, viewMatrix) {
+	var realViewMatrix = new psProto.Matrix(
+		this.view.zoom / window.devicePixelRatio,
+		0,
+		viewMatrix.c / window.devicePixelRatio,
+		-this.view.zoom / window.devicePixelRatio,
+		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
+		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
+};
+
 /* Update the shape of the glyph, according to formula and parameters
  * 0. before running, nodes have already been created by ParametricFont
  *   (including expanded ones thanks to naive.expandSkeletons). And static
@@ -94,6 +105,13 @@ psProto.Glyph.prototype.update = function( _params ) {
 		font = glyph.parent,
 		matrix,
 		params;
+
+	if (_params) {
+		this.oldParams = _params;
+	}
+	else {
+		_params = this.oldParams;
+	}
 
 	// 0. calculate local parameters
 	if ( _params['indiv_glyphs'] &&
@@ -146,6 +164,22 @@ psProto.Glyph.prototype.update = function( _params ) {
 	// parentParameters always overwrite glyph parameters. Use aliases
 	// (e.g. _width) to let glyph have the final word
 	_.assign( params, glyph.parentParameters );
+
+	if (params.glyphComponentChoice && params.glyphComponentChoice[glyph.ot.unicode]) {
+		var componentsChoices = params.glyphComponentChoice[glyph.ot.unicode];
+		Object.keys(componentsChoices).forEach(function(key) {
+			var componentFilter = glyph.components.filter(function(comp) {
+				return comp.componentId === key;
+			});
+			if (componentFilter.length > 0) {
+				var component = componentFilter[0];
+
+				if (component.chosen !== componentsChoices[key]) {
+					glyph.changeComponent(key, componentsChoices[key]);
+				}
+			}
+		});
+	}
 
 	// 1. calculate node properties
 	Utils.updateProperties( glyph, params );
@@ -233,22 +267,28 @@ psProto.Glyph.prototype.update = function( _params ) {
 	return this;
 };
 
-psProto.Glyph.prototype.displayComponentList = function( componentId, point ) {
-	point.y = -point.y
-	if (this.componentMenu) {
-		this.componentMenu.move(point);
-	}
-	else {
-		var menu = new ComponentMenu({
-			point: point,
-		});
-		this.componentMenu = menu;
-	}
-	//var text = new paper.PointText(point);
-	//text.fontSize = 60;
-	//text.scale(1, -1);
-	//text.content = this.componentLists[componentId].join(' ');
-	//text.fillColor = 'black';
+psProto.Glyph.prototype.changeComponent = function(componentId, componentName) {
+	var glyph = this;
+	//We remove the old components
+	var componentToDelete = glyph.components.filter(function(comp) { return comp.componentId === componentId })[0];
+	//And remove its handle from the view
+	componentToDelete.contours.forEach(function(contour) {
+		contour.fullySelected = false;
+	});
+	glyph.components.splice(glyph.components.indexOf(componentToDelete), 1);
+	//And add the correct components
+	var componentSrc = glyph.src.components.filter(function(comp) { return comp.id === componentId })[0];
+	glyph.solvingOrder = undefined;
+	glyph.src.solvingOrder = undefined;
+	glyph.solvingOrder = glyph.src.solvingOrder = Utils.solveDependencyTree(glyph);
+	Utils.selectGlyphComponent(
+		glyph,
+		componentSrc,
+		componentName,
+		glyph.parent.src,
+		Utils.naive,
+		componentId);
+	glyph.update();
 }
 
 // Before updating SVG or OpenType data, we must determine paths exports

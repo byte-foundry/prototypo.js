@@ -62,7 +62,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 107);
+/******/ 	return __webpack_require__(__webpack_require__.s = 106);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -25343,7 +25343,7 @@ var plumin = __webpack_require__(2),
 	DepTree = __webpack_require__(28),
 	cloneDeep = __webpack_require__(95),
 	assign = __webpack_require__(9).assign,
-	updateUtils = __webpack_require__(106);
+	updateUtils = __webpack_require__(105);
 
 var paper = plumin.paper,
 	Utils = updateUtils,
@@ -25573,6 +25573,7 @@ Utils.selectGlyphComponent = function(
 	naive.annotator( component );
 	component.componentId = id;
 	component.choice = componentSrc.base;
+	component.chosen = componentName;
 	glyph.addComponent( component, id );
 
 	(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
@@ -26058,8 +26059,7 @@ module.exports = Utils;
 var plumin = __webpack_require__(2),
 	assign = __webpack_require__(9).assign,
 	Utils = __webpack_require__(26),
-	naive = __webpack_require__(105),
-	ComponentMenu = __webpack_require__(104);
+	naive = __webpack_require__(104);
 
 var paper = plumin.paper,
 	psProto = paper.PaperScope.prototype,
@@ -26137,6 +26137,18 @@ psProto.Path.prototype._draw = function(ctx, param, viewMatrix) {
 	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
 };
 
+psProto.CompoundPath.prototype._drawOld = psProto.CompoundPath.prototype._draw;
+psProto.CompoundPath.prototype._draw = function(ctx, param, viewMatrix) {
+	var realViewMatrix = new psProto.Matrix(
+		this.view.zoom / window.devicePixelRatio,
+		0,
+		viewMatrix.c / window.devicePixelRatio,
+		-this.view.zoom / window.devicePixelRatio,
+		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
+		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
+};
+
 /* Update the shape of the glyph, according to formula and parameters
  * 0. before running, nodes have already been created by ParametricFont
  *   (including expanded ones thanks to naive.expandSkeletons). And static
@@ -26150,6 +26162,13 @@ psProto.Glyph.prototype.update = function( _params ) {
 		font = glyph.parent,
 		matrix,
 		params;
+
+	if (_params) {
+		this.oldParams = _params;
+	}
+	else {
+		_params = this.oldParams;
+	}
 
 	// 0. calculate local parameters
 	if ( _params['indiv_glyphs'] &&
@@ -26202,6 +26221,22 @@ psProto.Glyph.prototype.update = function( _params ) {
 	// parentParameters always overwrite glyph parameters. Use aliases
 	// (e.g. _width) to let glyph have the final word
 	_.assign( params, glyph.parentParameters );
+
+	if (params.glyphComponentChoice && params.glyphComponentChoice[glyph.ot.unicode]) {
+		var componentsChoices = params.glyphComponentChoice[glyph.ot.unicode];
+		Object.keys(componentsChoices).forEach(function(key) {
+			var componentFilter = glyph.components.filter(function(comp) {
+				return comp.componentId === key;
+			});
+			if (componentFilter.length > 0) {
+				var component = componentFilter[0];
+
+				if (component.chosen !== componentsChoices[key]) {
+					glyph.changeComponent(key, componentsChoices[key]);
+				}
+			}
+		});
+	}
 
 	// 1. calculate node properties
 	Utils.updateProperties( glyph, params );
@@ -26289,22 +26324,28 @@ psProto.Glyph.prototype.update = function( _params ) {
 	return this;
 };
 
-psProto.Glyph.prototype.displayComponentList = function( componentId, point ) {
-	point.y = -point.y
-	if (this.componentMenu) {
-		this.componentMenu.move(point);
-	}
-	else {
-		var menu = new ComponentMenu({
-			point: point,
-		});
-		this.componentMenu = menu;
-	}
-	//var text = new paper.PointText(point);
-	//text.fontSize = 60;
-	//text.scale(1, -1);
-	//text.content = this.componentLists[componentId].join(' ');
-	//text.fillColor = 'black';
+psProto.Glyph.prototype.changeComponent = function(componentId, componentName) {
+	var glyph = this;
+	//We remove the old components
+	var componentToDelete = glyph.components.filter(function(comp) { return comp.componentId === componentId })[0];
+	//And remove its handle from the view
+	componentToDelete.contours.forEach(function(contour) {
+		contour.fullySelected = false;
+	});
+	glyph.components.splice(glyph.components.indexOf(componentToDelete), 1);
+	//And add the correct components
+	var componentSrc = glyph.src.components.filter(function(comp) { return comp.id === componentId })[0];
+	glyph.solvingOrder = undefined;
+	glyph.src.solvingOrder = undefined;
+	glyph.solvingOrder = glyph.src.solvingOrder = Utils.solveDependencyTree(glyph);
+	Utils.selectGlyphComponent(
+		glyph,
+		componentSrc,
+		componentName,
+		glyph.parent.src,
+		Utils.naive,
+		componentId);
+	glyph.update();
 }
 
 // Before updating SVG or OpenType data, we must determine paths exports
@@ -28567,40 +28608,6 @@ module.exports = function(module) {
 /***/ function(module, exports, __webpack_require__) {
 
 var plumin = __webpack_require__(2),
-	paper = plumin.paper;
-
-function ComponentMenu( args ) {
-	paper.Group.prototype.constructor.apply( this );
-
-	var circle = new paper.Shape.Circle(new paper.Point(16.4, 16.4), 16.4);
-	circle.fillColor = 'black';
-	var icon = new paper.CompoundPath('M27.1,16.1l-1.6-0.2c0-1.1-0.3-2.1-0.7-3.1l1.3-1c0.1-0.1,0.1-0.2,0.2-0.3 c0-0.1,0-0.2-0.1-0.3l-1.8-2.4c-0.1-0.1-0.2-0.1-0.3-0.2c-0.1,0-0.2,0-0.3,0.1l-1.2,0.9c-0.8-0.7-1.7-1.3-2.8-1.8L20,6.3 c0-0.1,0-0.2-0.1-0.3c-0.1-0.1-0.2-0.1-0.3-0.2l-3-0.4c-0.1,0-0.2,0-0.3,0.1c-0.1,0.1-0.1,0.2-0.2,0.3l-0.2,1.5 c-1.1,0-2.2,0.3-3.2,0.7l-0.9-1.2c-0.1-0.2-0.4-0.2-0.6-0.1L8.8,8.5C8.7,8.6,8.6,8.7,8.6,8.8c0,0.1,0,0.2,0.1,0.3l0.9,1.2 C8.8,11.1,8.2,12,7.8,13l-1.5-0.2c-0.1,0-0.2,0-0.3,0.1c-0.1,0.1-0.1,0.2-0.2,0.3l-0.4,3c0,0.2,0.1,0.4,0.3,0.5l1.5,0.2 C7.3,18,7.6,19.1,8,20.1l-1.3,1c-0.2,0.1-0.2,0.4-0.1,0.6L8.5,24c0.1,0.2,0.4,0.2,0.6,0.1l1.3-0.9c0.8,0.7,1.8,1.3,2.7,1.7 l-0.2,1.7c0,0.2,0.1,0.4,0.3,0.5l3,0.4c0,0,0,0,0.1,0c0.2,0,0.4-0.1,0.4-0.4l0.2-1.6c1.1-0.1,2.1-0.3,3.1-0.7l1,1.4 c0.1,0.2,0.4,0.2,0.6,0.1l2.4-1.8c0.1-0.1,0.1-0.2,0.2-0.3c0-0.1,0-0.2-0.1-0.3l-1-1.3c0.7-0.8,1.3-1.7,1.7-2.7l1.7,0.2 c0.2,0,0.4-0.1,0.5-0.3l0.4-3C27.4,16.4,27.3,16.2,27.1,16.1z M16.4,20.2c-2.1,0-3.8-1.7-3.8-3.8c0-2.1,1.7-3.8,3.8-3.8 s3.8,1.7,3.8,3.8C20.2,18.5,18.5,20.2,16.4,20.2z');
-	icon.fillColor = 'green';
-	icon.scale(1, -1);
-	this.addChild(icon);
-	this.addChild(circle);
-	this.position = args.point;
-
-}
-
-ComponentMenu.prototype = Object.create(paper.Group.prototype);
-ComponentMenu.prototype.constructor = ComponentMenu;
-
-ComponentMenu.prototype.move = function( point ) {
-	this.position = point;
-}
-
-//function ComponentMenuItem( args ) {
-//}
-
-module.exports = ComponentMenu;
-
-
-/***/ },
-/* 105 */
-/***/ function(module, exports, __webpack_require__) {
-
-var plumin = __webpack_require__(2),
 	assign = __webpack_require__(9).assign,
 	Utils = __webpack_require__(26);
 
@@ -29158,7 +29165,7 @@ module.exports = naive;
 
 
 /***/ },
-/* 106 */
+/* 105 */
 /***/ function(module, exports, __webpack_require__) {
 
 var plumin = __webpack_require__(2),
@@ -29797,7 +29804,7 @@ module.exports = Utils;
 
 
 /***/ },
-/* 107 */
+/* 106 */
 /***/ function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(27);

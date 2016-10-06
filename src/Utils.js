@@ -232,6 +232,7 @@ Utils.selectGlyphComponent = function(
 	naive.annotator( component );
 	component.componentId = id;
 	component.choice = componentSrc.base;
+	component.chosen = componentName;
 	glyph.addComponent( component, id );
 
 	(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
