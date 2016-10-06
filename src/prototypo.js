@@ -72,11 +72,15 @@ psProto.Path.prototype._drawOld = psProto.Path.prototype._draw;
 psProto.Path.prototype._draw = function(ctx, param, viewMatrix) {
 	var realViewMatrix = new psProto.Matrix(
 		this.view.zoom / window.devicePixelRatio,
-		0,
+		viewMatrix.b / window.devicePixelRatio,
 		viewMatrix.c / window.devicePixelRatio,
-		-this.view.zoom / window.devicePixelRatio,
+		this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+	realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
+	realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
+	realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
+	realViewMatrix.ty = realViewMatrix.ty + this.parent.globalMatrix.ty * this.view.zoom / window.devicePixelRatio;
 	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
 };
 
@@ -84,11 +88,15 @@ psProto.CompoundPath.prototype._drawOld = psProto.CompoundPath.prototype._draw;
 psProto.CompoundPath.prototype._draw = function(ctx, param, viewMatrix) {
 	var realViewMatrix = new psProto.Matrix(
 		this.view.zoom / window.devicePixelRatio,
-		0,
+		viewMatrix.b / window.devicePixelRatio,
 		viewMatrix.c / window.devicePixelRatio,
-		-this.view.zoom / window.devicePixelRatio,
+		this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
 		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+	realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
+	realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
+	realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
+	realViewMatrix.ty = realViewMatrix.ty + this.parent.globalMatrix.ty * this.view.zoom / window.devicePixelRatio;
 	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
 };
 
