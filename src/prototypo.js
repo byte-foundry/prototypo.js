@@ -1,6 +1,7 @@
 /*jshint -W098 */
 var plumin = require('plumin.js'),
 	assign = require('es6-object-assign').assign,
+	cloneDeep = require('lodash/cloneDeep'),
 	Utils = require('./Utils.js'),
 	naive = require('./naive.js');
 
@@ -69,19 +70,24 @@ psProto.Font.prototype.update = function( params, set ) {
 };
 
 psProto.Path.prototype._drawOld = psProto.Path.prototype._draw;
-psProto.Path.prototype._draw = function(ctx, param, viewMatrix) {
-	var realViewMatrix = new psProto.Matrix(
-		this.view.zoom / window.devicePixelRatio,
-		viewMatrix.b / window.devicePixelRatio,
-		viewMatrix.c / window.devicePixelRatio,
-		this.view.zoom / window.devicePixelRatio,
-		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
-		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
-	realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
-	realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
-	realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
-	realViewMatrix.ty = realViewMatrix.ty + this.parent.globalMatrix.ty * this.view.zoom / window.devicePixelRatio;
-	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
+psProto.Path.prototype._draw = function(ctx, param, viewMatrix, strokeMatrix) {
+	if (this.applyMatrix) {
+		var realViewMatrix = new psProto.Matrix(
+			this.view.zoom / window.devicePixelRatio,
+			viewMatrix.b / window.devicePixelRatio,
+			viewMatrix.c / window.devicePixelRatio,
+			this.view.zoom / window.devicePixelRatio,
+			(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
+			(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+		realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
+		realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
+		realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
+		realViewMatrix.ty = realViewMatrix.ty + this.parent.globalMatrix.ty * this.view.zoom / window.devicePixelRatio;
+		this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
+	}
+	else {
+		this._drawOld(ctx, param, realViewMatrix, strokeMatrix);
+	}
 };
 
 psProto.CompoundPath.prototype._drawOld = psProto.CompoundPath.prototype._draw;
@@ -99,6 +105,13 @@ psProto.CompoundPath.prototype._draw = function(ctx, param, viewMatrix) {
 	realViewMatrix.ty = realViewMatrix.ty + this.parent.globalMatrix.ty * this.view.zoom / window.devicePixelRatio;
 	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
 };
+
+psProto.Font.prototype.changeCursorsToManual = function(glyphUnicode, cursors) {
+	var font = this;
+
+	// TODO manage alternates
+	font.altMap[glyphUnicode][0].changeCursorsToManual(cursors);
+}
 
 /* Update the shape of the glyph, according to formula and parameters
  * 0. before running, nodes have already been created by ParametricFont
@@ -190,6 +203,10 @@ psProto.Glyph.prototype.update = function( _params ) {
 	}
 
 	// 1. calculate node properties
+
+	if(_params.manualChanges) {
+		params.manualChanges = cloneDeep(_params.manualChanges[glyph.ot.unicode]);
+	}
 	Utils.updateProperties( glyph, params );
 
 	// 2. transform contours
@@ -271,6 +288,8 @@ psProto.Glyph.prototype.update = function( _params ) {
 		glyph.applyMatrix = false;
 		glyph.matrix = matrix;
 	}
+
+	glyph.glyphWidth = glyph.bounds.width;
 
 	return this;
 };
