@@ -181,7 +181,6 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 	glyph.spacingLeft = params.spacingLeft;
 	glyph.spacingRight = params.spacingRight;
-	glyph.glyphWidth = glyph.bounds.width;
 
 	// parentParameters always overwrite glyph parameters. Use aliases
 	// (e.g. _width) to let glyph have the final word
@@ -290,6 +289,8 @@ psProto.Glyph.prototype.update = function( _params ) {
 		glyph.matrix = matrix;
 	}
 
+	glyph.glyphWidth = glyph.bounds.width;
+
 	return this;
 };
 
@@ -316,41 +317,6 @@ psProto.Glyph.prototype.changeComponent = function(componentId, componentName) {
 		componentId);
 	glyph.update();
 }
-
-psProto.Glyph.prototype.changeCursorsToManual = function(cursorIdsToChange) {
-	var solvingOrder = this.solvingOrder;
-	var added = 0;
-
-	for(var i = 0 ; i < solvingOrder.length ; i++) {
-		for(var j = 0 ; j < cursorIdsToChange.length ; j++) {
-			if (cursorIdsToChange[j] === solvingOrder[i].cursor.join('.')) {
-				solvingOrder[i].manual = true;
-				cursorIdsToChange.splice(j--, 1);
-				break;
-			}
-		}
-	}
-
-	if (cursorIdsToChange.length > 0) {
-		for (i = 0; i < cursorIdsToChange.length; i++) {
-			cursor = cursorIdsToChange[i].split('.');
-			var tmpObj = Utils.propFromCursor( cursor, this, cursor.length - 1 );
-			var tmpSrc = {
-				_updaters: [Utils.createUpdater({
-					_operation: JSON.stringify(tmpObj[cursor[cursor.length-1]] || 0),
-				})],
-			};
-			var newCursor = {
-				cursor: cursor,
-				obj: tmpObj,
-				src: tmpSrc,
-				manual: true,
-			};
-
-			solvingOrder.unshift(newCursor);
-		}
-	}
-};
 
 // Before updating SVG or OpenType data, we must determine paths exports
 // directions. Basically, everything needs to be clockwise.
