@@ -216,7 +216,8 @@ Utils.selectGlyphComponent = function(
 	componentName,
 	fontSrc,
 	naive,
-	id) {
+	id,
+	index) {
 	var component = Utils.glyphFromSrc(
 			fontSrc.glyphs[componentName],
 			fontSrc,
@@ -233,9 +234,14 @@ Utils.selectGlyphComponent = function(
 
 	naive.annotator( component );
 	component.componentId = id;
-	component.choice = componentSrc.base;
 	component.chosen = componentName;
-	glyph.addComponent( component, id );
+	component.multiple = Array.isArray(componentSrc.base);
+	if (index === undefined) {
+		glyph.addComponent( component);
+	}
+	else {
+		glyph.components.splice(index, 1, component);
+	}
 
 	(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
 		var anchor = new paper.Node();

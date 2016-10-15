@@ -302,19 +302,18 @@ psProto.Glyph.prototype.changeComponent = function(componentId, componentName) {
 	componentToDelete.contours.forEach(function(contour) {
 		contour.fullySelected = false;
 	});
-	glyph.components.splice(glyph.components.indexOf(componentToDelete), 1);
 	//And add the correct components
 	var componentSrc = glyph.src.components.filter(function(comp) { return comp.id === componentId })[0];
 	glyph.solvingOrder = undefined;
 	glyph.src.solvingOrder = undefined;
-	glyph.solvingOrder = glyph.src.solvingOrder = Utils.solveDependencyTree(glyph);
 	Utils.selectGlyphComponent(
 		glyph,
 		componentSrc,
 		componentName,
 		glyph.parent.src,
 		Utils.naive,
-		componentId);
+		componentId, glyph.components.indexOf(componentToDelete));
+	glyph.solvingOrder = glyph.src.solvingOrder = Utils.solveDependencyTree(glyph);
 	glyph.update();
 }
 
