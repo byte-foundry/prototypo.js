@@ -25643,7 +25643,10 @@ Utils.selectGlyphComponent = function(
 		glyph.addComponent( component);
 	}
 	else {
-		glyph.components.splice(index, 1, component);
+		if (glyph.components[index].optionPoint) {
+			glyph.components[index].optionPoint.remove();
+		}
+		glyph.components[index].replaceWith(component);
 	}
 
 	(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
