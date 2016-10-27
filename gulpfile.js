@@ -7,7 +7,6 @@ const project = 'prototypo';
 const webpack = 'webpack --devtool source-map';
 const dist = `${webpack}`;
 const watch = `${webpack} --watch`;
-const jscs = `jscs ${src}/**.js test/**.js`;
 const eslint = `eslint ${src}/**.js test/**.js`;
 const browsersync = `browser-sync start --server --files "${dest}/${project}.js, index.html"`;
 const mocha = 'mocha-phantomjs test.html --setting webSecurityEnabled=false localToRemoteUrlAccessEnabled=true';
@@ -19,7 +18,7 @@ shelter({
 	},
 	build: {
 		dsc: `Lint code, generate ${project}-core.js and test it`,
-		cmd: `{ ${jscs} & ${eslint}; } && ${dist} && ${mocha}`
+		cmd: `${eslint} && ${dist} && ${mocha}`
 	},
 	serve: {
 		dsc: 'Opens index.html and live-reload on changes',

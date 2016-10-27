@@ -238,8 +238,7 @@ Utils.selectGlyphComponent = function(
 	component.multiple = Array.isArray(componentSrc.base);
 	if (index === undefined) {
 		glyph.addComponent( component);
-	}
-	else {
+	} else {
 		if (glyph.components[index].optionPoint) {
 			glyph.components[index].optionPoint.remove();
 		}
@@ -558,8 +557,7 @@ Utils.updateIndividualParameters = function( leaf, params ) {
 							( group[_name + '_rel'].state === 'relative' ?
 								group[_name + '_rel'].value * params[_name] :
 								group[_name + '_rel'].value + params[_name]
-							)
-							: params[_name];
+							) : params[_name];
 					}
 
 					if ( src._parameters ) {
@@ -684,8 +682,7 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 					} else if (typeof result === 'number') {
 						result += changes;
 					}
-				}
-				else if (typeof changes === 'object') {
+				} else if (typeof changes === 'object') {
 					Object.keys(changes).forEach(key => {
 						if (result.hasOwnProperty(key)) {
 							if (key !== 'width') {
@@ -694,8 +691,7 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 								} else if (typeof result[key] === 'number') {
 									result[key] += changes[key];
 								}
-							}
-							else {
+							} else {
 								result[key] *= 1 + changes[key];
 							}
 						}
@@ -714,9 +710,9 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 			cursor = cursorKeys[i].split('.');
 			var tmpObj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 );
 			var tmpSrc = {
-				_updaters: [Utils.createUpdater({
-					_operation: JSON.stringify(tmpObj[cursor[cursor.length-1]] || 0),
-				})],
+				_updaters: [ Utils.createUpdater({
+					_operation: JSON.stringify(tmpObj[cursor[cursor.length - 1]] || 0),
+				}) ],
 			};
 			var newCursor = {
 				cursor: cursor,
