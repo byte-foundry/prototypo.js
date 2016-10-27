@@ -113,6 +113,26 @@ psProto.Font.prototype.changeCursorsToManual = function(glyphUnicode, cursors) {
 	font.altMap[glyphUnicode][0].changeCursorsToManual(cursors);
 }
 
+psProto.Font.prototype.setAlternatesFor = function(unicode, glyphName) {
+	var font = this;
+	var glyph = font.charMap[unicode].src;
+	var nextGlyph = font.children[glyphName].src;
+
+	(glyph.relatedGlyphs || []).forEach(function(name) {
+		var relatedGlyph = font.children[name].src;
+		var alternateName = relatedGlyph.name.replace(relatedGlyph.base || relatedGlyph.name, nextGlyph.base || nextGlyph.name);
+
+		if (font.children[alternateName]) { // checking alternate's existence
+			font.setAlternateFor(
+				relatedGlyph.unicode,
+				alternateName
+			);
+		}
+	});
+
+	font.setAlternateFor(unicode, glyphName);
+};
+
 /* Update the shape of the glyph, according to formula and parameters
  * 0. before running, nodes have already been created by ParametricFont
  *   (including expanded ones thanks to naive.expandSkeletons). And static
