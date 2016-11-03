@@ -26260,6 +26260,12 @@ psProto.Font.prototype.update = function( params, set ) {
 	return this;
 };
 
+psProto.Font.prototype.resetComponents = function() {
+	this.glyphs.forEach(function( glyph ) {
+		glyph.resetComponents(this.src);
+	}.bind(this));
+}
+
 psProto.Path.prototype._drawOld = psProto.Path.prototype._draw;
 psProto.Path.prototype._draw = function(ctx, param, viewMatrix, strokeMatrix) {
 	if (this.applyMatrix) {
@@ -26321,8 +26327,11 @@ psProto.Glyph.prototype.update = function( _params ) {
 	if (_params) {
 		this.oldParams = _params;
 	}
-	else {
+	else if (this.oldParams) {
 		_params = this.oldParams;
+	}
+	else {
+		return;
 	}
 
 	// 0. calculate local parameters
@@ -26485,6 +26494,16 @@ psProto.Glyph.prototype.update = function( _params ) {
 	return this;
 };
 
+psProto.Glyph.prototype.resetComponents = function(fontSrc) {
+	if (this.src) {
+		this.src.components.forEach(function(componentSrc) {
+			if (Array.isArray(componentSrc.base)) {
+				this.changeComponent(componentSrc.id, componentSrc.base[0]);
+			}
+		}.bind(this));
+	}
+}
+
 psProto.Glyph.prototype.changeComponent = function(componentId, componentName) {
 	var glyph = this;
 	//We remove the old components
@@ -26555,6 +26574,8 @@ psProto.Outline.prototype.prepareDataUpdate = function() {
 		return method.apply( this, arguments );
 	};
 });
+
+plumin.cloneDeep = cloneDeep;
 
 module.exports = plumin;
 
