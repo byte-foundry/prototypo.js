@@ -13,6 +13,15 @@ module.exports = {
 			'plumin.js': 'plumin.js/dist/plumin.js',
 		}
 	},
+	module: {
+		loaders: [
+			{
+				test: /\.js$/,
+				exclude: /node_modules/,
+				loader: 'babel',
+			}
+		],
+	},
 	externals: [{
 		'./node/window': true,
 		'./node/extend': true,

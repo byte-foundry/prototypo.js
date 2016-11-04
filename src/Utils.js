@@ -1,7 +1,7 @@
 var plumin = require('plumin.js'),
 	DepTree = require('deptree'),
-	cloneDeep = require('lodash/cloneDeep'),
-	assign = require('es6-object-assign').assign,
+	cloneDeep = require('lodash.clonedeep'),
+	assign = require('lodash.assign'),
 	updateUtils = require('./updateUtils.js');
 
 var paper = plumin.paper,
