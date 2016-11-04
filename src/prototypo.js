@@ -1,7 +1,6 @@
-/*jshint -W098 */
 var plumin = require('plumin.js'),
-	assign = require('es6-object-assign').assign,
-	cloneDeep = require('lodash/cloneDeep'),
+	assign = require('lodash.assign'),
+	cloneDeep = require('lodash.clonedeep'),
 	Utils = require('./Utils.js'),
 	naive = require('./naive.js');
 
