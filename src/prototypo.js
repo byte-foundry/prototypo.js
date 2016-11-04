@@ -82,15 +82,14 @@ psProto.Path.prototype._draw = function(ctx, param, viewMatrix, strokeMatrix) {
 			viewMatrix.b / window.devicePixelRatio,
 			viewMatrix.c / window.devicePixelRatio,
 			this.view.zoom / window.devicePixelRatio,
-			(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
-			(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+			(-this.view.center.x + this.view.bounds.width / 2) * this.view.zoom / window.devicePixelRatio,
+			(-this.view.center.y + this.view.bounds.height / 2) * this.view.zoom / window.devicePixelRatio);
 		realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
 		realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
 		realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
 		realViewMatrix.ty = realViewMatrix.ty + this.parent.globalMatrix.ty * this.view.zoom / window.devicePixelRatio;
 		this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
-	}
-	else {
+	} else {
 		this._drawOld(ctx, param, realViewMatrix, strokeMatrix);
 	}
 };
@@ -102,8 +101,8 @@ psProto.CompoundPath.prototype._draw = function(ctx, param, viewMatrix) {
 		viewMatrix.b / window.devicePixelRatio,
 		viewMatrix.c / window.devicePixelRatio,
 		this.view.zoom / window.devicePixelRatio,
-		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
-		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+		(-this.view.center.x + this.view.bounds.width / 2) * this.view.zoom / window.devicePixelRatio,
+		(-this.view.center.y + this.view.bounds.height / 2) * this.view.zoom / window.devicePixelRatio);
 	realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
 	realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
 	realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
@@ -134,11 +133,9 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 	if (_params) {
 		this.oldParams = _params;
-	}
-	else if (this.oldParams) {
+	} else if (this.oldParams) {
 		_params = this.oldParams;
-	}
-	else {
+	} else {
 		return;
 	}
 
@@ -212,7 +209,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 	// 1. calculate node properties
 
-	if(_params.manualChanges) {
+	if (_params.manualChanges) {
 		params.manualChanges = cloneDeep(_params.manualChanges[glyph.ot.unicode]);
 	}
 	Utils.updateProperties( glyph, params );
@@ -302,7 +299,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 	return this;
 };
 
-psProto.Glyph.prototype.resetComponents = function(fontSrc) {
+psProto.Glyph.prototype.resetComponents = function() {
 	if (this.src) {
 		this.src.components.forEach(function(componentSrc) {
 			if (Array.isArray(componentSrc.base)) {
