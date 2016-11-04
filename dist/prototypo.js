@@ -71,187 +71,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 110);
+/******/ 	return __webpack_require__(__webpack_require__.s = 10);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
-
-var freeGlobal = __webpack_require__(20);
-
-/** Detect free variable `self`. */
-var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
-
-/** Used as a reference to the global object. */
-var root = freeGlobal || freeSelf || Function('return this')();
-
-module.exports = root;
-
-
-/***/ },
-/* 1 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseIsNative = __webpack_require__(52),
-    getValue = __webpack_require__(71);
-
-/**
- * Gets the native function at `key` of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {string} key The key of the method to get.
- * @returns {*} Returns the function if it's native, else `undefined`.
- */
-function getNative(object, key) {
-  var value = getValue(object, key);
-  return baseIsNative(value) ? value : undefined;
-}
-
-module.exports = getNative;
-
-
-/***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-var listCacheClear = __webpack_require__(83),
-    listCacheDelete = __webpack_require__(84),
-    listCacheGet = __webpack_require__(85),
-    listCacheHas = __webpack_require__(86),
-    listCacheSet = __webpack_require__(87);
-
-/**
- * Creates an list cache object.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function ListCache(entries) {
-  var index = -1,
-      length = entries ? entries.length : 0;
-
-  this.clear();
-  while (++index < length) {
-    var entry = entries[index];
-    this.set(entry[0], entry[1]);
-  }
-}
-
-// Add methods to `ListCache`.
-ListCache.prototype.clear = listCacheClear;
-ListCache.prototype['delete'] = listCacheDelete;
-ListCache.prototype.get = listCacheGet;
-ListCache.prototype.has = listCacheHas;
-ListCache.prototype.set = listCacheSet;
-
-module.exports = ListCache;
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-var eq = __webpack_require__(25);
-
-/**
- * Gets the index at which the `key` is found in `array` of key-value pairs.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {*} key The key to search for.
- * @returns {number} Returns the index of the matched value, else `-1`.
- */
-function assocIndexOf(array, key) {
-  var length = array.length;
-  while (length--) {
-    if (eq(array[length][0], key)) {
-      return length;
-    }
-  }
-  return -1;
-}
-
-module.exports = assocIndexOf;
-
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isKeyable = __webpack_require__(81);
-
-/**
- * Gets the data for `map`.
- *
- * @private
- * @param {Object} map The map to query.
- * @param {string} key The reference key.
- * @returns {*} Returns the map data.
- */
-function getMapData(map, key) {
-  var data = map.__data__;
-  return isKeyable(key)
-    ? data[typeof key == 'string' ? 'string' : 'hash']
-    : data.map;
-}
-
-module.exports = getMapData;
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(1);
-
-/* Built-in method references that are verified to be native. */
-var nativeCreate = getNative(Object, 'create');
-
-module.exports = nativeCreate;
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-/**
- * Checks if `value` is the
- * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
- * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an object, else `false`.
- * @example
- *
- * _.isObject({});
- * // => true
- *
- * _.isObject([1, 2, 3]);
- * // => true
- *
- * _.isObject(_.noop);
- * // => true
- *
- * _.isObject(null);
- * // => false
- */
-function isObject(value) {
-  var type = typeof value;
-  return value != null && (type == 'object' || type == 'function');
-}
-
-module.exports = isObject;
-
-
-/***/ },
-/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 (function webpackUniversalModuleDefinition(root, factory) {
@@ -24713,96 +24537,67 @@ return /******/ (function(modules) { // webpackBootstrap
 //# sourceMappingURL=plumin.js.map
 
 /***/ },
-/* 8 */
+/* 1 */
 /***/ function(module, exports) {
 
-"use strict";
 /**
- * Code refactored from Mozilla Developer Network:
- * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
  */
 
-'use strict';
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
 
-function assign(target, firstSource) {
-  if (target === undefined || target === null) {
-    throw new TypeError('Cannot convert first argument to object');
-  }
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]';
 
-  var to = Object(target);
-  for (var i = 1; i < arguments.length; i++) {
-    var nextSource = arguments[i];
-    if (nextSource === undefined || nextSource === null) {
-      continue;
-    }
-
-    var keysArray = Object.keys(Object(nextSource));
-    for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-      var nextKey = keysArray[nextIndex];
-      var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-      if (desc !== undefined && desc.enumerable) {
-        to[nextKey] = nextSource[nextKey];
-      }
-    }
-  }
-  return to;
-}
-
-function polyfill() {
-  if (!Object.assign) {
-    Object.defineProperty(Object, 'assign', {
-      enumerable: false,
-      configurable: true,
-      writable: true,
-      value: assign
-    });
-  }
-}
-
-module.exports = {
-  assign: assign,
-  polyfill: polyfill
-};
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(1),
-    root = __webpack_require__(0);
-
-/* Built-in method references that are verified to be native. */
-var Map = getNative(root, 'Map');
-
-module.exports = Map;
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-var Uint8Array = __webpack_require__(39);
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
 
 /**
- * Creates a clone of `arrayBuffer`.
+ * A faster alternative to `Function#apply`, this function invokes `func`
+ * with the `this` binding of `thisArg` and the arguments of `args`.
  *
  * @private
- * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
- * @returns {ArrayBuffer} Returns the cloned array buffer.
+ * @param {Function} func The function to invoke.
+ * @param {*} thisArg The `this` binding of `func`.
+ * @param {Array} args The arguments to invoke `func` with.
+ * @returns {*} Returns the result of `func`.
  */
-function cloneArrayBuffer(arrayBuffer) {
-  var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
-  new Uint8Array(result).set(new Uint8Array(arrayBuffer));
-  return result;
+function apply(func, thisArg, args) {
+  switch (args.length) {
+    case 0: return func.call(thisArg);
+    case 1: return func.call(thisArg, args[0]);
+    case 2: return func.call(thisArg, args[0], args[1]);
+    case 3: return func.call(thisArg, args[0], args[1], args[2]);
+  }
+  return func.apply(thisArg, args);
 }
 
-module.exports = cloneArrayBuffer;
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
 
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+  return result;
+}
 
 /**
  * Creates a unary function that invokes `func` with its argument transformed.
@@ -24818,189 +24613,55 @@ function overArg(func, transform) {
   };
 }
 
-module.exports = overArg;
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports) {
-
-/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an array, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */
-var isArray = Array.isArray;
-
-module.exports = isArray;
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
-
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */
-function isObjectLike(value) {
-  return value != null && typeof value == 'object';
-}
-
-module.exports = isObjectLike;
-
-
-/***/ },
-/* 14 */
-/***/ function(module, exports, __webpack_require__) {
-
-var arrayLikeKeys = __webpack_require__(44),
-    baseKeys = __webpack_require__(54),
-    isArrayLike = __webpack_require__(103);
-
-/**
- * Creates an array of the own enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects. See the
- * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * for more details.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keys(new Foo);
- * // => ['a', 'b'] (iteration order is not guaranteed)
- *
- * _.keys('hi');
- * // => ['0', '1']
- */
-function keys(object) {
-  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
-}
-
-module.exports = keys;
-
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-module.exports = function(module) {
-	if(!module.webpackPolyfill) {
-		module.deprecate = function() {};
-		module.paths = [];
-		// module.parent = undefined by default
-		if(!module.children) module.children = [];
-		Object.defineProperty(module, "loaded", {
-			enumerable: true,
-			configurable: false,
-			get: function() { return module.l; }
-		});
-		Object.defineProperty(module, "id", {
-			enumerable: true,
-			configurable: false,
-			get: function() { return module.i; }
-		});
-		module.webpackPolyfill = 1;
-	}
-	return module;
-}
-
-
-/***/ },
-/* 16 */
-/***/ function(module, exports) {
-
-/**
- * A specialized version of `_.reduce` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {*} [accumulator] The initial value.
- * @param {boolean} [initAccum] Specify using the first element of `array` as
- *  the initial value.
- * @returns {*} Returns the accumulated value.
- */
-function arrayReduce(array, iteratee, accumulator, initAccum) {
-  var index = -1,
-      length = array ? array.length : 0;
-
-  if (initAccum && length) {
-    accumulator = array[++index];
-  }
-  while (++index < length) {
-    accumulator = iteratee(accumulator, array[index], index, array);
-  }
-  return accumulator;
-}
-
-module.exports = arrayReduce;
-
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseAssignValue = __webpack_require__(18),
-    eq = __webpack_require__(25);
-
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
 /** Used to check objects for own properties. */
 var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeKeys = overArg(Object.keys, Object),
+    nativeMax = Math.max;
+
+/** Detect if properties shadowing those on `Object.prototype` are non-enumerable. */
+var nonEnumShadows = !propertyIsEnumerable.call({ 'valueOf': 1 }, 'valueOf');
+
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+function arrayLikeKeys(value, inherited) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  // Safari 9 makes `arguments.length` enumerable in strict mode.
+  var result = (isArray(value) || isArguments(value))
+    ? baseTimes(value.length, String)
+    : [];
+
+  var length = result.length,
+      skipIndexes = !!length;
+
+  for (var key in value) {
+    if ((inherited || hasOwnProperty.call(value, key)) &&
+        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
 
 /**
  * Assigns `value` to `key` of `object` if the existing value is not equivalent
@@ -25016,50 +24677,58 @@ function assignValue(object, key, value) {
   var objValue = object[key];
   if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
       (value === undefined && !(key in object))) {
-    baseAssignValue(object, key, value);
-  }
-}
-
-module.exports = assignValue;
-
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-var defineProperty = __webpack_require__(67);
-
-/**
- * The base implementation of `assignValue` and `assignMergeValue` without
- * value checks.
- *
- * @private
- * @param {Object} object The object to modify.
- * @param {string} key The key of the property to assign.
- * @param {*} value The value to assign.
- */
-function baseAssignValue(object, key, value) {
-  if (key == '__proto__' && defineProperty) {
-    defineProperty(object, key, {
-      'configurable': true,
-      'enumerable': true,
-      'value': value,
-      'writable': true
-    });
-  } else {
     object[key] = value;
   }
 }
 
-module.exports = baseAssignValue;
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function baseKeys(object) {
+  if (!isPrototype(object)) {
+    return nativeKeys(object);
+  }
+  var result = [];
+  for (var key in Object(object)) {
+    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+  return result;
+}
 
+/**
+ * The base implementation of `_.rest` which doesn't validate or coerce arguments.
+ *
+ * @private
+ * @param {Function} func The function to apply a rest parameter to.
+ * @param {number} [start=func.length-1] The start position of the rest parameter.
+ * @returns {Function} Returns the new function.
+ */
+function baseRest(func, start) {
+  start = nativeMax(start === undefined ? (func.length - 1) : start, 0);
+  return function() {
+    var args = arguments,
+        index = -1,
+        length = nativeMax(args.length - start, 0),
+        array = Array(length);
 
-/***/ },
-/* 19 */
-/***/ function(module, exports, __webpack_require__) {
-
-var assignValue = __webpack_require__(17),
-    baseAssignValue = __webpack_require__(18);
+    while (++index < length) {
+      array[index] = args[start + index];
+    }
+    index = -1;
+    var otherArgs = Array(start + 1);
+    while (++index < start) {
+      otherArgs[index] = args[index];
+    }
+    otherArgs[start] = array;
+    return apply(func, this, otherArgs);
+  };
+}
 
 /**
  * Copies properties of `source` to `object`.
@@ -25072,7 +24741,6 @@ var assignValue = __webpack_require__(17),
  * @returns {Object} Returns `object`.
  */
 function copyObject(source, props, object, customizer) {
-  var isNew = !object;
   object || (object = {});
 
   var index = -1,
@@ -25085,60 +24753,82 @@ function copyObject(source, props, object, customizer) {
       ? customizer(object[key], source[key], key, object, source)
       : undefined;
 
-    if (newValue === undefined) {
-      newValue = source[key];
-    }
-    if (isNew) {
-      baseAssignValue(object, key, newValue);
-    } else {
-      assignValue(object, key, newValue);
-    }
+    assignValue(object, key, newValue === undefined ? source[key] : newValue);
   }
   return object;
 }
 
-module.exports = copyObject;
-
-
-/***/ },
-/* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {/** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
-
-module.exports = freeGlobal;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(107)))
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-var overArg = __webpack_require__(11),
-    stubArray = __webpack_require__(105);
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeGetSymbols = Object.getOwnPropertySymbols;
-
 /**
- * Creates an array of the own enumerable symbol properties of `object`.
+ * Creates a function like `_.assign`.
  *
  * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of symbols.
+ * @param {Function} assigner The function to assign values.
+ * @returns {Function} Returns the new assigner function.
  */
-var getSymbols = nativeGetSymbols ? overArg(nativeGetSymbols, Object) : stubArray;
+function createAssigner(assigner) {
+  return baseRest(function(object, sources) {
+    var index = -1,
+        length = sources.length,
+        customizer = length > 1 ? sources[length - 1] : undefined,
+        guard = length > 2 ? sources[2] : undefined;
 
-module.exports = getSymbols;
+    customizer = (assigner.length > 3 && typeof customizer == 'function')
+      ? (length--, customizer)
+      : undefined;
 
+    if (guard && isIterateeCall(sources[0], sources[1], guard)) {
+      customizer = length < 3 ? undefined : customizer;
+      length = 1;
+    }
+    object = Object(object);
+    while (++index < length) {
+      var source = sources[index];
+      if (source) {
+        assigner(object, source, index, customizer);
+      }
+    }
+    return object;
+  });
+}
 
-/***/ },
-/* 22 */
-/***/ function(module, exports) {
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return !!length &&
+    (typeof value == 'number' || reIsUint.test(value)) &&
+    (value > -1 && value % 1 == 0 && value < length);
+}
 
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
+/**
+ * Checks if the given arguments are from an iteratee call.
+ *
+ * @private
+ * @param {*} value The potential iteratee value argument.
+ * @param {*} index The potential iteratee index or key argument.
+ * @param {*} object The potential iteratee object argument.
+ * @returns {boolean} Returns `true` if the arguments are from an iteratee call,
+ *  else `false`.
+ */
+function isIterateeCall(value, index, object) {
+  if (!isObject(object)) {
+    return false;
+  }
+  var type = typeof index;
+  if (type == 'number'
+        ? (isArrayLike(object) && isIndex(index, object.length))
+        : (type == 'string' && index in object)
+      ) {
+    return eq(object[index], value);
+  }
+  return false;
+}
 
 /**
  * Checks if `value` is likely a prototype object.
@@ -25153,76 +24843,6 @@ function isPrototype(value) {
 
   return value === proto;
 }
-
-module.exports = isPrototype;
-
-
-/***/ },
-/* 23 */
-/***/ function(module, exports) {
-
-/** Used for built-in method references. */
-var funcProto = Function.prototype;
-
-/** Used to resolve the decompiled source of functions. */
-var funcToString = funcProto.toString;
-
-/**
- * Converts `func` to its source code.
- *
- * @private
- * @param {Function} func The function to process.
- * @returns {string} Returns the source code.
- */
-function toSource(func) {
-  if (func != null) {
-    try {
-      return funcToString.call(func);
-    } catch (e) {}
-    try {
-      return (func + '');
-    } catch (e) {}
-  }
-  return '';
-}
-
-module.exports = toSource;
-
-
-/***/ },
-/* 24 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseClone = __webpack_require__(47);
-
-/**
- * This method is like `_.clone` except that it recursively clones `value`.
- *
- * @static
- * @memberOf _
- * @since 1.0.0
- * @category Lang
- * @param {*} value The value to recursively clone.
- * @returns {*} Returns the deep cloned value.
- * @see _.clone
- * @example
- *
- * var objects = [{ 'a': 1 }, { 'b': 2 }];
- *
- * var deep = _.cloneDeep(objects);
- * console.log(deep[0] === objects[0]);
- * // => false
- */
-function cloneDeep(value) {
-  return baseClone(value, true, true);
-}
-
-module.exports = cloneDeep;
-
-
-/***/ },
-/* 25 */
-/***/ function(module, exports) {
 
 /**
  * Performs a
@@ -25260,74 +24880,112 @@ function eq(value, other) {
   return value === other || (value !== value && other !== other);
 }
 
-module.exports = eq;
-
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(0),
-    stubFalse = __webpack_require__(106);
-
-/** Detect free variable `exports`. */
-var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Built-in value references. */
-var Buffer = moduleExports ? root.Buffer : undefined;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
-
 /**
- * Checks if `value` is a buffer.
+ * Checks if `value` is likely an `arguments` object.
  *
  * @static
  * @memberOf _
- * @since 4.3.0
+ * @since 0.1.0
  * @category Lang
  * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
  * @example
  *
- * _.isBuffer(new Buffer(2));
+ * _.isArguments(function() { return arguments; }());
  * // => true
  *
- * _.isBuffer(new Uint8Array(2));
+ * _.isArguments([1, 2, 3]);
  * // => false
  */
-var isBuffer = nativeIsBuffer || stubFalse;
-
-module.exports = isBuffer;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)(module)))
-
-/***/ },
-/* 27 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(6);
-
-/** `Object#toString` result references. */
-var funcTag = '[object Function]',
-    genTag = '[object GeneratorFunction]',
-    proxyTag = '[object Proxy]';
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
+function isArguments(value) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+}
 
 /**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
  */
-var objectToString = objectProto.toString;
+var isArray = Array.isArray;
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && isLength(value.length) && !isFunction(value);
+}
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike(value) && isArrayLike(value);
+}
 
 /**
  * Checks if `value` is classified as a `Function` object.
@@ -25348,20 +25006,10 @@ var objectToString = objectProto.toString;
  */
 function isFunction(value) {
   // The use of `Object#toString` avoids issues with the `typeof` operator
-  // in Safari 9 which returns 'object' for typed array and other constructors.
+  // in Safari 8-9 which returns 'object' for typed array and other constructors.
   var tag = isObject(value) ? objectToString.call(value) : '';
-  return tag == funcTag || tag == genTag || tag == proxyTag;
+  return tag == funcTag || tag == genTag;
 }
-
-module.exports = isFunction;
-
-
-/***/ },
-/* 28 */
-/***/ function(module, exports) {
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
 
 /**
  * Checks if `value` is a valid array-like length.
@@ -25394,63 +25042,202 @@ function isLength(value) {
     value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
 }
 
-module.exports = isLength;
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Assigns own enumerable string keyed properties of source objects to the
+ * destination object. Source objects are applied from left to right.
+ * Subsequent sources overwrite property assignments of previous sources.
+ *
+ * **Note:** This method mutates `object` and is loosely based on
+ * [`Object.assign`](https://mdn.io/Object/assign).
+ *
+ * @static
+ * @memberOf _
+ * @since 0.10.0
+ * @category Object
+ * @param {Object} object The destination object.
+ * @param {...Object} [sources] The source objects.
+ * @returns {Object} Returns `object`.
+ * @see _.assignIn
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ * }
+ *
+ * function Bar() {
+ *   this.c = 3;
+ * }
+ *
+ * Foo.prototype.b = 2;
+ * Bar.prototype.d = 4;
+ *
+ * _.assign({ 'a': 0 }, new Foo, new Bar);
+ * // => { 'a': 1, 'c': 3 }
+ */
+var assign = createAssigner(function(object, source) {
+  if (nonEnumShadows || isPrototype(source) || isArrayLike(source)) {
+    copyObject(source, keys(source), object);
+    return;
+  }
+  for (var key in source) {
+    if (hasOwnProperty.call(source, key)) {
+      assignValue(object, key, source[key]);
+    }
+  }
+});
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+}
+
+module.exports = assign;
 
 
 /***/ },
-/* 29 */
+/* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-var plumin = __webpack_require__(7),
-	DepTree = __webpack_require__(31),
-	cloneDeep = __webpack_require__(24),
-	assign = __webpack_require__(8).assign,
-	updateUtils = __webpack_require__(109);
+"use strict";
+'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var plumin = __webpack_require__(0),
+    DepTree = __webpack_require__(7),
+    cloneDeep = __webpack_require__(3),
+    assign = __webpack_require__(1),
+    updateUtils = __webpack_require__(6);
 
 var paper = plumin.paper,
-	Utils = updateUtils,
-	_ = {
-		cloneDeep: cloneDeep,
-		assign: assign
-	};
+    Utils = updateUtils,
+    _ = {
+	cloneDeep: cloneDeep,
+	assign: assign
+};
 
 // convert the glyph source from the ufo object model to the paper object model
 // this is the inverse operation done by jsufonify
-Utils.ufoToPaper = function( src ) {
-	if ( src.parameter ) {
+Utils.ufoToPaper = function (src) {
+	if (src.parameter) {
 		src.parameters = src.parameter;
 		delete src.parameter;
 	}
 
-	if ( src.anchor ) {
+	if (src.anchor) {
 		src.anchors = src.anchor;
 		delete src.anchor;
 	}
 
-	if ( src.outline && src.outline.contour ) {
+	if (src.outline && src.outline.contour) {
 		src.contours = src.outline.contour;
 		delete src.outline.contour;
 	}
 
-	if ( src.contours ) {
-		src.contours.forEach(function(contour) {
-			if ( contour.point ) {
+	if (src.contours) {
+		src.contours.forEach(function (contour) {
+			if (contour.point) {
 				contour.nodes = contour.point;
 				delete contour.point;
 			}
 		});
 	}
 
-	if ( src.outline && src.outline.component ) {
+	if (src.outline && src.outline.component) {
 		src.components = src.outline.component;
 
-		src.components.forEach(function(component) {
-			if ( component.anchor ) {
+		src.components.forEach(function (component) {
+			if (component.anchor) {
 				component.parentAnchors = component.anchor;
 				delete component.anchor;
 			}
 
-			if ( component.parameter ) {
+			if (component.parameter) {
 				component.parentParameters = component.parameter;
 				delete component.parameter;
 			}
@@ -25461,22 +25248,22 @@ Utils.ufoToPaper = function( src ) {
 
 	delete src.outline;
 
-	if ( src.lib && src.lib.transforms ) {
+	if (src.lib && src.lib.transforms) {
 		src.transforms = src.lib.transforms;
 		delete src.lib.transforms;
 	}
 
-	if ( src.lib && src.lib.transformOrigin ) {
+	if (src.lib && src.lib.transformOrigin) {
 		src.transformOrigin = src.lib.transformOrigin;
 		delete src.lib.transformOrigin;
 	}
 
-	if ( src.lib && src.lib.parameters ) {
+	if (src.lib && src.lib.parameters) {
 		src.parameters = src.lib.parameters;
 		delete src.lib.parameters;
 	}
 
-	if ( src.lib && src.lib.solvingOrder ) {
+	if (src.lib && src.lib.solvingOrder) {
 		src.solvingOrder = src.lib.solvingOrder;
 		delete src.lib.solvingOrder;
 	}
@@ -25484,38 +25271,37 @@ Utils.ufoToPaper = function( src ) {
 	return src;
 };
 
-Utils.fontFromSrc = function( src ) {
+Utils.fontFromSrc = function (src) {
 	// TODO: this, block is only here for backward compat
 	// and should be removed at some point in the future
-	if ( !src.fontinfo ) {
+	if (!src.fontinfo) {
 		src.fontinfo = src.info;
 	}
 
-	var font = new paper.Font( _.assign({}, src.fontinfo, {
+	var font = new paper.Font(_.assign({}, src.fontinfo, {
 		// The font needs to be initialized with valid ascender/descender values
 		ascender: 1,
 		descender: -1
-	}) );
+	}));
 
-	font.src = Utils.ufoToPaper( src );
+	font.src = Utils.ufoToPaper(src);
 
-	var filteredSrc = _.assign( {}, src );
+	var filteredSrc = _.assign({}, src);
 	delete filteredSrc.controls;
 	delete filteredSrc.presets;
 	delete filteredSrc.glyphs;
 
-	Utils.createUpdaters( filteredSrc, 'font_' + src.fontinfo.familyName );
+	Utils.createUpdaters(filteredSrc, 'font_' + src.fontinfo.familyName);
 
 	font.parameters = {};
-	Utils.mergeStatic( font.parameters, font.src.parameters );
+	Utils.mergeStatic(font.parameters, font.src.parameters);
 
 	// solvingOrder might be already available (if this is a subcomponent,
 	// or precomputed in a worker)
 	font.solvingOrder = font.src.solvingOrder;
 
-	if ( !font.solvingOrder ) {
-		font.solvingOrder = filteredSrc.solvingOrder =
-			Utils.solveDependencyTree( font, filteredSrc );
+	if (!font.solvingOrder) {
+		font.solvingOrder = filteredSrc.solvingOrder = Utils.solveDependencyTree(font, filteredSrc);
 	}
 
 	return font;
@@ -25524,57 +25310,57 @@ Utils.fontFromSrc = function( src ) {
 // create Glyph instance and all its child items: anchors, contours
 // and components
 // var wmm = typeof WeakMap === 'function' && new WeakMap();
-Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
+Utils.glyphFromSrc = function (src, fontSrc, naive, embed) {
 	var glyph = new paper.Glyph({
 		name: src.name,
 		unicode: src.unicode
 	});
 
 	// Clone glyph src to allow altering it without impacting components srcs.
-	glyph.src = _.cloneDeep( src );
+	glyph.src = _.cloneDeep(src);
 	// turn ._operation strings to ._updaters functions
 	// TODO: restore sourceURL pragma for debugging.
 	// this should impact the way results are memoized
-	Utils.createUpdaters( glyph.src/*, 'glyphs/glyph_' + name*/ );
-	Utils.mergeStatic( glyph, glyph.src );
+	Utils.createUpdaters(glyph.src /*, 'glyphs/glyph_' + name*/);
+	Utils.mergeStatic(glyph, glyph.src);
 
 	// this will be used to hold local parameters that will be merged with
 	// the font parameters
 	glyph.parameters = {};
-	Utils.mergeStatic( glyph.parameters, glyph.src.parameters );
+	Utils.mergeStatic(glyph.parameters, glyph.src.parameters);
 
 	// solvingOrder might be already available (if this is a subcomponent,
 	// or precomputed in a worker)
 	glyph.solvingOrder = glyph.src.solvingOrder;
 
-	(glyph.src.anchors || []).forEach(function(anchorSrc) {
+	(glyph.src.anchors || []).forEach(function (anchorSrc) {
 		var anchor = new paper.Node();
 		anchor.src = anchorSrc;
-		Utils.mergeStatic( anchor, anchorSrc );
+		Utils.mergeStatic(anchor, anchorSrc);
 
-		glyph.addAnchor( anchor );
+		glyph.addAnchor(anchor);
 	});
 
-	(glyph.src.contours || []).forEach(function(contourSrc, contourIdx) {
+	(glyph.src.contours || []).forEach(function (contourSrc, contourIdx) {
 		var contour = new paper.Path();
 		contour.src = contourSrc;
-		Utils.mergeStatic( contour, contourSrc );
+		Utils.mergeStatic(contour, contourSrc);
 
-		glyph.addContour( contour );
+		glyph.addContour(contour);
 
 		// TODO: handle oncurve/offcurve points
-		contourSrc.nodes.forEach(function(nodeSrc, nodeIdx) {
+		contourSrc.nodes.forEach(function (nodeSrc, nodeIdx) {
 			var node = new paper.Node();
 			node.src = nodeSrc;
-			Utils.mergeStatic( node, nodeSrc );
+			Utils.mergeStatic(node, nodeSrc);
 			node.contourIdx = contourIdx;
 			node.nodeIdx = nodeIdx;
 
-			contour.add( node );
+			contour.add(node);
 		});
 	});
 
-	if ( !glyph.src.components ) {
+	if (!glyph.src.components) {
 		return glyph;
 	}
 
@@ -25582,221 +25368,173 @@ Utils.glyphFromSrc = function( src, fontSrc, naive, embed ) {
 
 	// components can only be embedded once all glyphs have been generated
 	// from source
-	glyph.embedComponents = function() {
-		glyph.src.components.forEach(function(componentSrc) {
+	glyph.embedComponents = function () {
+		glyph.src.components.forEach(function (componentSrc) {
 			if (Array.isArray(componentSrc.base)) {
 				glyph.componentLists[componentSrc.id] = componentSrc.base;
-				Utils.selectGlyphComponent(
-					glyph,
-					componentSrc,
-					componentSrc.base[0],
-					fontSrc,
-					naive,
-					componentSrc.id);
+				Utils.selectGlyphComponent(glyph, componentSrc, componentSrc.base[0], fontSrc, naive, componentSrc.id);
 			} else {
-				Utils.selectGlyphComponent(
-					glyph,
-					componentSrc,
-					componentSrc.base,
-					fontSrc,
-					naive);
+				Utils.selectGlyphComponent(glyph, componentSrc, componentSrc.base, fontSrc, naive);
 			}
 		});
 
 		delete glyph.embedComponents;
 	};
 
-	if ( embed ) {
+	if (embed) {
 		glyph.embedComponents();
 	}
 
 	return glyph;
 };
 
-Utils.selectGlyphComponent = function(
-	glyph,
-	componentSrc,
-	componentName,
-	fontSrc,
-	naive,
-	id,
-	index) {
-	var component = Utils.glyphFromSrc(
-			fontSrc.glyphs[componentName],
-			fontSrc,
-			naive,
-			// components' subcomponents can be embedded immediatly
-			true
-		);
+Utils.selectGlyphComponent = function (glyph, componentSrc, componentName, fontSrc, naive, id, index) {
+	var component = Utils.glyphFromSrc(fontSrc.glyphs[componentName], fontSrc, naive,
+	// components' subcomponents can be embedded immediatly
+	true);
 
 	component.parentParameters = {};
-	Utils.mergeStatic(
-		component.parentParameters,
-		componentSrc.parentParameters
-	);
+	Utils.mergeStatic(component.parentParameters, componentSrc.parentParameters);
 
-	naive.annotator( component );
+	naive.annotator(component);
 	component.componentId = id;
 	component.chosen = componentName;
 	component.multiple = Array.isArray(componentSrc.base);
 	if (index === undefined) {
-		glyph.addComponent( component);
-	}
-	else {
+		glyph.addComponent(component);
+	} else {
 		if (glyph.components[index].optionPoint) {
 			glyph.components[index].optionPoint.remove();
 		}
 		glyph.components[index].replaceWith(component);
 	}
 
-	(componentSrc.parentAnchors || []).forEach(function(anchorSrc) {
+	(componentSrc.parentAnchors || []).forEach(function (anchorSrc) {
 		var anchor = new paper.Node();
 		anchor.src = anchorSrc;
-		Utils.mergeStatic( anchor, anchorSrc );
+		Utils.mergeStatic(anchor, anchorSrc);
 
-		component.addParentAnchor( anchor );
+		component.addParentAnchor(anchor);
 	});
-}
+};
 
 // build a full cursor from arguments
 // adds 'contours' and 'nodes' automagically when arguments start with a number
-Utils.cursor = function() {
+Utils.cursor = function () {
 	var cursor = [];
 
-	for ( var i = -1; ++i < arguments.length; ) {
-		if ( i === 0 && typeof arguments[0] === 'number' ) {
-			cursor.push( 'contours' );
+	for (var i = -1; ++i < arguments.length;) {
+		if (i === 0 && typeof arguments[0] === 'number') {
+			cursor.push('contours');
 		}
-		if ( i === 1 && typeof arguments[0] === 'number' ) {
-			cursor.push( 'nodes' );
+		if (i === 1 && typeof arguments[0] === 'number') {
+			cursor.push('nodes');
 		}
-		cursor.push( arguments[i] );
+		cursor.push(arguments[i]);
 	}
 
 	return cursor.join('.');
 };
 
-Utils.propFromCursor = function( cursor, context, length ) {
-	if ( length === undefined ) {
+Utils.propFromCursor = function (cursor, context, length) {
+	if (length === undefined) {
 		length = cursor.length;
 	}
 
-	for ( var i = -1; ++i < length; ) {
-		context = context[ cursor[i] ];
+	for (var i = -1; ++i < length;) {
+		context = context[cursor[i]];
 	}
 
 	return context;
 };
 
-Utils.mergeStatic = function( obj, src ) {
-	for ( var i in src ) {
-		if ( typeof src[i] !== 'object' ) {
+Utils.mergeStatic = function (obj, src) {
+	for (var i in src) {
+		if (_typeof(src[i]) !== 'object') {
 			obj[i] = src[i];
 
-		// props that have empty dependencies and params are static
-		} else if (
-			src[i]._dependencies && src[i]._dependencies.length === 0 &&
-			( !src[i]._parameters || src[i]._parameters.length === 0 ) &&
-			src[i]._updaters
-		) {
-			obj[i] = src[i]._updaters[0].apply(
-				obj,
-				[ null, null, null, null, Utils ]
-			);
+			// props that have empty dependencies and params are static
+		} else if (src[i]._dependencies && src[i]._dependencies.length === 0 && (!src[i]._parameters || src[i]._parameters.length === 0) && src[i]._updaters) {
+			obj[i] = src[i]._updaters[0].apply(obj, [null, null, null, null, Utils]);
 
 			delete src[i];
 		}
 	}
 };
 
-Utils.createUpdaters = function( leaf, path ) {
-	if ( leaf.constructor === Object && leaf._operation ) {
-		leaf._updaters = [ Utils.createUpdater( leaf, path ) ];
-
-	} else if ( leaf.constructor === Object ) {
-		for ( var i in leaf ) {
-			Utils.createUpdaters( leaf[i], path + '.' + i );
+Utils.createUpdaters = function (leaf, path) {
+	if (leaf.constructor === Object && leaf._operation) {
+		leaf._updaters = [Utils.createUpdater(leaf, path)];
+	} else if (leaf.constructor === Object) {
+		for (var i in leaf) {
+			Utils.createUpdaters(leaf[i], path + '.' + i);
 		}
-
-	} else if ( leaf.constructor === Array ) {
-		leaf.forEach(function(child, j) {
-			Utils.createUpdaters( child, path + '.' + j );
+	} else if (leaf.constructor === Array) {
+		leaf.forEach(function (child, j) {
+			Utils.createUpdaters(child, path + '.' + j);
 		});
 	}
 };
 
 Utils.updaterCache = {};
-Utils.createUpdater = function( leaf/*, path*/ ) {
+Utils.createUpdater = function (leaf /*, path*/) {
 	var sOperation = leaf._operation.toString(),
-		cacheKey = ( leaf.parameters || [] ).join() + '#' + sOperation;
+	    cacheKey = (leaf.parameters || []).join() + '#' + sOperation;
 
-	if ( cacheKey in Utils.updaterCache ) {
-		return Utils.updaterCache[ cacheKey ];
+	if (cacheKey in Utils.updaterCache) {
+		return Utils.updaterCache[cacheKey];
 	}
 
-	Utils.updaterCache[ cacheKey ] = Function.apply( null, [
-			'propName', 'contours', 'anchors', 'parentAnchors', 'Utils'
-		]
-		.concat( leaf._parameters || [] )
-		.concat(
-			( typeof leaf._operation === 'string' &&
-					leaf._operation.indexOf('return ') === -1 ?
-				'return ' : ''
-			) +
-			// The operation might be wrapped in a function (e.g. multi-
-			// line code for debugging purpose). In this case, return
-			// must be explicit
-			sOperation
-				// [\s\S] need to be used instead of . because
-				// javascript doesn't have a dotall flag (s)
-				.replace(/^function\s*\(\)\s*\{([\s\S]*?)\}$/, '$1')
-				.trim()/* +
-			// add sourceURL pragma to help debugging
-			// TODO: restore sourceURL pragma if it proves necessary
-			'\n\n//# sourceURL=' + path*/
-		) );
+	Utils.updaterCache[cacheKey] = Function.apply(null, ['propName', 'contours', 'anchors', 'parentAnchors', 'Utils'].concat(leaf._parameters || []).concat((typeof leaf._operation === 'string' && leaf._operation.indexOf('return ') === -1 ? 'return ' : '') +
+	// The operation might be wrapped in a function (e.g. multi-
+	// line code for debugging purpose). In this case, return
+	// must be explicit
+	sOperation
+	// [\s\S] need to be used instead of . because
+	// javascript doesn't have a dotall flag (s)
+	.replace(/^function\s*\(\)\s*\{([\s\S]*?)\}$/, '$1').trim() /* +
+                                                             // add sourceURL pragma to help debugging
+                                                             // TODO: restore sourceURL pragma if it proves necessary
+                                                             '\n\n//# sourceURL=' + path*/
+	));
 
-	return Utils.updaterCache[ cacheKey ];
+	return Utils.updaterCache[cacheKey];
 };
 
-Utils.solveDependencyTree = function( leaf, src ) {
-	var depTree = Utils.dependencyTree( src || leaf.src, null ),
-		order = depTree.resolve().map(function( cursor ) {
-			return { cursor: cursor.split('.') };
-		}),
-		simplified = Utils.simplifyResolutionOrder( leaf, order );
+Utils.solveDependencyTree = function (leaf, src) {
+	var depTree = Utils.dependencyTree(src || leaf.src, null),
+	    order = depTree.resolve().map(function (cursor) {
+		return { cursor: cursor.split('.') };
+	}),
+	    simplified = Utils.simplifyResolutionOrder(leaf, order);
 
 	return simplified;
 };
 
-Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
-	if ( !depTree ) {
+Utils.dependencyTree = function (parentSrc, cursor, depTree) {
+	if (!depTree) {
 		depTree = new DepTree();
 	}
 
-	Object.keys( parentSrc ).forEach(function( i ) {
+	Object.keys(parentSrc).forEach(function (i) {
 		// don't inspect local parameters, private properties and non-object
-		if ( i === 'parameters' || i.indexOf('_') === 0 ||
-				typeof parentSrc[i] !== 'object' ) {
+		if (i === 'parameters' || i.indexOf('_') === 0 || _typeof(parentSrc[i]) !== 'object') {
 			return;
 		}
 
 		var leafSrc = parentSrc[i],
-			currCursor = cursor ? cursor + '.' + i : i;
+		    currCursor = cursor ? cursor + '.' + i : i;
 
-		if ( ( leafSrc._updaters && leafSrc._updaters.length ) ||
-				( leafSrc._dependencies && leafSrc._dependencies.length ) ) {
+		if (leafSrc._updaters && leafSrc._updaters.length || leafSrc._dependencies && leafSrc._dependencies.length) {
 
-			depTree.add( currCursor,
-				leafSrc._dependencies.filter(function(dep) {
-					// parentAnchors are always here when you need them
-					return !/^parentAnchors/.test(dep);
-				})
-			);
+			depTree.add(currCursor, leafSrc._dependencies.filter(function (dep) {
+				// parentAnchors are always here when you need them
+				return !/^parentAnchors/.test(dep);
+			}));
 		}
 
-		if ( !leafSrc._operation ) {
-			Utils.dependencyTree( leafSrc, currCursor, depTree );
+		if (!leafSrc._operation) {
+			Utils.dependencyTree(leafSrc, currCursor, depTree);
 		}
 	});
 
@@ -25805,102 +25543,98 @@ Utils.dependencyTree = function( parentSrc, cursor, depTree ) {
 
 // Simplify resolution order by removing cursors that don't point to objects
 // with updater functions
-Utils.simplifyResolutionOrder = function( leaf, depTree ) {
-	return depTree.filter(function( cursor ) {
-		var src = Utils.propFromCursor( cursor.cursor, leaf.src );
+Utils.simplifyResolutionOrder = function (leaf, depTree) {
+	return depTree.filter(function (cursor) {
+		var src = Utils.propFromCursor(cursor.cursor, leaf.src);
 		return src && src._updaters;
 	});
 };
 
 var rdeg = /deg$/;
-Utils.transformsToMatrix = function( transforms, origin ) {
+Utils.transformsToMatrix = function (transforms, origin) {
 	var prev = new Float32Array(6),
-		curr = new Float32Array(6),
-		rslt = new Float32Array([ 1, 0, 0, 1, 0, 0 ]);
+	    curr = new Float32Array(6),
+	    rslt = new Float32Array([1, 0, 0, 1, 0, 0]);
 
-	if ( origin && Array.isArray( origin ) ) {
-		transforms.unshift([ 'translate', origin[0], origin[1] ]);
-		transforms.push([ 'translate', -origin[0], -origin[1] ]);
-
-	} else if ( origin ) {
-		transforms.unshift([ 'translate', origin.x, origin.y ]);
-		transforms.push([ 'translate', -origin.x, -origin.y ]);
+	if (origin && Array.isArray(origin)) {
+		transforms.unshift(['translate', origin[0], origin[1]]);
+		transforms.push(['translate', -origin[0], -origin[1]]);
+	} else if (origin) {
+		transforms.unshift(['translate', origin.x, origin.y]);
+		transforms.push(['translate', -origin.x, -origin.y]);
 	}
 
-	transforms.forEach(function( transform ) {
+	transforms.forEach(function (transform) {
 		curr[0] = curr[3] = 1;
 		curr[1] = curr[2] = curr[4] = curr[5] = 0;
 
 		// convert degrees to radian
-		for ( var i = 1; i < transform.length; i++ ) {
-			if ( transform[i] && typeof transform[i] === 'string' &&
-					rdeg.test(transform[i]) ) {
-				transform[i] = parseFloat(transform[i]) * ( Math.PI * 2 / 360 );
+		for (var i = 1; i < transform.length; i++) {
+			if (transform[i] && typeof transform[i] === 'string' && rdeg.test(transform[i])) {
+				transform[i] = parseFloat(transform[i]) * (Math.PI * 2 / 360);
 			}
 		}
 
-		switch ( transform[0] ) {
-		case 'translateX':
-			curr[4] = transform[1];
-			break;
+		switch (transform[0]) {
+			case 'translateX':
+				curr[4] = transform[1];
+				break;
 
-		case 'translateY':
-			curr[5] = transform[1];
-			break;
+			case 'translateY':
+				curr[5] = transform[1];
+				break;
 
-		case 'translate':
-			curr[4] = transform[1];
-			curr[5] = transform[2] || 0;
-			break;
+			case 'translate':
+				curr[4] = transform[1];
+				curr[5] = transform[2] || 0;
+				break;
 
-		case 'rotate':
-			curr[0] = Math.cos( transform[1] );
-			curr[1] = Math.sin( transform[1] );
-			curr[2] = -curr[1];
-			curr[3] = curr[0];
-			break;
+			case 'rotate':
+				curr[0] = Math.cos(transform[1]);
+				curr[1] = Math.sin(transform[1]);
+				curr[2] = -curr[1];
+				curr[3] = curr[0];
+				break;
 
-		case 'scaleX':
-			curr[0] = transform[1];
-			break;
+			case 'scaleX':
+				curr[0] = transform[1];
+				break;
 
-		case 'scaleY':
-			curr[3] = transform[1];
-			break;
+			case 'scaleY':
+				curr[3] = transform[1];
+				break;
 
-		case 'scale':
-			curr[0] = transform[1];
-			curr[3] = transform.length > 2 ? transform[2] : transform[1];
-			break;
+			case 'scale':
+				curr[0] = transform[1];
+				curr[3] = transform.length > 2 ? transform[2] : transform[1];
+				break;
 
-		case 'skewX':
-			// stop parsing transform when encountering skewX(90)
-			// see http://stackoverflow.com/questions/21094958/how-to-deal-with-infinity-in-a-2d-matrix
-			transform[1] = transform[1] % ( 2 * Math.PI );
-			if ( transform[1] === Math.PI / 2 ||
-					transform[1] === -Math.PI / 2 ) {
-				return rslt;
-			}
-			curr[2] = Math.tan( transform[1] );
-			break;
+			case 'skewX':
+				// stop parsing transform when encountering skewX(90)
+				// see http://stackoverflow.com/questions/21094958/how-to-deal-with-infinity-in-a-2d-matrix
+				transform[1] = transform[1] % (2 * Math.PI);
+				if (transform[1] === Math.PI / 2 || transform[1] === -Math.PI / 2) {
+					return rslt;
+				}
+				curr[2] = Math.tan(transform[1]);
+				break;
 
-		case 'skewY':
-			transform[1] = transform[1] % ( 2 * Math.PI );
-			if ( transform[1] === Math.PI / 2 ||
-					transform[1] === -Math.PI / 2 ) {
-				return rslt;
-			}
-			curr[1] = Math.tan( transform[1] );
-			break;
+			case 'skewY':
+				transform[1] = transform[1] % (2 * Math.PI);
+				if (transform[1] === Math.PI / 2 || transform[1] === -Math.PI / 2) {
+					return rslt;
+				}
+				curr[1] = Math.tan(transform[1]);
+				break;
 
-		case 'matrix':
-			curr[0] = transform[1];
-			curr[1] = transform[2];
-			curr[2] = transform[3];
-			curr[3] = transform[4];
-			curr[4] = transform[5];
-			curr[5] = transform[6];
-			break;
+			case 'matrix':
+				curr[0] = transform[1];
+				curr[1] = transform[2];
+				curr[2] = transform[3];
+				curr[3] = transform[4];
+				curr[4] = transform[5];
+				curr[5] = transform[6];
+				break;
 		}
 
 		prev[0] = rslt[0];
@@ -25912,153 +25646,88 @@ Utils.transformsToMatrix = function( transforms, origin ) {
 
 		rslt[0] = prev[0] * curr[0] + prev[2] * curr[1];
 		rslt[1] = prev[1] * curr[0] + prev[3] * curr[1];
-		rslt[2] = ( prev[0] * curr[2] || 0 ) + prev[2] * curr[3];
-		rslt[3] = ( prev[1] * curr[2] || 0 ) + prev[3] * curr[3];
+		rslt[2] = (prev[0] * curr[2] || 0) + prev[2] * curr[3];
+		rslt[3] = (prev[1] * curr[2] || 0) + prev[3] * curr[3];
 		rslt[4] = prev[0] * curr[4] + prev[2] * curr[5] + prev[4];
 		rslt[5] = prev[1] * curr[4] + prev[3] * curr[5] + prev[5];
 	});
 
-	return new paper.Matrix(
-		rslt[0],
-		rslt[1],
-		rslt[2],
-		rslt[3],
-		rslt[4],
-		rslt[5]
-	);
+	return new paper.Matrix(rslt[0], rslt[1], rslt[2], rslt[3], rslt[4], rslt[5]);
 };
 
-Utils.updateParameters = function( leaf, params ) {
-	Object.keys( ( leaf.src && leaf.src.parameters ) || [] )
-		.forEach(function( name ) {
-			var src = leaf.src.parameters[name];
+Utils.updateParameters = function (leaf, params) {
+	Object.keys(leaf.src && leaf.src.parameters || []).forEach(function (name) {
+		var src = leaf.src.parameters[name];
 
-			params[name] = src._updaters ?
-				src._updaters[0].apply( null, [
-					name, [], [], leaf.parentAnchors, Utils
-				].concat(
-					( src._parameters || [] ).map(function(_name) {
-						return params[_name];
-					})
-				)) :
-				src;
-		});
+		params[name] = src._updaters ? src._updaters[0].apply(null, [name, [], [], leaf.parentAnchors, Utils].concat((src._parameters || []).map(function (_name) {
+			return params[_name];
+		}))) : src;
+	});
 };
 
-Utils.updateIndividualParameters = function( leaf, params ) {
-	Object.keys( ( leaf.src && leaf.src.parameters ) || [] )
-		.forEach(function( name ) {
-			var src = leaf.src.parameters[name];
+Utils.updateIndividualParameters = function (leaf, params) {
+	Object.keys(leaf.src && leaf.src.parameters || []).forEach(function (name) {
+		var src = leaf.src.parameters[name];
 
-			if ( params['indiv_group_param'] ) {
-				Object.keys(params['indiv_group_param'])
-					.forEach(function( groupName ) {
-					var needed = false;
-					var group = params['indiv_group_param'][groupName];
+		if (params['indiv_group_param']) {
+			Object.keys(params['indiv_group_param']).forEach(function (groupName) {
+				var needed = false;
+				var group = params['indiv_group_param'][groupName];
 
-					function handleGroup(_name) {
-						return group[_name + '_rel'] ?
-							( group[_name + '_rel'].state === 'relative' ?
-								group[_name + '_rel'].value * params[_name] :
-								group[_name + '_rel'].value + params[_name]
-							)
-							: params[_name];
+				function handleGroup(_name) {
+					return group[_name + '_rel'] ? group[_name + '_rel'].state === 'relative' ? group[_name + '_rel'].value * params[_name] : group[_name + '_rel'].value + params[_name] : params[_name];
+				}
+
+				if (src._parameters) {
+					src._parameters.forEach(function (parameter) {
+						needed = needed || group[parameter + '_rel'];
+					});
+
+					if (needed) {
+						group[name] = src._updaters ? src._updaters[0].apply(null, [name, [], [], leaf.parentAnchors, Utils].concat((src._parameters || []).map(handleGroup))) : src;
 					}
-
-					if ( src._parameters ) {
-						src._parameters.forEach(function( parameter ) {
-							needed = needed || group[parameter + '_rel'];
-						});
-
-						if ( needed ) {
-							group[name] = src._updaters ?
-								src._updaters[0].apply( null, [
-									name, [], [], leaf.parentAnchors, Utils
-								].concat(
-									( src._parameters || [] )
-										.map(handleGroup)
-								)) :
-								src;
-						}
-					}
-				});
-			}
-		});
+				}
+			});
+		}
+	});
 };
 
-Utils.updateProperties = function( leaf, params, erroredPreviously ) {
-	if ( !leaf.solvingOrder ) {
+Utils.updateProperties = function (leaf, params, erroredPreviously) {
+	if (!leaf.solvingOrder) {
 		return;
 	}
 	var errored;
 
 	// don't use forEach here as we might add items to the array during the loop
-	for ( var i = 0; i < leaf.solvingOrder.length; i++ ) {
+	for (var i = 0; i < leaf.solvingOrder.length; i++) {
 		var _cursor = leaf.solvingOrder[i],
-			cursor = _cursor.cursor,
-			propName = cursor[ cursor.length - 1 ],
-			src = _cursor.src || ( _cursor.src =
-				Utils.propFromCursor( cursor, leaf.src ) ),
-			obj = _cursor.obj || ( _cursor.obj =
-				Utils.propFromCursor( cursor, leaf, cursor.length - 1 ) ),
-			// TODO: one day we could allow multiple _updaters
-			result;
+		    cursor = _cursor.cursor,
+		    propName = cursor[cursor.length - 1],
+		    src = _cursor.src || (_cursor.src = Utils.propFromCursor(cursor, leaf.src)),
+		    obj = _cursor.obj || (_cursor.obj = Utils.propFromCursor(cursor, leaf, cursor.length - 1)),
 
-		if ( src && src._updaters ) {
+		// TODO: one day we could allow multiple _updaters
+		result;
+
+		if (src && src._updaters) {
 			try {
-				result = src._updaters[0].apply(
-					obj,
-					[
-						propName, leaf.contours, leaf.anchors,
-						leaf.parentAnchors, Utils
-					].concat(
-						( src._parameters || [] ).map(function(_name) {
-							if ( !(_name in params) ) {
-								/* eslint-disable no-console */
-								console.warn(
-									[
-										'undefined parameter',
-										_name,
-										'used in property',
-										cursor.join('.'),
-										'from component',
-										leaf.name
-									].join(' '),
-									leaf
-								);
-								/* eslint-enable no-console */
-							}
-							return params[_name];
-						})
-					)
-				);
+				result = src._updaters[0].apply(obj, [propName, leaf.contours, leaf.anchors, leaf.parentAnchors, Utils].concat((src._parameters || []).map(function (_name) {
+					if (!(_name in params)) {
+						/* eslint-disable no-console */
+						console.warn(['undefined parameter', _name, 'used in property', cursor.join('.'), 'from component', leaf.name].join(' '), leaf);
+						/* eslint-enable no-console */
+					}
+					return params[_name];
+				})));
 
-				if ( typeof result === 'number' && isNaN(result) ) {
+				if (typeof result === 'number' && isNaN(result)) {
 					/* eslint-disable no-console */
-					console.warn(
-						[
-							'NaN returned by property',
-							cursor.join('.'),
-							'from component',
-							leaf.name
-						].join(' '),
-						leaf
-					);
+					console.warn(['NaN returned by property', cursor.join('.'), 'from component', leaf.name].join(' '), leaf);
 					/* eslint-enable no-console */
 				}
-
 			} catch (e) {
 				/* eslint-disable no-console */
-				console.warn(
-					[
-						'Could not update property',
-						cursor.join('.'),
-						'from component',
-						leaf.name
-					].join(' '),
-					leaf,
-					e
-				);
+				console.warn(['Could not update property', cursor.join('.'), 'from component', leaf.name].join(' '), leaf, e);
 				/* eslint-enable no-console */
 
 				// add the failing properties at the end of the solvingOrder
@@ -26069,44 +25738,41 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 
 		// Assume that updaters returning undefined have their own
 		// assignment logic
-		if ( result !== undefined ) {
+		if (result !== undefined) {
 			if (params.manualChanges && params.manualChanges.cursors) {
 				/*if (!_cursor.manual && params.manualChanges.cursors[cursor.join('.')] !== undefined) {
-					_cursor.manual = true;
-					params.manualChanges.dirty--;
-				}
-			}
-
-			if (_cursor.manual) {*/
+    	_cursor.manual = true;
+    	params.manualChanges.dirty--;
+    }
+    }
+    if (_cursor.manual) {*/
 				var cursorName = cursor.join('.');
 				var changes = params.manualChanges.cursors[cursorName];
 
 				if (typeof changes === 'number') {
 					if (typeof result === 'string') {
-						result = (parseFloat(result) + changes / Math.PI * 180) + 'deg';
+						result = parseFloat(result) + changes / Math.PI * 180 + 'deg';
 					} else if (typeof result === 'number') {
 						result += changes;
 					}
-				}
-				else if (typeof changes === 'object') {
-					Object.keys(changes).forEach(key => {
+				} else if ((typeof changes === 'undefined' ? 'undefined' : _typeof(changes)) === 'object') {
+					Object.keys(changes).forEach(function (key) {
 						if (result.hasOwnProperty(key)) {
 							if (key !== 'width') {
 								if (typeof result[key] === 'string') {
-									result[key] = (parseFloat(result[key]) + changes[key] / Math.PI * 180) + 'deg';
+									result[key] = parseFloat(result[key]) + changes[key] / Math.PI * 180 + 'deg';
 								} else if (typeof result[key] === 'number') {
 									result[key] += changes[key];
 								}
-							}
-							else {
+							} else {
 								result[key] *= 1 + changes[key];
 							}
 						}
-					})
+					});
 				}
 
 				delete params.manualChanges.cursors[cursorName];
-				}
+			}
 			obj[propName] = result;
 		}
 	}
@@ -26115,17 +25781,17 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 	if (cursorKeys.length > 0) {
 		for (i = 0; i < cursorKeys.length; i++) {
 			cursor = cursorKeys[i].split('.');
-			var tmpObj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 );
+			var tmpObj = Utils.propFromCursor(cursor, leaf, cursor.length - 1);
 			var tmpSrc = {
 				_updaters: [Utils.createUpdater({
-					_operation: JSON.stringify(tmpObj[cursor[cursor.length-1]] || 0),
-				})],
+					_operation: JSON.stringify(tmpObj[cursor[cursor.length - 1]] || 0)
+				})]
 			};
 			var newCursor = {
 				cursor: cursor,
 				obj: tmpObj,
 				src: tmpSrc,
-				manual: true,
+				manual: true
 			};
 
 			leaf.solvingOrder.unshift(newCursor);
@@ -26137,96 +25803,1836 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 
 	// If one update errored, we're going to try once more, hoping things will
 	// get resolved on the second pass.
-	if ( errored && !erroredPreviously ) {
-		Utils.updateProperties( leaf, params, true );
+	if (errored && !erroredPreviously) {
+		Utils.updateProperties(leaf, params, true);
 
-	// any error on the second try will cause it to throw
-	} else if ( errored && erroredPreviously ) {
+		// any error on the second try will cause it to throw
+	} else if (errored && erroredPreviously) {
 		throw 'Too much update errors, giving up.';
 	}
 };
 
 // The ascender and descender properties must be set to their maximum
 // values accross the individualized params groups
-Utils.updateXscenderProperties = function( font, params ) {
-	if ( params['indiv_group_param'] ) {
-		var xscenderProperties = [
-			'ascender',
-			'descender',
-			'cap-height',
-			'descendent-height'
-		];
+Utils.updateXscenderProperties = function (font, params) {
+	if (params['indiv_group_param']) {
+		var xscenderProperties = ['ascender', 'descender', 'cap-height', 'descendent-height'];
 
-		xscenderProperties.forEach(function( name ) {
-			var src = font.src.fontinfo[ name ];
-			Object.keys( params['indiv_group_param'] )
-				.forEach(function( groupName ) {
+		xscenderProperties.forEach(function (name) {
+			var src = font.src.fontinfo[name];
+			Object.keys(params['indiv_group_param']).forEach(function (groupName) {
 				var group = params['indiv_group_param'][groupName];
 
 				var sign = font.ot[name] > 0 ? 1 : -1;
 
-				font.ot[ name ] = sign * Math.max( Math.abs(font.ot[ name ]),
-					Math.abs(src._updaters[0].apply(
-						font.ot,
-						[
-							name, null, null, null, Utils
-						].concat(
-							( src._parameters || [] ).map(function(_name) {
-								return group[_name] || params[_name];
-							})
-						)
-					))
-				);
+				font.ot[name] = sign * Math.max(Math.abs(font.ot[name]), Math.abs(src._updaters[0].apply(font.ot, [name, null, null, null, Utils].concat((src._parameters || []).map(function (_name) {
+					return group[_name] || params[_name];
+				})))));
 			});
 		});
 	}
-}
+};
 
 module.exports = Utils;
 
-
 /***/ },
-/* 30 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-/*jshint -W098 */
-var plumin = __webpack_require__(7),
-	assign = __webpack_require__(8).assign,
-	cloneDeep = __webpack_require__(24),
-	Utils = __webpack_require__(29),
-	naive = __webpack_require__(108);
+/* WEBPACK VAR INJECTION */(function(global, module) {/**
+ * lodash (Custom Build) <https://lodash.com/>
+ * Build: `lodash modularize exports="npm" -o ./`
+ * Copyright jQuery Foundation and other contributors <https://jquery.org/>
+ * Released under MIT license <https://lodash.com/license>
+ * Based on Underscore.js 1.8.3 <http://underscorejs.org/LICENSE>
+ * Copyright Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+ */
+
+/** Used as the size to enable large array optimizations. */
+var LARGE_ARRAY_SIZE = 200;
+
+/** Used to stand-in for `undefined` hash values. */
+var HASH_UNDEFINED = '__lodash_hash_undefined__';
+
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    funcTag = '[object Function]',
+    genTag = '[object GeneratorFunction]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    objectTag = '[object Object]',
+    promiseTag = '[object Promise]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    symbolTag = '[object Symbol]',
+    weakMapTag = '[object WeakMap]';
+
+var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]',
+    float32Tag = '[object Float32Array]',
+    float64Tag = '[object Float64Array]',
+    int8Tag = '[object Int8Array]',
+    int16Tag = '[object Int16Array]',
+    int32Tag = '[object Int32Array]',
+    uint8Tag = '[object Uint8Array]',
+    uint8ClampedTag = '[object Uint8ClampedArray]',
+    uint16Tag = '[object Uint16Array]',
+    uint32Tag = '[object Uint32Array]';
+
+/**
+ * Used to match `RegExp`
+ * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
+ */
+var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
+
+/** Used to match `RegExp` flags from their coerced string values. */
+var reFlags = /\w*$/;
+
+/** Used to detect host constructors (Safari). */
+var reIsHostCtor = /^\[object .+?Constructor\]$/;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/** Used to identify `toStringTag` values supported by `_.clone`. */
+var cloneableTags = {};
+cloneableTags[argsTag] = cloneableTags[arrayTag] =
+cloneableTags[arrayBufferTag] = cloneableTags[dataViewTag] =
+cloneableTags[boolTag] = cloneableTags[dateTag] =
+cloneableTags[float32Tag] = cloneableTags[float64Tag] =
+cloneableTags[int8Tag] = cloneableTags[int16Tag] =
+cloneableTags[int32Tag] = cloneableTags[mapTag] =
+cloneableTags[numberTag] = cloneableTags[objectTag] =
+cloneableTags[regexpTag] = cloneableTags[setTag] =
+cloneableTags[stringTag] = cloneableTags[symbolTag] =
+cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] =
+cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
+cloneableTags[errorTag] = cloneableTags[funcTag] =
+cloneableTags[weakMapTag] = false;
+
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function('return this')();
+
+/** Detect free variable `exports`. */
+var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/**
+ * Adds the key-value `pair` to `map`.
+ *
+ * @private
+ * @param {Object} map The map to modify.
+ * @param {Array} pair The key-value pair to add.
+ * @returns {Object} Returns `map`.
+ */
+function addMapEntry(map, pair) {
+  // Don't return `map.set` because it's not chainable in IE 11.
+  map.set(pair[0], pair[1]);
+  return map;
+}
+
+/**
+ * Adds `value` to `set`.
+ *
+ * @private
+ * @param {Object} set The set to modify.
+ * @param {*} value The value to add.
+ * @returns {Object} Returns `set`.
+ */
+function addSetEntry(set, value) {
+  // Don't return `set.add` because it's not chainable in IE 11.
+  set.add(value);
+  return set;
+}
+
+/**
+ * A specialized version of `_.forEach` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns `array`.
+ */
+function arrayEach(array, iteratee) {
+  var index = -1,
+      length = array ? array.length : 0;
+
+  while (++index < length) {
+    if (iteratee(array[index], index, array) === false) {
+      break;
+    }
+  }
+  return array;
+}
+
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+  return array;
+}
+
+/**
+ * A specialized version of `_.reduce` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @param {*} [accumulator] The initial value.
+ * @param {boolean} [initAccum] Specify using the first element of `array` as
+ *  the initial value.
+ * @returns {*} Returns the accumulated value.
+ */
+function arrayReduce(array, iteratee, accumulator, initAccum) {
+  var index = -1,
+      length = array ? array.length : 0;
+
+  if (initAccum && length) {
+    accumulator = array[++index];
+  }
+  while (++index < length) {
+    accumulator = iteratee(accumulator, array[index], index, array);
+  }
+  return accumulator;
+}
+
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
+
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+  return result;
+}
+
+/**
+ * Gets the value at `key` of `object`.
+ *
+ * @private
+ * @param {Object} [object] The object to query.
+ * @param {string} key The key of the property to get.
+ * @returns {*} Returns the property value.
+ */
+function getValue(object, key) {
+  return object == null ? undefined : object[key];
+}
+
+/**
+ * Checks if `value` is a host object in IE < 9.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a host object, else `false`.
+ */
+function isHostObject(value) {
+  // Many host objects are `Object` objects that can coerce to strings
+  // despite having improperly defined `toString` methods.
+  var result = false;
+  if (value != null && typeof value.toString != 'function') {
+    try {
+      result = !!(value + '');
+    } catch (e) {}
+  }
+  return result;
+}
+
+/**
+ * Converts `map` to its key-value pairs.
+ *
+ * @private
+ * @param {Object} map The map to convert.
+ * @returns {Array} Returns the key-value pairs.
+ */
+function mapToArray(map) {
+  var index = -1,
+      result = Array(map.size);
+
+  map.forEach(function(value, key) {
+    result[++index] = [key, value];
+  });
+  return result;
+}
+
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+/**
+ * Converts `set` to an array of its values.
+ *
+ * @private
+ * @param {Object} set The set to convert.
+ * @returns {Array} Returns the values.
+ */
+function setToArray(set) {
+  var index = -1,
+      result = Array(set.size);
+
+  set.forEach(function(value) {
+    result[++index] = value;
+  });
+  return result;
+}
+
+/** Used for built-in method references. */
+var arrayProto = Array.prototype,
+    funcProto = Function.prototype,
+    objectProto = Object.prototype;
+
+/** Used to detect overreaching core-js shims. */
+var coreJsData = root['__core-js_shared__'];
+
+/** Used to detect methods masquerading as native. */
+var maskSrcKey = (function() {
+  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
+  return uid ? ('Symbol(src)_1.' + uid) : '';
+}());
+
+/** Used to resolve the decompiled source of functions. */
+var funcToString = funcProto.toString;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var objectToString = objectProto.toString;
+
+/** Used to detect if a method is native. */
+var reIsNative = RegExp('^' +
+  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
+  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
+);
+
+/** Built-in value references. */
+var Buffer = moduleExports ? root.Buffer : undefined,
+    Symbol = root.Symbol,
+    Uint8Array = root.Uint8Array,
+    getPrototype = overArg(Object.getPrototypeOf, Object),
+    objectCreate = Object.create,
+    propertyIsEnumerable = objectProto.propertyIsEnumerable,
+    splice = arrayProto.splice;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeGetSymbols = Object.getOwnPropertySymbols,
+    nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined,
+    nativeKeys = overArg(Object.keys, Object);
+
+/* Built-in method references that are verified to be native. */
+var DataView = getNative(root, 'DataView'),
+    Map = getNative(root, 'Map'),
+    Promise = getNative(root, 'Promise'),
+    Set = getNative(root, 'Set'),
+    WeakMap = getNative(root, 'WeakMap'),
+    nativeCreate = getNative(Object, 'create');
+
+/** Used to detect maps, sets, and weakmaps. */
+var dataViewCtorString = toSource(DataView),
+    mapCtorString = toSource(Map),
+    promiseCtorString = toSource(Promise),
+    setCtorString = toSource(Set),
+    weakMapCtorString = toSource(WeakMap);
+
+/** Used to convert symbols to primitives and strings. */
+var symbolProto = Symbol ? Symbol.prototype : undefined,
+    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
+
+/**
+ * Creates a hash object.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Hash(entries) {
+  var index = -1,
+      length = entries ? entries.length : 0;
+
+  this.clear();
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+}
+
+/**
+ * Removes all key-value entries from the hash.
+ *
+ * @private
+ * @name clear
+ * @memberOf Hash
+ */
+function hashClear() {
+  this.__data__ = nativeCreate ? nativeCreate(null) : {};
+}
+
+/**
+ * Removes `key` and its value from the hash.
+ *
+ * @private
+ * @name delete
+ * @memberOf Hash
+ * @param {Object} hash The hash to modify.
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function hashDelete(key) {
+  return this.has(key) && delete this.__data__[key];
+}
+
+/**
+ * Gets the hash value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Hash
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function hashGet(key) {
+  var data = this.__data__;
+  if (nativeCreate) {
+    var result = data[key];
+    return result === HASH_UNDEFINED ? undefined : result;
+  }
+  return hasOwnProperty.call(data, key) ? data[key] : undefined;
+}
+
+/**
+ * Checks if a hash value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Hash
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function hashHas(key) {
+  var data = this.__data__;
+  return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
+}
+
+/**
+ * Sets the hash `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Hash
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the hash instance.
+ */
+function hashSet(key, value) {
+  var data = this.__data__;
+  data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED : value;
+  return this;
+}
+
+// Add methods to `Hash`.
+Hash.prototype.clear = hashClear;
+Hash.prototype['delete'] = hashDelete;
+Hash.prototype.get = hashGet;
+Hash.prototype.has = hashHas;
+Hash.prototype.set = hashSet;
+
+/**
+ * Creates an list cache object.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function ListCache(entries) {
+  var index = -1,
+      length = entries ? entries.length : 0;
+
+  this.clear();
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+}
+
+/**
+ * Removes all key-value entries from the list cache.
+ *
+ * @private
+ * @name clear
+ * @memberOf ListCache
+ */
+function listCacheClear() {
+  this.__data__ = [];
+}
+
+/**
+ * Removes `key` and its value from the list cache.
+ *
+ * @private
+ * @name delete
+ * @memberOf ListCache
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function listCacheDelete(key) {
+  var data = this.__data__,
+      index = assocIndexOf(data, key);
+
+  if (index < 0) {
+    return false;
+  }
+  var lastIndex = data.length - 1;
+  if (index == lastIndex) {
+    data.pop();
+  } else {
+    splice.call(data, index, 1);
+  }
+  return true;
+}
+
+/**
+ * Gets the list cache value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf ListCache
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function listCacheGet(key) {
+  var data = this.__data__,
+      index = assocIndexOf(data, key);
+
+  return index < 0 ? undefined : data[index][1];
+}
+
+/**
+ * Checks if a list cache value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf ListCache
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function listCacheHas(key) {
+  return assocIndexOf(this.__data__, key) > -1;
+}
+
+/**
+ * Sets the list cache `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf ListCache
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the list cache instance.
+ */
+function listCacheSet(key, value) {
+  var data = this.__data__,
+      index = assocIndexOf(data, key);
+
+  if (index < 0) {
+    data.push([key, value]);
+  } else {
+    data[index][1] = value;
+  }
+  return this;
+}
+
+// Add methods to `ListCache`.
+ListCache.prototype.clear = listCacheClear;
+ListCache.prototype['delete'] = listCacheDelete;
+ListCache.prototype.get = listCacheGet;
+ListCache.prototype.has = listCacheHas;
+ListCache.prototype.set = listCacheSet;
+
+/**
+ * Creates a map cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function MapCache(entries) {
+  var index = -1,
+      length = entries ? entries.length : 0;
+
+  this.clear();
+  while (++index < length) {
+    var entry = entries[index];
+    this.set(entry[0], entry[1]);
+  }
+}
+
+/**
+ * Removes all key-value entries from the map.
+ *
+ * @private
+ * @name clear
+ * @memberOf MapCache
+ */
+function mapCacheClear() {
+  this.__data__ = {
+    'hash': new Hash,
+    'map': new (Map || ListCache),
+    'string': new Hash
+  };
+}
+
+/**
+ * Removes `key` and its value from the map.
+ *
+ * @private
+ * @name delete
+ * @memberOf MapCache
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function mapCacheDelete(key) {
+  return getMapData(this, key)['delete'](key);
+}
+
+/**
+ * Gets the map value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf MapCache
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function mapCacheGet(key) {
+  return getMapData(this, key).get(key);
+}
+
+/**
+ * Checks if a map value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf MapCache
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function mapCacheHas(key) {
+  return getMapData(this, key).has(key);
+}
+
+/**
+ * Sets the map `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf MapCache
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the map cache instance.
+ */
+function mapCacheSet(key, value) {
+  getMapData(this, key).set(key, value);
+  return this;
+}
+
+// Add methods to `MapCache`.
+MapCache.prototype.clear = mapCacheClear;
+MapCache.prototype['delete'] = mapCacheDelete;
+MapCache.prototype.get = mapCacheGet;
+MapCache.prototype.has = mapCacheHas;
+MapCache.prototype.set = mapCacheSet;
+
+/**
+ * Creates a stack cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Stack(entries) {
+  this.__data__ = new ListCache(entries);
+}
+
+/**
+ * Removes all key-value entries from the stack.
+ *
+ * @private
+ * @name clear
+ * @memberOf Stack
+ */
+function stackClear() {
+  this.__data__ = new ListCache;
+}
+
+/**
+ * Removes `key` and its value from the stack.
+ *
+ * @private
+ * @name delete
+ * @memberOf Stack
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function stackDelete(key) {
+  return this.__data__['delete'](key);
+}
+
+/**
+ * Gets the stack value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Stack
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function stackGet(key) {
+  return this.__data__.get(key);
+}
+
+/**
+ * Checks if a stack value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Stack
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function stackHas(key) {
+  return this.__data__.has(key);
+}
+
+/**
+ * Sets the stack `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Stack
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the stack cache instance.
+ */
+function stackSet(key, value) {
+  var cache = this.__data__;
+  if (cache instanceof ListCache) {
+    var pairs = cache.__data__;
+    if (!Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
+      pairs.push([key, value]);
+      return this;
+    }
+    cache = this.__data__ = new MapCache(pairs);
+  }
+  cache.set(key, value);
+  return this;
+}
+
+// Add methods to `Stack`.
+Stack.prototype.clear = stackClear;
+Stack.prototype['delete'] = stackDelete;
+Stack.prototype.get = stackGet;
+Stack.prototype.has = stackHas;
+Stack.prototype.set = stackSet;
+
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+function arrayLikeKeys(value, inherited) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  // Safari 9 makes `arguments.length` enumerable in strict mode.
+  var result = (isArray(value) || isArguments(value))
+    ? baseTimes(value.length, String)
+    : [];
+
+  var length = result.length,
+      skipIndexes = !!length;
+
+  for (var key in value) {
+    if ((inherited || hasOwnProperty.call(value, key)) &&
+        !(skipIndexes && (key == 'length' || isIndex(key, length)))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/**
+ * Assigns `value` to `key` of `object` if the existing value is not equivalent
+ * using [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * for equality comparisons.
+ *
+ * @private
+ * @param {Object} object The object to modify.
+ * @param {string} key The key of the property to assign.
+ * @param {*} value The value to assign.
+ */
+function assignValue(object, key, value) {
+  var objValue = object[key];
+  if (!(hasOwnProperty.call(object, key) && eq(objValue, value)) ||
+      (value === undefined && !(key in object))) {
+    object[key] = value;
+  }
+}
+
+/**
+ * Gets the index at which the `key` is found in `array` of key-value pairs.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {*} key The key to search for.
+ * @returns {number} Returns the index of the matched value, else `-1`.
+ */
+function assocIndexOf(array, key) {
+  var length = array.length;
+  while (length--) {
+    if (eq(array[length][0], key)) {
+      return length;
+    }
+  }
+  return -1;
+}
+
+/**
+ * The base implementation of `_.assign` without support for multiple sources
+ * or `customizer` functions.
+ *
+ * @private
+ * @param {Object} object The destination object.
+ * @param {Object} source The source object.
+ * @returns {Object} Returns `object`.
+ */
+function baseAssign(object, source) {
+  return object && copyObject(source, keys(source), object);
+}
+
+/**
+ * The base implementation of `_.clone` and `_.cloneDeep` which tracks
+ * traversed objects.
+ *
+ * @private
+ * @param {*} value The value to clone.
+ * @param {boolean} [isDeep] Specify a deep clone.
+ * @param {boolean} [isFull] Specify a clone including symbols.
+ * @param {Function} [customizer] The function to customize cloning.
+ * @param {string} [key] The key of `value`.
+ * @param {Object} [object] The parent object of `value`.
+ * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
+ * @returns {*} Returns the cloned value.
+ */
+function baseClone(value, isDeep, isFull, customizer, key, object, stack) {
+  var result;
+  if (customizer) {
+    result = object ? customizer(value, key, object, stack) : customizer(value);
+  }
+  if (result !== undefined) {
+    return result;
+  }
+  if (!isObject(value)) {
+    return value;
+  }
+  var isArr = isArray(value);
+  if (isArr) {
+    result = initCloneArray(value);
+    if (!isDeep) {
+      return copyArray(value, result);
+    }
+  } else {
+    var tag = getTag(value),
+        isFunc = tag == funcTag || tag == genTag;
+
+    if (isBuffer(value)) {
+      return cloneBuffer(value, isDeep);
+    }
+    if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
+      if (isHostObject(value)) {
+        return object ? value : {};
+      }
+      result = initCloneObject(isFunc ? {} : value);
+      if (!isDeep) {
+        return copySymbols(value, baseAssign(result, value));
+      }
+    } else {
+      if (!cloneableTags[tag]) {
+        return object ? value : {};
+      }
+      result = initCloneByTag(value, tag, baseClone, isDeep);
+    }
+  }
+  // Check for circular references and return its corresponding clone.
+  stack || (stack = new Stack);
+  var stacked = stack.get(value);
+  if (stacked) {
+    return stacked;
+  }
+  stack.set(value, result);
+
+  if (!isArr) {
+    var props = isFull ? getAllKeys(value) : keys(value);
+  }
+  arrayEach(props || value, function(subValue, key) {
+    if (props) {
+      key = subValue;
+      subValue = value[key];
+    }
+    // Recursively populate clone (susceptible to call stack limits).
+    assignValue(result, key, baseClone(subValue, isDeep, isFull, customizer, key, value, stack));
+  });
+  return result;
+}
+
+/**
+ * The base implementation of `_.create` without support for assigning
+ * properties to the created object.
+ *
+ * @private
+ * @param {Object} prototype The object to inherit from.
+ * @returns {Object} Returns the new object.
+ */
+function baseCreate(proto) {
+  return isObject(proto) ? objectCreate(proto) : {};
+}
+
+/**
+ * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
+ * `keysFunc` and `symbolsFunc` to get the enumerable property names and
+ * symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Function} keysFunc The function to get the keys of `object`.
+ * @param {Function} symbolsFunc The function to get the symbols of `object`.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+  var result = keysFunc(object);
+  return isArray(object) ? result : arrayPush(result, symbolsFunc(object));
+}
+
+/**
+ * The base implementation of `getTag`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+function baseGetTag(value) {
+  return objectToString.call(value);
+}
+
+/**
+ * The base implementation of `_.isNative` without bad shim checks.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a native function,
+ *  else `false`.
+ */
+function baseIsNative(value) {
+  if (!isObject(value) || isMasked(value)) {
+    return false;
+  }
+  var pattern = (isFunction(value) || isHostObject(value)) ? reIsNative : reIsHostCtor;
+  return pattern.test(toSource(value));
+}
+
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function baseKeys(object) {
+  if (!isPrototype(object)) {
+    return nativeKeys(object);
+  }
+  var result = [];
+  for (var key in Object(object)) {
+    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/**
+ * Creates a clone of  `buffer`.
+ *
+ * @private
+ * @param {Buffer} buffer The buffer to clone.
+ * @param {boolean} [isDeep] Specify a deep clone.
+ * @returns {Buffer} Returns the cloned buffer.
+ */
+function cloneBuffer(buffer, isDeep) {
+  if (isDeep) {
+    return buffer.slice();
+  }
+  var result = new buffer.constructor(buffer.length);
+  buffer.copy(result);
+  return result;
+}
+
+/**
+ * Creates a clone of `arrayBuffer`.
+ *
+ * @private
+ * @param {ArrayBuffer} arrayBuffer The array buffer to clone.
+ * @returns {ArrayBuffer} Returns the cloned array buffer.
+ */
+function cloneArrayBuffer(arrayBuffer) {
+  var result = new arrayBuffer.constructor(arrayBuffer.byteLength);
+  new Uint8Array(result).set(new Uint8Array(arrayBuffer));
+  return result;
+}
+
+/**
+ * Creates a clone of `dataView`.
+ *
+ * @private
+ * @param {Object} dataView The data view to clone.
+ * @param {boolean} [isDeep] Specify a deep clone.
+ * @returns {Object} Returns the cloned data view.
+ */
+function cloneDataView(dataView, isDeep) {
+  var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
+  return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
+}
+
+/**
+ * Creates a clone of `map`.
+ *
+ * @private
+ * @param {Object} map The map to clone.
+ * @param {Function} cloneFunc The function to clone values.
+ * @param {boolean} [isDeep] Specify a deep clone.
+ * @returns {Object} Returns the cloned map.
+ */
+function cloneMap(map, isDeep, cloneFunc) {
+  var array = isDeep ? cloneFunc(mapToArray(map), true) : mapToArray(map);
+  return arrayReduce(array, addMapEntry, new map.constructor);
+}
+
+/**
+ * Creates a clone of `regexp`.
+ *
+ * @private
+ * @param {Object} regexp The regexp to clone.
+ * @returns {Object} Returns the cloned regexp.
+ */
+function cloneRegExp(regexp) {
+  var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
+  result.lastIndex = regexp.lastIndex;
+  return result;
+}
+
+/**
+ * Creates a clone of `set`.
+ *
+ * @private
+ * @param {Object} set The set to clone.
+ * @param {Function} cloneFunc The function to clone values.
+ * @param {boolean} [isDeep] Specify a deep clone.
+ * @returns {Object} Returns the cloned set.
+ */
+function cloneSet(set, isDeep, cloneFunc) {
+  var array = isDeep ? cloneFunc(setToArray(set), true) : setToArray(set);
+  return arrayReduce(array, addSetEntry, new set.constructor);
+}
+
+/**
+ * Creates a clone of the `symbol` object.
+ *
+ * @private
+ * @param {Object} symbol The symbol object to clone.
+ * @returns {Object} Returns the cloned symbol object.
+ */
+function cloneSymbol(symbol) {
+  return symbolValueOf ? Object(symbolValueOf.call(symbol)) : {};
+}
+
+/**
+ * Creates a clone of `typedArray`.
+ *
+ * @private
+ * @param {Object} typedArray The typed array to clone.
+ * @param {boolean} [isDeep] Specify a deep clone.
+ * @returns {Object} Returns the cloned typed array.
+ */
+function cloneTypedArray(typedArray, isDeep) {
+  var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
+  return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
+}
+
+/**
+ * Copies the values of `source` to `array`.
+ *
+ * @private
+ * @param {Array} source The array to copy values from.
+ * @param {Array} [array=[]] The array to copy values to.
+ * @returns {Array} Returns `array`.
+ */
+function copyArray(source, array) {
+  var index = -1,
+      length = source.length;
+
+  array || (array = Array(length));
+  while (++index < length) {
+    array[index] = source[index];
+  }
+  return array;
+}
+
+/**
+ * Copies properties of `source` to `object`.
+ *
+ * @private
+ * @param {Object} source The object to copy properties from.
+ * @param {Array} props The property identifiers to copy.
+ * @param {Object} [object={}] The object to copy properties to.
+ * @param {Function} [customizer] The function to customize copied values.
+ * @returns {Object} Returns `object`.
+ */
+function copyObject(source, props, object, customizer) {
+  object || (object = {});
+
+  var index = -1,
+      length = props.length;
+
+  while (++index < length) {
+    var key = props[index];
+
+    var newValue = customizer
+      ? customizer(object[key], source[key], key, object, source)
+      : undefined;
+
+    assignValue(object, key, newValue === undefined ? source[key] : newValue);
+  }
+  return object;
+}
+
+/**
+ * Copies own symbol properties of `source` to `object`.
+ *
+ * @private
+ * @param {Object} source The object to copy symbols from.
+ * @param {Object} [object={}] The object to copy symbols to.
+ * @returns {Object} Returns `object`.
+ */
+function copySymbols(source, object) {
+  return copyObject(source, getSymbols(source), object);
+}
+
+/**
+ * Creates an array of own enumerable property names and symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function getAllKeys(object) {
+  return baseGetAllKeys(object, keys, getSymbols);
+}
+
+/**
+ * Gets the data for `map`.
+ *
+ * @private
+ * @param {Object} map The map to query.
+ * @param {string} key The reference key.
+ * @returns {*} Returns the map data.
+ */
+function getMapData(map, key) {
+  var data = map.__data__;
+  return isKeyable(key)
+    ? data[typeof key == 'string' ? 'string' : 'hash']
+    : data.map;
+}
+
+/**
+ * Gets the native function at `key` of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {string} key The key of the method to get.
+ * @returns {*} Returns the function if it's native, else `undefined`.
+ */
+function getNative(object, key) {
+  var value = getValue(object, key);
+  return baseIsNative(value) ? value : undefined;
+}
+
+/**
+ * Creates an array of the own enumerable symbol properties of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of symbols.
+ */
+var getSymbols = nativeGetSymbols ? overArg(nativeGetSymbols, Object) : stubArray;
+
+/**
+ * Gets the `toStringTag` of `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+var getTag = baseGetTag;
+
+// Fallback for data views, maps, sets, and weak maps in IE 11,
+// for data views in Edge < 14, and promises in Node.js.
+if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
+    (Map && getTag(new Map) != mapTag) ||
+    (Promise && getTag(Promise.resolve()) != promiseTag) ||
+    (Set && getTag(new Set) != setTag) ||
+    (WeakMap && getTag(new WeakMap) != weakMapTag)) {
+  getTag = function(value) {
+    var result = objectToString.call(value),
+        Ctor = result == objectTag ? value.constructor : undefined,
+        ctorString = Ctor ? toSource(Ctor) : undefined;
+
+    if (ctorString) {
+      switch (ctorString) {
+        case dataViewCtorString: return dataViewTag;
+        case mapCtorString: return mapTag;
+        case promiseCtorString: return promiseTag;
+        case setCtorString: return setTag;
+        case weakMapCtorString: return weakMapTag;
+      }
+    }
+    return result;
+  };
+}
+
+/**
+ * Initializes an array clone.
+ *
+ * @private
+ * @param {Array} array The array to clone.
+ * @returns {Array} Returns the initialized clone.
+ */
+function initCloneArray(array) {
+  var length = array.length,
+      result = array.constructor(length);
+
+  // Add properties assigned by `RegExp#exec`.
+  if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
+    result.index = array.index;
+    result.input = array.input;
+  }
+  return result;
+}
+
+/**
+ * Initializes an object clone.
+ *
+ * @private
+ * @param {Object} object The object to clone.
+ * @returns {Object} Returns the initialized clone.
+ */
+function initCloneObject(object) {
+  return (typeof object.constructor == 'function' && !isPrototype(object))
+    ? baseCreate(getPrototype(object))
+    : {};
+}
+
+/**
+ * Initializes an object clone based on its `toStringTag`.
+ *
+ * **Note:** This function only supports cloning values with tags of
+ * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+ *
+ * @private
+ * @param {Object} object The object to clone.
+ * @param {string} tag The `toStringTag` of the object to clone.
+ * @param {Function} cloneFunc The function to clone values.
+ * @param {boolean} [isDeep] Specify a deep clone.
+ * @returns {Object} Returns the initialized clone.
+ */
+function initCloneByTag(object, tag, cloneFunc, isDeep) {
+  var Ctor = object.constructor;
+  switch (tag) {
+    case arrayBufferTag:
+      return cloneArrayBuffer(object);
+
+    case boolTag:
+    case dateTag:
+      return new Ctor(+object);
+
+    case dataViewTag:
+      return cloneDataView(object, isDeep);
+
+    case float32Tag: case float64Tag:
+    case int8Tag: case int16Tag: case int32Tag:
+    case uint8Tag: case uint8ClampedTag: case uint16Tag: case uint32Tag:
+      return cloneTypedArray(object, isDeep);
+
+    case mapTag:
+      return cloneMap(object, isDeep, cloneFunc);
+
+    case numberTag:
+    case stringTag:
+      return new Ctor(object);
+
+    case regexpTag:
+      return cloneRegExp(object);
+
+    case setTag:
+      return cloneSet(object, isDeep, cloneFunc);
+
+    case symbolTag:
+      return cloneSymbol(object);
+  }
+}
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  length = length == null ? MAX_SAFE_INTEGER : length;
+  return !!length &&
+    (typeof value == 'number' || reIsUint.test(value)) &&
+    (value > -1 && value % 1 == 0 && value < length);
+}
+
+/**
+ * Checks if `value` is suitable for use as unique object key.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
+ */
+function isKeyable(value) {
+  var type = typeof value;
+  return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
+    ? (value !== '__proto__')
+    : (value === null);
+}
+
+/**
+ * Checks if `func` has its source masked.
+ *
+ * @private
+ * @param {Function} func The function to check.
+ * @returns {boolean} Returns `true` if `func` is masked, else `false`.
+ */
+function isMasked(func) {
+  return !!maskSrcKey && (maskSrcKey in func);
+}
+
+/**
+ * Checks if `value` is likely a prototype object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+ */
+function isPrototype(value) {
+  var Ctor = value && value.constructor,
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+
+  return value === proto;
+}
+
+/**
+ * Converts `func` to its source code.
+ *
+ * @private
+ * @param {Function} func The function to process.
+ * @returns {string} Returns the source code.
+ */
+function toSource(func) {
+  if (func != null) {
+    try {
+      return funcToString.call(func);
+    } catch (e) {}
+    try {
+      return (func + '');
+    } catch (e) {}
+  }
+  return '';
+}
+
+/**
+ * This method is like `_.clone` except that it recursively clones `value`.
+ *
+ * @static
+ * @memberOf _
+ * @since 1.0.0
+ * @category Lang
+ * @param {*} value The value to recursively clone.
+ * @returns {*} Returns the deep cloned value.
+ * @see _.clone
+ * @example
+ *
+ * var objects = [{ 'a': 1 }, { 'b': 2 }];
+ *
+ * var deep = _.cloneDeep(objects);
+ * console.log(deep[0] === objects[0]);
+ * // => false
+ */
+function cloneDeep(value) {
+  return baseClone(value, true, true);
+}
+
+/**
+ * Performs a
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * comparison between two values to determine if they are equivalent.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ * var other = { 'a': 1 };
+ *
+ * _.eq(object, object);
+ * // => true
+ *
+ * _.eq(object, other);
+ * // => false
+ *
+ * _.eq('a', 'a');
+ * // => true
+ *
+ * _.eq('a', Object('a'));
+ * // => false
+ *
+ * _.eq(NaN, NaN);
+ * // => true
+ */
+function eq(value, other) {
+  return value === other || (value !== value && other !== other);
+}
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+function isArguments(value) {
+  // Safari 8.1 makes `arguments.callee` enumerable in strict mode.
+  return isArrayLikeObject(value) && hasOwnProperty.call(value, 'callee') &&
+    (!propertyIsEnumerable.call(value, 'callee') || objectToString.call(value) == argsTag);
+}
+
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+/**
+ * Checks if `value` is array-like. A value is considered array-like if it's
+ * not a function and has a `value.length` that's an integer greater than or
+ * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
+ * @example
+ *
+ * _.isArrayLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLike(document.body.children);
+ * // => true
+ *
+ * _.isArrayLike('abc');
+ * // => true
+ *
+ * _.isArrayLike(_.noop);
+ * // => false
+ */
+function isArrayLike(value) {
+  return value != null && isLength(value.length) && !isFunction(value);
+}
+
+/**
+ * This method is like `_.isArrayLike` except that it also checks if `value`
+ * is an object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array-like object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArrayLikeObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isArrayLikeObject(document.body.children);
+ * // => true
+ *
+ * _.isArrayLikeObject('abc');
+ * // => false
+ *
+ * _.isArrayLikeObject(_.noop);
+ * // => false
+ */
+function isArrayLikeObject(value) {
+  return isObjectLike(value) && isArrayLike(value);
+}
+
+/**
+ * Checks if `value` is a buffer.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.3.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+ * @example
+ *
+ * _.isBuffer(new Buffer(2));
+ * // => true
+ *
+ * _.isBuffer(new Uint8Array(2));
+ * // => false
+ */
+var isBuffer = nativeIsBuffer || stubFalse;
+
+/**
+ * Checks if `value` is classified as a `Function` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a function, else `false`.
+ * @example
+ *
+ * _.isFunction(_);
+ * // => true
+ *
+ * _.isFunction(/abc/);
+ * // => false
+ */
+function isFunction(value) {
+  // The use of `Object#toString` avoids issues with the `typeof` operator
+  // in Safari 8-9 which returns 'object' for typed array and other constructors.
+  var tag = isObject(value) ? objectToString.call(value) : '';
+  return tag == funcTag || tag == genTag;
+}
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' &&
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * _.isObject({});
+ * // => true
+ *
+ * _.isObject([1, 2, 3]);
+ * // => true
+ *
+ * _.isObject(_.noop);
+ * // => true
+ *
+ * _.isObject(null);
+ * // => false
+ */
+function isObject(value) {
+  var type = typeof value;
+  return !!value && (type == 'object' || type == 'function');
+}
+
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return !!value && typeof value == 'object';
+}
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
+}
+
+/**
+ * This method returns a new empty array.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {Array} Returns the new empty array.
+ * @example
+ *
+ * var arrays = _.times(2, _.stubArray);
+ *
+ * console.log(arrays);
+ * // => [[], []]
+ *
+ * console.log(arrays[0] === arrays[1]);
+ * // => false
+ */
+function stubArray() {
+  return [];
+}
+
+/**
+ * This method returns `false`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {boolean} Returns `false`.
+ * @example
+ *
+ * _.times(2, _.stubFalse);
+ * // => [false, false]
+ */
+function stubFalse() {
+  return false;
+}
+
+module.exports = cloneDeep;
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(8), __webpack_require__(9)(module)))
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+'use strict';
+
+var plumin = __webpack_require__(0),
+    assign = __webpack_require__(1),
+    cloneDeep = __webpack_require__(3),
+    Utils = __webpack_require__(2),
+    naive = __webpack_require__(5);
 
 var paper = plumin.paper,
-	psProto = paper.PaperScope.prototype,
-	_ = { assign: assign };
+    psProto = paper.PaperScope.prototype,
+    _ = { assign: assign };
 
-function parametricFont( src ) {
-	var font = Utils.fontFromSrc( src );
+function parametricFont(src) {
+	var font = Utils.fontFromSrc(src);
 
-	Object.keys( src.glyphs ).forEach(function( name ) {
+	Object.keys(src.glyphs).forEach(function (name) {
 		var glyphSrc = src.glyphs[name];
 
-		Utils.ufoToPaper( glyphSrc );
+		Utils.ufoToPaper(glyphSrc);
 
-		var glyph = Utils.glyphFromSrc( glyphSrc, src, naive );
+		var glyph = Utils.glyphFromSrc(glyphSrc, src, naive);
 
-		font.addGlyph( glyph );
+		font.addGlyph(glyph);
 
 		// Create additional paths for skeletons and set ._dependencies
 		// appropriately
-		naive.annotator( glyph );
+		naive.annotator(glyph);
 
 		// solvingOrder might be already available (if this is a subcomponent,
 		// or precomputed in a worker)
-		if ( !glyph.solvingOrder ) {
-			glyph.solvingOrder = glyphSrc.solvingOrder =
-				Utils.solveDependencyTree( glyph );
+		if (!glyph.solvingOrder) {
+			glyph.solvingOrder = glyphSrc.solvingOrder = Utils.solveDependencyTree(glyph);
 		}
 	});
 
 	// all glyphs are ready, embed components now
-	font.glyphs.forEach(function( _glyph ) {
-		if ( _glyph.embedComponents ) {
+	font.glyphs.forEach(function (_glyph) {
+		if (_glyph.embedComponents) {
 			_glyph.embedComponents();
 		}
 	});
@@ -26238,20 +27644,20 @@ plumin.parametricFont = parametricFont;
 plumin.Utils = Utils;
 plumin.Utils.naive = naive;
 
-psProto.Font.prototype.update = function( params, set ) {
+psProto.Font.prototype.update = function (params, set) {
 	var font = this;
 
-	Utils.updateParameters( font, params );
+	Utils.updateParameters(font, params);
 
 	// Additionally, we must update the params of indiv group
-	Utils.updateIndividualParameters( font, params );
+	Utils.updateIndividualParameters(font, params);
 
-	Utils.updateProperties( font, params );
+	Utils.updateProperties(font, params);
 
-	Utils.updateXscenderProperties( font, params );
+	Utils.updateXscenderProperties(font, params);
 
-	this.getGlyphSubset( set ).map(function( glyph ) {
-		return glyph.update( params );
+	this.getGlyphSubset(set).map(function (glyph) {
+		return glyph.update(params);
 	}, this);
 
 	// We no longer support font transforms. Transforms should happen at the
@@ -26260,42 +27666,29 @@ psProto.Font.prototype.update = function( params, set ) {
 	return this;
 };
 
-psProto.Font.prototype.resetComponents = function() {
-	this.glyphs.forEach(function( glyph ) {
+psProto.Font.prototype.resetComponents = function () {
+	this.glyphs.forEach(function (glyph) {
 		glyph.resetComponents(this.src);
 	}.bind(this));
-}
+};
 
 psProto.Path.prototype._drawOld = psProto.Path.prototype._draw;
-psProto.Path.prototype._draw = function(ctx, param, viewMatrix, strokeMatrix) {
+psProto.Path.prototype._draw = function (ctx, param, viewMatrix, strokeMatrix) {
 	if (this.applyMatrix) {
-		var realViewMatrix = new psProto.Matrix(
-			this.view.zoom / window.devicePixelRatio,
-			viewMatrix.b / window.devicePixelRatio,
-			viewMatrix.c / window.devicePixelRatio,
-			this.view.zoom / window.devicePixelRatio,
-			(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
-			(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+		var realViewMatrix = new psProto.Matrix(this.view.zoom / window.devicePixelRatio, viewMatrix.b / window.devicePixelRatio, viewMatrix.c / window.devicePixelRatio, this.view.zoom / window.devicePixelRatio, (-this.view.center.x + this.view.bounds.width / 2) * this.view.zoom / window.devicePixelRatio, (-this.view.center.y + this.view.bounds.height / 2) * this.view.zoom / window.devicePixelRatio);
 		realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
 		realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
 		realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
 		realViewMatrix.ty = realViewMatrix.ty + this.parent.globalMatrix.ty * this.view.zoom / window.devicePixelRatio;
 		this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
-	}
-	else {
+	} else {
 		this._drawOld(ctx, param, realViewMatrix, strokeMatrix);
 	}
 };
 
 psProto.CompoundPath.prototype._drawOld = psProto.CompoundPath.prototype._draw;
-psProto.CompoundPath.prototype._draw = function(ctx, param, viewMatrix) {
-	var realViewMatrix = new psProto.Matrix(
-		this.view.zoom / window.devicePixelRatio,
-		viewMatrix.b / window.devicePixelRatio,
-		viewMatrix.c / window.devicePixelRatio,
-		this.view.zoom / window.devicePixelRatio,
-		(-this.view.center.x + this.view.bounds.width/2) * this.view.zoom / window.devicePixelRatio,
-		(-this.view.center.y + this.view.bounds.height/2) * this.view.zoom / window.devicePixelRatio);
+psProto.CompoundPath.prototype._draw = function (ctx, param, viewMatrix) {
+	var realViewMatrix = new psProto.Matrix(this.view.zoom / window.devicePixelRatio, viewMatrix.b / window.devicePixelRatio, viewMatrix.c / window.devicePixelRatio, this.view.zoom / window.devicePixelRatio, (-this.view.center.x + this.view.bounds.width / 2) * this.view.zoom / window.devicePixelRatio, (-this.view.center.y + this.view.bounds.height / 2) * this.view.zoom / window.devicePixelRatio);
 	realViewMatrix.a = realViewMatrix.a * this.parent.globalMatrix.a;
 	realViewMatrix.d = realViewMatrix.d * this.parent.globalMatrix.d;
 	realViewMatrix.tx = realViewMatrix.tx + this.parent.globalMatrix.tx * this.view.zoom / window.devicePixelRatio;
@@ -26303,12 +27696,30 @@ psProto.CompoundPath.prototype._draw = function(ctx, param, viewMatrix) {
 	this._drawOld(ctx, param, realViewMatrix, realViewMatrix);
 };
 
-psProto.Font.prototype.changeCursorsToManual = function(glyphUnicode, cursors) {
+psProto.Font.prototype.changeCursorsToManual = function (glyphUnicode, cursors) {
 	var font = this;
 
 	// TODO manage alternates
 	font.altMap[glyphUnicode][0].changeCursorsToManual(cursors);
-}
+};
+
+psProto.Font.prototype.setAlternatesFor = function (unicode, glyphName) {
+	var font = this;
+	var glyph = font.charMap[unicode].src;
+	var nextGlyph = font.children[glyphName].src;
+
+	(glyph.relatedGlyphs || []).forEach(function (name) {
+		var relatedGlyph = font.children[name].src;
+		var alternateName = relatedGlyph.name.replace(relatedGlyph.base || relatedGlyph.name, nextGlyph.base || nextGlyph.name);
+
+		if (font.children[alternateName]) {
+			// checking alternate's existence
+			font.setAlternateFor(relatedGlyph.unicode, alternateName);
+		}
+	});
+
+	font.setAlternateFor(unicode, glyphName);
+};
 
 /* Update the shape of the glyph, according to formula and parameters
  * 0. before running, nodes have already been created by ParametricFont
@@ -26318,53 +27729,43 @@ psProto.Font.prototype.changeCursorsToManual = function(glyphUnicode, cursors) {
  * 2. transform contours
  * 3. Update components and transform them
  */
-psProto.Glyph.prototype.update = function( _params ) {
+psProto.Glyph.prototype.update = function (_params) {
 	var glyph = this,
-		font = glyph.parent,
-		matrix,
-		params;
+	    font = glyph.parent,
+	    matrix,
+	    params;
 
 	if (_params) {
 		this.oldParams = _params;
-	}
-	else if (this.oldParams) {
+	} else if (this.oldParams) {
 		_params = this.oldParams;
-	}
-	else {
+	} else {
 		return;
 	}
 
 	// 0. calculate local parameters
-	if ( _params['indiv_glyphs'] &&
-			Object.keys( _params['indiv_glyphs'] )
-				.indexOf( '' + glyph.ot.unicode ) !== -1 ) {
+	if (_params['indiv_glyphs'] && Object.keys(_params['indiv_glyphs']).indexOf('' + glyph.ot.unicode) !== -1) {
 
 		var indivParam = {};
 
-		Object.keys( _params ).forEach(function( param ) {
-			if ( typeof _params[param] === 'number' ) {
-				var groups = _params['indiv_group_param'][
-						_params['indiv_glyphs'][glyph.ot.unicode]
-					],
-					multiplier = groups[param + '_rel'] || {
-						state: 'relative',
-						value: 1
-					};
+		Object.keys(_params).forEach(function (param) {
+			if (typeof _params[param] === 'number') {
+				var groups = _params['indiv_group_param'][_params['indiv_glyphs'][glyph.ot.unicode]],
+				    multiplier = groups[param + '_rel'] || {
+					state: 'relative',
+					value: 1
+				};
 
-				indivParam[param] = groups[param] ||
-					( multiplier.state === 'relative' ?
-						(multiplier.value * _params[param]) :
-						(multiplier.value + _params[param])
-					);
+				indivParam[param] = groups[param] || (multiplier.state === 'relative' ? multiplier.value * _params[param] : multiplier.value + _params[param]);
 			}
 		});
 
-		params = _.assign( {}, _params, indivParam, glyph.parentParameters );
+		params = _.assign({}, _params, indivParam, glyph.parentParameters);
 	} else {
-		params = _.assign( {}, _params, glyph.parentParameters );
+		params = _.assign({}, _params, glyph.parentParameters);
 	}
 
-	Utils.updateParameters( glyph, params );
+	Utils.updateParameters(glyph, params);
 
 	// original values backup
 	glyph.baseSpacingLeft = params.spacingLeft;
@@ -26374,7 +27775,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 	if (params.glyphSpecialProps && params.glyphSpecialProps[glyph.ot.unicode]) {
 		var propsToUpdate = params.glyphSpecialProps[glyph.ot.unicode];
 
-		Object.keys(propsToUpdate).forEach(function(property) {
+		Object.keys(propsToUpdate).forEach(function (property) {
 			params[property] = params[property] + propsToUpdate[property];
 		});
 	}
@@ -26384,12 +27785,12 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 	// parentParameters always overwrite glyph parameters. Use aliases
 	// (e.g. _width) to let glyph have the final word
-	_.assign( params, glyph.parentParameters );
+	_.assign(params, glyph.parentParameters);
 
 	if (params.glyphComponentChoice && params.glyphComponentChoice[glyph.ot.unicode]) {
 		var componentsChoices = params.glyphComponentChoice[glyph.ot.unicode];
-		Object.keys(componentsChoices).forEach(function(key) {
-			var componentFilter = glyph.components.filter(function(comp) {
+		Object.keys(componentsChoices).forEach(function (key) {
+			var componentFilter = glyph.components.filter(function (comp) {
 				return comp.componentId === key;
 			});
 			if (componentFilter.length > 0) {
@@ -26404,27 +27805,25 @@ psProto.Glyph.prototype.update = function( _params ) {
 
 	// 1. calculate node properties
 
-	if(_params.manualChanges) {
+	if (_params.manualChanges) {
 		params.manualChanges = cloneDeep(_params.manualChanges[glyph.ot.unicode]);
 	}
-	Utils.updateProperties( glyph, params );
+	Utils.updateProperties(glyph, params);
 
 	// 2. transform contours
-	this.contours.forEach(function(contour) {
+	this.contours.forEach(function (contour) {
 		// a. transform the nodes
-		contour.nodes.forEach(function(node) {
-			if ( node.transforms ) {
-				matrix = Utils.transformsToMatrix(
-					node.transforms.slice(0), node.transformOrigin
-				);
+		contour.nodes.forEach(function (node) {
+			if (node.transforms) {
+				matrix = Utils.transformsToMatrix(node.transforms.slice(0), node.transformOrigin);
 
-				if ( contour.skeleton !== true ) {
+				if (contour.skeleton !== true) {
 					node.transform(matrix);
 
-				// when dealing with a skeleton, modify only the matrix of
-				// expanded items
+					// when dealing with a skeleton, modify only the matrix of
+					// expanded items
 				} else {
-					node.expandedTo.forEach(function( _node ) {
+					node.expandedTo.forEach(function (_node) {
 						_node.transform(matrix);
 					});
 				}
@@ -26434,21 +27833,19 @@ psProto.Glyph.prototype.update = function( _params ) {
 		// b. transform the contour
 		// prepare and update outlines and expanded contours, but not
 		// skeletons
-		if ( contour.transforms ) {
-			matrix = Utils.transformsToMatrix(
-				contour.transforms.slice(0), contour.transformOrigin
-			);
+		if (contour.transforms) {
+			matrix = Utils.transformsToMatrix(contour.transforms.slice(0), contour.transformOrigin);
 
-			if ( contour.skeleton !== true ) {
+			if (contour.skeleton !== true) {
 				// We don't want to apply the transforms immediatly on contours,
 				// otherwise the transformation will add-up on each update.
 				contour.applyMatrix = false;
 				contour.matrix = matrix;
 
-			// when dealing with a skeleton, modify only the matrix of
-			// expanded items
+				// when dealing with a skeleton, modify only the matrix of
+				// expanded items
 			} else {
-				contour.expandedTo.forEach(function( _contour ) {
+				contour.expandedTo.forEach(function (_contour) {
 					_contour.applyMatrix = false;
 					_contour.matrix = matrix;
 				});
@@ -26457,20 +27854,18 @@ psProto.Glyph.prototype.update = function( _params ) {
 	}, this);
 
 	// 3. update components and transform components
-	if ( this.components.length && font ) {
+	if (this.components.length && font) {
 		// subcomponents have the parent component as their parent
 		// so search for the font
-		while ( !('glyphs' in font) ) {
+		while (!('glyphs' in font)) {
 			font = font.parent;
 		}
 
-		this.components.forEach(function(component) {
-			component.update( params );
+		this.components.forEach(function (component) {
+			component.update(params);
 
-			if ( component.transforms ) {
-				matrix = Utils.transformsToMatrix(
-					component.transforms.slice(0), component.transformOrigin
-				);
+			if (component.transforms) {
+				matrix = Utils.transformsToMatrix(component.transforms.slice(0), component.transformOrigin);
 
 				component.applyMatrix = false;
 				component.matrix = matrix;
@@ -26479,11 +27874,9 @@ psProto.Glyph.prototype.update = function( _params ) {
 	}
 
 	// 4. transform whole glyph
-	if ( glyph.transforms ) {
+	if (glyph.transforms) {
 
-		matrix = Utils.transformsToMatrix(
-			glyph.transforms.slice(0), glyph.transformOrigin
-		);
+		matrix = Utils.transformsToMatrix(glyph.transforms.slice(0), glyph.transformOrigin);
 
 		glyph.applyMatrix = false;
 		glyph.matrix = matrix;
@@ -26494,61 +27887,56 @@ psProto.Glyph.prototype.update = function( _params ) {
 	return this;
 };
 
-psProto.Glyph.prototype.resetComponents = function(fontSrc) {
+psProto.Glyph.prototype.resetComponents = function () {
 	if (this.src) {
-		this.src.components.forEach(function(componentSrc) {
+		this.src.components.forEach(function (componentSrc) {
 			if (Array.isArray(componentSrc.base)) {
 				this.changeComponent(componentSrc.id, componentSrc.base[0]);
 			}
 		}.bind(this));
 	}
-}
+};
 
-psProto.Glyph.prototype.changeComponent = function(componentId, componentName) {
+psProto.Glyph.prototype.changeComponent = function (componentId, componentName) {
 	var glyph = this;
 	//We remove the old components
-	var componentToDelete = glyph.components.filter(function(comp) { return comp.componentId === componentId })[0];
+	var componentToDelete = glyph.components.filter(function (comp) {
+		return comp.componentId === componentId;
+	})[0];
 	//And remove its handle from the view
-	componentToDelete.contours.forEach(function(contour) {
+	componentToDelete.contours.forEach(function (contour) {
 		contour.fullySelected = false;
 	});
 	//And add the correct components
-	var componentSrc = glyph.src.components.filter(function(comp) { return comp.id === componentId })[0];
+	var componentSrc = glyph.src.components.filter(function (comp) {
+		return comp.id === componentId;
+	})[0];
 	glyph.solvingOrder = undefined;
 	glyph.src.solvingOrder = undefined;
-	Utils.selectGlyphComponent(
-		glyph,
-		componentSrc,
-		componentName,
-		glyph.parent.src,
-		Utils.naive,
-		componentId, glyph.components.indexOf(componentToDelete));
+	Utils.selectGlyphComponent(glyph, componentSrc, componentName, glyph.parent.src, Utils.naive, componentId, glyph.components.indexOf(componentToDelete));
 	glyph.solvingOrder = glyph.src.solvingOrder = Utils.solveDependencyTree(glyph);
 	glyph.update();
-}
+};
 
 // Before updating SVG or OpenType data, we must determine paths exports
 // directions. Basically, everything needs to be clockwise.
 // this method needs to be called only after the first update, otherwise the
 // directions won't be known
-psProto.Outline.prototype.prepareDataUpdate = function() {
-	if ( this.isPrepared ) {
+psProto.Outline.prototype.prepareDataUpdate = function () {
+	if (this.isPrepared) {
 		return;
 	}
 
-	this.children.forEach(function(contour) {
+	this.children.forEach(function (contour) {
 		// expanded contours are handled from their skeleton
-		if ( contour.expandedFrom || contour.exportReversed) {
+		if (contour.expandedFrom || contour.exportReversed) {
 			return;
 		}
 
-		if ( contour.skeleton !== true) {
+		if (contour.skeleton !== true) {
 			contour.exportReversed = !contour.isClockwise();
-
-		} else if ( !contour.expandedTo[1] ) {
-			contour.expandedTo[0].exportReversed =
-				!contour.expandedTo[0].isClockwise();
-
+		} else if (!contour.expandedTo[1]) {
+			contour.expandedTo[0].exportReversed = !contour.expandedTo[0].isClockwise();
 		} else {
 			var isClockwise = contour.isClockwise();
 
@@ -26562,16 +27950,16 @@ psProto.Outline.prototype.prepareDataUpdate = function() {
 
 // for the following plumin methods, the outline must be prepared beforehand
 // to be usable in prototypo.js
-[ 'updateSVGData', 'updateOTCommands', 'combineTo' ].forEach(function(name) {
-	var method = paper.PaperScope.prototype.Outline.prototype[ name ];
+['updateSVGData', 'updateOTCommands', 'combineTo'].forEach(function (name) {
+	var method = paper.PaperScope.prototype.Outline.prototype[name];
 
-	psProto.Outline.prototype[ name ] = function() {
-		if ( !this.isPrepared ) {
+	psProto.Outline.prototype[name] = function () {
+		if (!this.isPrepared) {
 			this.prepareDataUpdate();
 			this.isPrepared = true;
 		}
 
-		return method.apply( this, arguments );
+		return method.apply(this, arguments);
 	};
 });
 
@@ -26579,9 +27967,1001 @@ plumin.cloneDeep = cloneDeep;
 
 module.exports = plumin;
 
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+'use strict';
+
+var plumin = __webpack_require__(0),
+    assign = __webpack_require__(1),
+    Utils = __webpack_require__(2);
+
+var paper = plumin.paper,
+    naive = {},
+    _ = { assign: assign };
+
+function autoExpandableNodeSrc(node, i, j, inSkeleton) {
+	return {
+		point: { _dependencies: [Utils.cursor(i, j, 'x'), Utils.cursor(i, j, 'y')] },
+		all: { _dependencies: Object.keys(node.src).map(function (key) {
+				return Utils.cursor(i, j, key);
+			}) },
+		_dependencies: inSkeleton ?
+		// nodes in skeleton are never fully calculated (we don't calculate
+		// the position of handles because we never draw their contour).
+		// So we don't care about their dependencies.
+		[] : [Utils.cursor('contours', i, 'all')]
+	};
+}
+
+function autoExpandedNodeSrc(node, i, j, side, isClosed) {
+	return {
+		x: { _dependencies: [Utils.cursor(i, j, 'expandedTo', side, 'point')] },
+		y: { _dependencies: [Utils.cursor(i, j, 'expandedTo', side, 'point')] },
+		point: {
+			_dependencies: [Utils.cursor(i, j, 'x'), Utils.cursor(i, j, 'y'), Utils.cursor(i, j, 'expand')],
+			_parameters: ['width'],
+			_updaters: [function () {
+				var width = arguments[arguments.length - 1];
+
+				naive.expandedNodeUpdater(node.expandedTo[side], side === 0, width);
+			}]
+		},
+		all: {
+			_dependencies: Object.keys(node.src).map(function (key) {
+				return Utils.cursor(i, j, key);
+			}).concat([Utils.cursor(i, j, 'expandedTo', side, 'point')]),
+			_updaters: [function () {
+				naive.skeletonCopier(node);
+			}]
+		},
+		_dependencies: [Utils.cursor('contours', i, 'expandedTo', isClosed ? side : 0, 'all')]
+	};
+}
+
+function explicitExpandableNodeSrc(node, i, j) {
+	return {
+		point: { _dependencies: [] },
+		all: { _dependencies: [0, 1].map(function (side) {
+				return Utils.cursor(i, j, 'expandedTo', side, 'all');
+			}) },
+		_dependencies: []
+	};
+}
+
+function explicitExpandedNodeSrc(node, i, j, side, isClosed) {
+	return {
+		point: { _dependencies: [Utils.cursor(i, j, 'expandedTo', side, 'x'), Utils.cursor(i, j, 'expandedTo', side, 'y')] },
+		all: { _dependencies: Object.keys(node.src.expandedTo[side]).map(function (key) {
+				return Utils.cursor(i, j, 'expandedTo', side, key);
+			})
+		},
+		_dependencies: [Utils.cursor('contours', i, 'expandedTo', isClosed ? side : 0, 'all')]
+	};
+}
+
+function expandedContourSrc(contour, i, side) {
+	var half = contour.nodes.length / 2;
+
+	return {
+		all: {
+			_dependencies: contour.nodes.map(function (node, j) {
+				return side !== undefined ? Utils.cursor(i, j, 'expandedTo', side, 'all') : Utils.cursor(i, j % half, 'expandedTo', j < half ? 0 : 1, 'all');
+			}),
+			_parameters: ['curviness'],
+			_updaters: [function () {
+				var curviness = arguments[arguments.length - 1];
+
+				naive.prepareContour(contour);
+				naive.updateContour(contour, curviness);
+			}]
+		},
+		// nodes: nodesSrc,
+		_dependencies: [Utils.cursor('contours', i, 'expandedTo', side || 0, 'all')]
+	};
+}
+
+function contourSrc(contour, i) {
+	return {
+		all: {
+			_dependencies: contour.nodes.map(function (node, j) {
+				return Utils.cursor(i, j, 'all');
+			}),
+			_parameters: ['curviness'],
+			_updaters: [function () {
+				var curviness = arguments[arguments.length - 1];
+
+				naive.prepareContour(contour);
+				naive.updateContour(contour, curviness);
+			}]
+		},
+		_dependencies: contour.nodes.map(function (node, j) {
+			return Utils.cursor(i, j);
+		})
+	};
+}
+
+// default method to expand skeletons:
+// derives two additional node from every node with an .expand object
+naive.annotator = function (glyph) {
+	var additionalContours = [];
+
+	glyph.contours.forEach(function (contour, i) {
+		if (contour.skeleton !== true) {
+			// annotate nodes+points that aren't in a skeleton
+			contour.nodes.forEach(function (node, j) {
+				_.assign(node.src, autoExpandableNodeSrc(node, i, j));
+			});
+
+			_.assign(contour.src, contourSrc(contour, i));
+
+			return;
+		}
+
+		var leftContour,
+		    rightContour,
+		    leftNodes = [],
+		    rightNodes = [],
+		    leftNodesSrc = [],
+		    rightNodesSrc = [],
+		    firstNode,
+		    lastNode;
+
+		// skeletons should be hidden
+		contour.visible = false;
+
+		contour.nodes.forEach(function (node, j) {
+
+			var left = new paper.Node(),
+			    right = new paper.Node(),
+			    leftSrc,
+			    rightSrc;
+
+			leftNodes.push(left);
+			rightNodes.unshift(right);
+			node.expandedTo = [left, right];
+			left.expandedFrom = right.expandedFrom = node;
+
+			if (!node.src.expandedTo) {
+				// annotate nodes+points that are automatically expanded
+				leftSrc = autoExpandedNodeSrc(node, i, j, 0, contour.closed);
+				rightSrc = autoExpandedNodeSrc(node, i, j, 1, contour.closed);
+				node.src.expandedTo = [leftSrc, rightSrc];
+				_.assign(node.src, autoExpandableNodeSrc(node, i, j, !!'inSkeleton'));
+
+				// the expanded node might have been defined explicitely
+			} else if (node.src.expandedTo[0] && !node.src.expandedTo[0]._updaters) {
+				node.src.expandedTo.forEach(function (src, k) {
+					Utils.mergeStatic(node.expandedTo[k], src);
+				});
+
+				// annotate nodes+points that are explicitely expanded
+				leftSrc = _.assign(node.src.expandedTo[0], explicitExpandedNodeSrc(node, i, j, 0, contour.closed));
+				rightSrc = _.assign(node.src.expandedTo[1], explicitExpandedNodeSrc(node, i, j, 1, contour.closed));
+
+				_.assign(node.src, explicitExpandableNodeSrc(node, i, j));
+
+				// A leaf shouldn't appear twice during the recursive
+				// dependency-tree building. Make the expanded nodes accessible
+				// from expanded contours, and provide accessors on the
+				// .expandedFrom node.
+				// leftNodesSrc.push( leftSrc );
+				// rightNodesSrc.push( rightSrc );
+			}
+
+			// if ( leftSrc && rightSrc ) {
+			// 	Object.defineProperties( node.src.expandedTo = {}, {
+			// 		0: { get: function() {
+			// 			return leftSrc;
+			// 		}},
+			// 		1: { get: function() {
+			// 				return rightSrc;
+			// 		}}
+			// 	});
+			// }
+		});
+
+		if (!contour.expandedTo && !contour.closed) {
+			leftContour = new paper.Path({
+				closed: true,
+				segments: leftNodes.concat(rightNodes)
+			});
+			contour.expandedTo = [leftContour];
+			contour.src.expandedTo = [expandedContourSrc(leftContour, i
+			//, 0, leftNodesSrc.concat( rightNodesSrc )
+			)];
+			leftContour.expandedFrom = contour;
+			additionalContours.push(leftContour);
+
+			firstNode = contour.firstNode;
+			lastNode = contour.lastNode;
+
+			firstNode.type = 'corner';
+			lastNode.type = 'corner';
+
+			firstNode.expandedTo[0].type = 'corner';
+			firstNode.expandedTo[1].type = 'corner';
+			lastNode.expandedTo[0].type = 'corner';
+			lastNode.expandedTo[1].type = 'corner';
+
+			firstNode.expandedTo[0].typeIn = 'line';
+			firstNode.expandedTo[1].typeOut = 'line';
+			lastNode.expandedTo[0].typeOut = 'line';
+			lastNode.expandedTo[1].typeIn = 'line';
+		} else if (!contour.expandedTo && contour.closed) {
+			leftContour = new paper.Path({
+				closed: true,
+				segments: leftNodes
+			});
+			additionalContours.push(leftContour);
+			rightContour = new paper.Path({
+				closed: true,
+				segments: rightNodes
+			});
+			additionalContours.push(rightContour);
+
+			contour.expandedTo = [leftContour, rightContour];
+			contour.src.expandedTo = [expandedContourSrc(leftContour, i, 0, leftNodesSrc), expandedContourSrc(rightContour, i, 1, rightNodesSrc)];
+			leftContour.expandedFrom = rightContour.expandedFrom = contour;
+		}
+	});
+
+	glyph.addContours(additionalContours);
+};
+
+// Calculate expanded node position
+naive.expandedNodeUpdater = function (node, isLeft, _width) {
+	var origin = node.expandedFrom,
+	    expand = origin.expand,
+	    width = expand && expand.width !== undefined ? expand.width : _width,
+	    coef = expand && expand.distr !== undefined ? isLeft ? expand.distr : 1 - expand.distr : 0.5,
+	    angle = (isLeft ? Math.PI : 0) + (expand && expand.angle !== undefined ? expand.angle :
+	// We resort to using directions.
+	// This is wrong, directions are not included in the
+	// dependencies of the updater and might not be ready yet.
+	// TODO: Fix this (always require angle to be specified?)
+	origin._dirOut !== undefined ? origin._dirOut - Math.PI / 2 : origin._dirIn + Math.PI / 2);
+
+	// position
+	node.point.x = origin.point.x + width * coef * Math.cos(angle);
+	node.point.y = origin.point.y + width * coef * Math.sin(angle);
+};
+
+// copy skeleton properties such as types, directions and tensions to expanded
+// nodes
+naive.skeletonCopier = function (node) {
+	var angle = node.expand && node.expand.angle || 0,
+	    left = node.expandedTo[0],
+	    right = node.expandedTo[1];
+
+	// node type
+	if (node.type !== undefined) {
+		left.type = right.type = node.type;
+	}
+
+	// direction type
+	if (node.typeIn !== undefined) {
+		left.typeIn = right.typeOut = node.typeIn;
+	}
+	if (node.typeOut !== undefined) {
+		left.typeOut = right.typeIn = node.typeOut;
+	}
+
+	// direction
+	if (node._dirIn !== undefined) {
+		left._dirIn = right._dirOut = node._dirIn;
+
+		if (node.type === 'smooth' && node._dirOut === undefined) {
+			left._dirOut = right._dirIn = node._dirIn + Math.PI;
+		}
+	}
+	if (node._dirOut !== undefined) {
+		left._dirOut = right._dirIn = node._dirOut;
+
+		if (node.type === 'smooth' && node._dirIn === undefined) {
+			left._dirIn = right._dirOut = node._dirOut + Math.PI;
+		}
+	}
+	// use angle if direction isn't already defined
+	if (left._dirIn === undefined) {
+		// implies right._dirOut === undefined
+		left._dirIn = angle - Math.PI / 2;
+		right._dirOut = angle + Math.PI / 2;
+	}
+	if (left._dirOut === undefined) {
+		// implies right._dirIn === undefined
+		left._dirOut = angle + Math.PI / 2;
+		right._dirIn = angle - Math.PI / 2;
+	}
+
+	// tension
+	left.tensionIn = right.tensionOut = node.tensionIn !== undefined ? node.tensionIn : node.tension !== undefined ? node.tension : 1;
+	left.tensionOut = right.tensionIn = node.tensionOut !== undefined ? node.tensionOut : node.tension !== undefined ? node.tension : 1;
+};
+
+// Make sure 'line' types are set on both side of segments
+// and if a smooth node is used in a straight segment, update the directions
+// appropriately this can only be done once the types, directions and position
+// of all nodes have been updated can be renamed #prepareLines if no other
+// operation is added
+// TODO: try doing it at the same time as updateContour (once we have more
+// complex glyphs)
+naive.prepareContour = function (path) {
+	path.nodes.forEach(function (node) {
+		if (node.typeIn === 'line' && node.previous) {
+			node.previous.typeOut = 'line';
+		}
+
+		if (node.typeOut === 'line' && node.next) {
+			node.next.typeIn = 'line';
+		}
+	});
+
+	path.nodes.forEach(function (node) {
+		if (node.typeIn === 'line' && node.type === 'smooth' && node.previous) {
+
+			node._dirIn = Utils.lineAngle(node.point, node.previous.point);
+			node._dirOut = node._dirIn + Math.PI;
+		}
+
+		if (node.typeOut === 'line' && node.type === 'smooth' && node.next) {
+
+			node._dirOut = Utils.lineAngle(node.point, node.next.point);
+			node._dirIn = node._dirOut + Math.PI;
+		}
+	});
+};
+
+// sets the position of control points
+// can be renamed #updateControls if no other operation is added
+naive.updateContour = function (path, curviness) {
+	if (curviness === undefined) {
+		curviness = 2 / 3;
+	}
+
+	path.nodes.forEach(function (node) {
+		var start = node,
+		    end,
+		    startCtrl,
+		    endCtrl,
+		    startType,
+		    endType,
+		    startTension,
+		    endTension,
+		    startDir,
+		    endDir,
+		    rri;
+
+		if (!node.next) {
+			return;
+		}
+
+		end = node.next;
+		startCtrl = start.handleOut;
+		endCtrl = end.handleIn;
+
+		startType = start.typeOut;
+		endType = end.typeIn;
+
+		if (startType === 'line' || endType === 'line') {
+			startCtrl.x = 0;
+			startCtrl.y = 0;
+			endCtrl.x = 0;
+			endCtrl.y = 0;
+
+			return;
+		}
+
+		startTension = start.tensionOut !== undefined ? start.tensionOut : start.tension !== undefined ? start.tension : 1;
+		endTension = end.tensionIn !== undefined ? end.tensionIn : end.tension !== undefined ? end.tension : 1;
+
+		startDir = start._dirOut !== undefined ? start._dirOut : start.type === 'smooth' ? start._dirIn + Math.PI : 0;
+		endDir = end._dirIn !== undefined ? end._dirIn : end.type === 'smooth' ? end._dirOut - Math.PI : 0;
+
+		rri = Utils.rayRayIntersection(start._point, startDir, end._point, endDir);
+
+		// direction of handles is parallel
+		if (rri === null) {
+			var angle = Utils.lineAngle(start._point, end._point),
+			    middle = {
+				x: (end._point.x - start._point.x) / 2 + start._point.x,
+				y: (end._point.y - start._point.y) / 2 + start._point.y
+			},
+			    p0 = Utils.rayRayIntersection(start._point, startDir, middle, angle - Math.PI / 2),
+			    p1 = Utils.rayRayIntersection(middle, angle + Math.PI / 2, end._point, endDir);
+
+			if (p0 === null) {
+				startCtrl.x = 0;
+				startCtrl.y = 0;
+				endCtrl.x = 0;
+				endCtrl.y = 0;
+
+				return;
+			}
+
+			startCtrl.x = (Math.round(p0[0]) - start._point.x) * curviness * startTension;
+			startCtrl.y = (Math.round(p0[1]) - start._point.y) * curviness * startTension;
+			endCtrl.x = (Math.round(p1[0]) - end._point.x) * curviness * endTension;
+			endCtrl.y = (Math.round(p1[1]) - end._point.y) * curviness * endTension;
+
+			return;
+		}
+
+		startCtrl.x = (Math.round(rri[0]) - start.point.x) * curviness * startTension;
+		startCtrl.y = (Math.round(rri[1]) - start.point.y) * curviness * startTension;
+		endCtrl.x = (Math.round(rri[0]) - end.point.x) * curviness * endTension;
+		endCtrl.y = (Math.round(rri[1]) - end.point.y) * curviness * endTension;
+	});
+};
+
+var rdeg = /deg$/;
+Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
+	expand: {
+		get: function get() {
+			return this._expand;
+		},
+		set: function set(expand) {
+			if (typeof expand.angle === 'string' && rdeg.test(expand.angle)) {
+				expand.angle = parseFloat(expand.angle) * (Math.PI * 2 / 360);
+			}
+
+			this._expand = expand;
+		}
+	},
+	dirIn: {
+		get: function get() {
+			return this._dirIn;
+		},
+		set: function set(dir) {
+			if (typeof dir === 'string' && rdeg.test(dir)) {
+				this._dirIn = parseFloat(dir) * (Math.PI * 2 / 360);
+			} else {
+				this._dirIn = dir;
+			}
+		}
+	},
+	dirOut: {
+		get: function get() {
+			return this._dirOut;
+		},
+		set: function set(dir) {
+			if (typeof dir === 'string' && rdeg.test(dir)) {
+				this._dirOut = parseFloat(dir) * (Math.PI * 2 / 360);
+			} else {
+				this._dirOut = dir;
+			}
+		}
+	}
+});
+
+module.exports = naive;
 
 /***/ },
-/* 31 */
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+'use strict';
+
+var plumin = __webpack_require__(0),
+    paper = plumin.paper;
+
+var Utils = {};
+
+/* eslint-disable */
+// The following function should be useless, thanks to paper
+Utils.lineLineIntersection = function (p1, p2, p3, p4) {
+	var x1 = p1.x,
+	    y1 = p1.y,
+	    x2 = p2.x,
+	    y2 = p2.y,
+	    x3 = p3.x,
+	    y3 = p3.y,
+	    x4 = p4.x,
+	    y4 = p4.y,
+	    d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+
+	if (d === 0) {
+		return null;
+	}
+
+	return new Float32Array([((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / d, ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / d]);
+};
+
+// Find the intersection of two rays.
+// A ray is defined by a point and an angle.
+Utils.rayRayIntersection = function (p1, a1, p2, a2) {
+	// line equations
+	var a = Math.tan(a1),
+	    b = Math.tan(a2),
+	    c = p1.y - a * p1.x,
+	    d = p2.y - b * p2.x,
+	    x,
+	    y;
+
+	// When searching for lines intersection,
+	// angles can be normalized to 0 < a < PI
+	// This will be helpful in detecting special cases below.
+	a1 = a1 % Math.PI;
+	if (a1 < 0) {
+		a1 += Math.PI;
+	}
+	a2 = a2 % Math.PI;
+	if (a2 < 0) {
+		a2 += Math.PI;
+	}
+
+	// no intersection
+	if (a1 === a2) {
+		return null;
+	}
+
+	//We want to round a1, a2 and PI to avoid problems with approximation
+	a1 = a1.toFixed(6);
+	a2 = a2.toFixed(6);
+	var piOver2 = (Math.PI / 2).toFixed(6);
+
+	// Optimize frequent and easy special cases.
+	// Without optimization, results would be incorrect when cos(a) === 0
+	if (a1 === 0) {
+		y = p1.y;
+	} else if (a1 === piOver2) {
+		x = p1.x;
+	}
+	if (a2 === 0) {
+		y = p2.y;
+	} else if (a2 === piOver2) {
+		x = p2.x;
+	}
+
+	// easiest case
+	if (x !== undefined && y !== undefined) {
+		return new Float32Array([x, y]);
+	}
+
+	// other cases that can be optimized
+	if (a1 === 0) {
+		return new Float32Array([(y - d) / b, y]);
+	}
+	if (a1 === piOver2) {
+		return new Float32Array([x, b * x + d]);
+	}
+	if (a2 === 0) {
+		return new Float32Array([(y - c) / a, y]);
+	}
+	if (a2 === piOver2) {
+		return new Float32Array([x, a * x + c]);
+	}
+
+	// intersection from two line equations
+	// algo: http://en.wikipedia.org/wiki/Line–line_intersection#Given_the_equations_of_the_lines
+	return new Float32Array([x = (d - c) / (a - b),
+	// this should work equally well with ax+c or bx+d
+	a * x + c]);
+};
+
+// return the angle between two points
+Utils.lineAngle = function (p0, p1) {
+	return Math.atan2(p1.y - p0.y, p1.x - p0.x);
+};
+
+Utils.onLine = function (params) {
+	if (params.on[0].x === params.on[1].x && params.on[0].y === params.on[1].y) {
+		return 'x' in params ? params.on[0].y : params.on[0].x;
+	}
+
+	var origin = params.on[0],
+	    vector = [params.on[1].x - params.on[0].x, params.on[1].y - params.on[0].y];
+
+	return 'x' in params ? (params.x - origin.x) / vector[0] * vector[1] + origin.y : (params.y - origin.y) / vector[1] * vector[0] + origin.x;
+};
+
+Utils.pointOnCurve = function (pointHandleOut, pointHandleIn, distanceFromOut, inverseOrientation, linePrecision) {
+	linePrecision = linePrecision || 3;
+	var length = 0;
+	var previousPoint;
+
+	var points;
+	if (!inverseOrientation) {
+		points = [pointHandleOut.point, pointHandleOut.point.add(pointHandleOut.handleOut), pointHandleIn.point.add(pointHandleIn.handleIn), pointHandleIn.point];
+	} else {
+		points = [pointHandleIn.point, pointHandleIn.point.add(pointHandleIn.handleIn), pointHandleOut.point.add(pointHandleOut.handleOut), pointHandleOut.point];
+	}
+
+	for (var i = 0; i < linePrecision; i++) {
+		var point = Utils.getPointOnCurve(points, i / (linePrecision - 1));
+
+		if (previousPoint) {
+			length += Utils.distance(previousPoint.x, previousPoint.y, point.x, point.y);
+		}
+
+		previousPoint = point;
+	}
+
+	var t = length === 0 ? 0 : distanceFromOut / length;
+
+	t = Math.max(0.001, Math.min(1, t));
+
+	return Utils.getPointOnCurve(points, t);
+};
+
+Utils.getPointOnCurve = function (points, t) {
+	var inverseT = 1 - t;
+	var a = inverseT * inverseT * inverseT;
+	var b = inverseT * inverseT * t * 3;
+	var c = inverseT * t * t * 3;
+	var d = t * t * t;
+
+	return {
+		x: a * points[0].x + b * points[1].x + c * points[2].x + d * points[3].x,
+		y: a * points[0].y + b * points[1].y + c * points[2].y + d * points[3].y,
+		normal: Utils.lineAngle({
+			x: 0,
+			y: 0
+		}, {
+			x: (points[1].x - points[0].x) * inverseT * inverseT + 2 * (points[2].x - points[1].x) * t * inverseT + (points[3].x - points[2].x) * t * t,
+			y: (points[1].y - points[0].y) * inverseT * inverseT + 2 * (points[2].y - points[1].y) * t * inverseT + (points[3].y - points[2].y) * t * t
+		})
+	};
+};
+
+Utils.split = function (points, t, base) {
+	t = t || 1;
+	var result = points;
+	while (points.length > 1) {
+		var newPoints = [];
+		for (var i = 1; i < points.length; i++) {
+			newPoints.push(points[i - 1].multiply(1 - t).add(points[i].multiply(t)));
+		}
+
+		result = result.concat(newPoints);
+		points = newPoints;
+	}
+
+	if (t === 1) {
+		return {
+			left: [base[1], base[0]],
+			right: [base[1], base[1]]
+		};
+	}
+
+	var splitBezier = {
+		left: [{
+			x: result[0].x,
+			y: result[0].y,
+			point: new paper.Point(result[0].x, result[0].y),
+			handleOut: new paper.Point(result[4].x - result[0].x, result[4].y - result[0].y)
+		}, {
+			x: result[9].x,
+			y: result[9].y,
+			point: new paper.Point(result[9].x, result[9].y),
+			handleIn: new paper.Point(result[7].x - result[9].x, result[7].y - result[9].y),
+			handleOut: new paper.Point(result[8].x - result[9].x, result[8].y - result[9].y)
+		}],
+		right: [{
+			x: result[9].x,
+			y: result[9].y,
+			point: new paper.Point(result[9].x, result[9].y),
+			handleIn: new paper.Point(result[7].x - result[9].x, result[7].y - result[9].y),
+			handleOut: new paper.Point(result[8].x - result[9].x, result[8].y - result[9].y)
+		}, {
+			x: result[3].x,
+			y: result[3].y,
+			point: new paper.Point(result[3].x, result[3].y),
+			handleIn: new paper.Point(result[6].x - result[3].x, result[6].y - result[3].y)
+		}]
+	};
+	return splitBezier;
+};
+
+Utils.distance = function (x1, y1, x2, y2) {
+	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y1 - y2, 2));
+};
+
+Utils.align = function (points, lineStart, lineEnd) {
+	var tx = lineStart.x,
+	    ty = lineStart.y,
+	    a = -Math.atan2(lineEnd.y - ty, lineEnd.x - tx),
+	    d = function d(v) {
+		return {
+			x: (v.x - tx) * Math.cos(a) - (v.y - ty) * Math.sin(a),
+			y: (v.x - tx) * Math.sin(a) + (v.y - ty) * Math.cos(a)
+		};
+	};
+	return points.map(d);
+};
+
+function crt(v) {
+	return v < 0 ? -Math.pow(-v, 1 / 3) : Math.pow(v, 1 / 3);
+}
+
+// see https://github.com/Pomax/bezierjs/blob/gh-pages/lib/utils.js line 313
+Utils.lineCurveIntersection = function (pointHandleOut, pointHandleIn, lineStart, lineEnd) {
+	lineStart = lineStart || { x: 0, y: 0 };
+	lineEnd = lineEnd || { x: 1, y: 0 };
+	var points = [pointHandleOut.point, pointHandleOut.point.add(pointHandleOut.handleOut), pointHandleIn.point.add(pointHandleIn.handleIn), pointHandleIn.point];
+	var p = Utils.align(points, lineStart, lineEnd);
+	var reduce = function reduce(t) {
+		return 0 <= t && t <= 1;
+	};
+
+	// see http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
+	var pa = p[0].y;
+	var pb = p[1].y;
+	var pc = p[2].y;
+	var pd = p[3].y;
+	var d = -pa + 3 * pb - 3 * pc + pd;
+	var a = (3 * pa - 6 * pb + 3 * pc) / d;
+	var b = (-3 * pa + 3 * pb) / d;
+	var c = pa / d;
+	var p3 = (3 * b - a * a) / 3 / 3;
+	var q = (2 * a * a * a - 9 * a * b + 27 * c) / 27;
+	var q2 = q / 2;
+	var discriminant = q2 * q2 + p3 * p3 * p3;
+	var u1;
+	var v1;
+	var x1;
+	var x2;
+	var x3;
+
+	var result;
+
+	if (discriminant < 0) {
+		var mp3 = -p3,
+		    mp33 = mp3 * mp3 * mp3,
+		    r = Math.sqrt(mp33),
+		    t = -q / (2 * r),
+		    cosphi = t < -1 ? -1 : t > 1 ? 1 : t,
+		    phi = Math.acos(cosphi),
+		    crtr = crt(r),
+		    t1 = 2 * crtr;
+		x1 = t1 * Math.cos(phi / 3) - a / 3;
+		x2 = t1 * Math.cos((phi + Math.PI * 2) / 3) - a / 3;
+		x3 = t1 * Math.cos((phi + 4 * Math.PI) / 3) - a / 3;
+		result = [x1, x2, x3].filter(reduce);
+	} else if (discriminant === 0) {
+		u1 = q2 < 0 ? crt(-q2) : -crt(q2);
+		x1 = 2 * u1 - a / 3;
+		x2 = -u1 - a / 3;
+		result = [x1, x2].filter(reduce);
+	} else {
+		var sd = Math.sqrt(discriminant);
+		u1 = crt(-q2 + sd);
+		v1 = crt(q2 + sd);
+		result = [u1 - v1 - a / 3].filter(reduce);
+	}
+
+	return Utils.split(points, result[0], [pointHandleIn, pointHandleOut]);
+};
+
+Utils.log = function () {
+	/*eslint-disable no-console */
+	console.log.apply(console, arguments);
+	/*eslint-enable no-console */
+	return arguments[0];
+};
+
+Utils.normalize = function (vector) {
+	var x = vector.x;
+	var y = vector.y;
+
+	var norm = Utils.distance(0, 0, x, y);
+
+	if (norm === 0) {
+		return {
+			x: 0,
+			y: 0
+		};
+	}
+
+	return {
+		x: x / norm,
+		y: y / norm
+	};
+};
+
+Utils.vectorFromPoints = function (a, b) {
+	return {
+		x: b.x - a.x,
+		y: b.y - a.y
+	};
+};
+
+Utils.parseInt = function (int) {
+	return parseInt(int);
+};
+
+Utils.makeCurveInsideSerif = function (pAnchors, serifHeight, serifWidth, serifMedian, serifCurve, serifTerminal, thickness, midWidth, serifRotate) {
+	var yDir = pAnchors.down ? -1 : 1;
+	var xDir = pAnchors.left ? -1 : 1;
+	var midStumpOrient = pAnchors.inverseMidStump ? -1 : 1;
+	var realThickness = pAnchors.thickness || thickness;
+
+	var rotateRad = (serifRotate * pAnchors.rotationAngle || 0) * Math.PI / 180;
+	var baseWidth = pAnchors.baseWidth;
+	var baseHeight = pAnchors.baseHeight;
+	var stumpOpposite = pAnchors.opposite;
+	var stumpVector = {
+		x: stumpOpposite.x - baseHeight.x,
+		y: stumpOpposite.y - baseHeight.y
+	};
+	var stumpNorm = Utils.distance(0, 0, stumpVector.x, stumpVector.y);
+	stumpVector = Utils.normalize(stumpVector);
+	var stumpAngle = Utils.lineAngle(baseHeight, stumpOpposite);
+
+	var rotationCenter = pAnchors.rotationCenter;
+	var topLeft = {
+		x: rotationCenter.x + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.cos(rotateRad) - (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.sin(rotateRad),
+		y: rotationCenter.y + (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.cos(rotateRad) + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.sin(rotateRad)
+	};
+	var bottomLeft = {
+		x: rotationCenter.x + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.cos(rotateRad) - (baseHeight.y - rotationCenter.y) * Math.sin(rotateRad),
+		y: rotationCenter.y + (baseHeight.y - rotationCenter.y) * Math.cos(rotateRad) + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.sin(rotateRad)
+	};
+
+	//We get the intersection with the left edge of the serif and the curve support
+	//this operation is direction dependent
+	var splitBase;
+	if (pAnchors.inverseOrder) {
+		splitBase = Utils.lineCurveIntersection(pAnchors.curveEnd, pAnchors.baseWidth, { x: topLeft.x, y: topLeft.y }, { x: bottomLeft.x, y: bottomLeft.y });
+	} else {
+		splitBase = Utils.lineCurveIntersection(pAnchors.baseWidth, pAnchors.curveEnd, { x: topLeft.x, y: topLeft.y }, { x: bottomLeft.x, y: bottomLeft.y });
+	}
+
+	// We chose a serifCenter depending on if the left edge intersect or not with
+	// the curve support
+	var serifCenter;
+	var splitCurveEnd;
+
+	if (!pAnchors.inverseOrder) {
+		if (splitBase.right[0].x !== splitBase.right[1].x || splitBase.right[0].y !== splitBase.right[1].y) {
+			serifCenter = splitBase.right[0];
+			splitCurveEnd = splitBase.right[1];
+		} else {
+			serifCenter = splitBase.left[0];
+			splitCurveEnd = splitBase.left[1];
+		}
+	} else {
+		if (splitBase.left[0].x !== splitBase.left[1].x || splitBase.left[0].y !== splitBase.left[1].y) {
+			serifCenter = splitBase.left[1];
+			splitCurveEnd = splitBase.left[0];
+		} else {
+			serifCenter = splitBase.right[1];
+			splitCurveEnd = splitBase.right[0];
+		}
+	}
+
+	// The serif direction is the line from the serif center
+	// to the serif left edge
+	var serifDirection = Utils.vectorFromPoints(serifCenter, {
+		x: rotationCenter.x + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * serifMedian * Math.cos(rotateRad) - (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.sin(rotateRad),
+		y: rotationCenter.y + (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.cos(rotateRad) + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * serifMedian * Math.sin(rotateRad)
+	});
+
+	var serifBasis = Utils.normalize(serifDirection);
+	var serifRadDirection = Math.atan2(serifBasis.y, serifBasis.x);
+
+	var pointOnCurve;
+	var pointOnSerif;
+	var pointWithCurve = {};
+	var normalToCurve;
+
+	if (pAnchors.inverseOrder) {
+		pointWithCurve = Utils.pointOnCurve(splitCurveEnd, serifCenter, serifCurve, true, 200);
+	} else {
+		pointWithCurve = Utils.pointOnCurve(serifCenter, splitCurveEnd, serifCurve, false, 200);
+	}
+
+	if (serifCurve > 0) {
+		normalToCurve = pointWithCurve.normal;
+		pointOnCurve = {
+			x: pointWithCurve.x,
+			y: pointWithCurve.y,
+			dirOut: pointWithCurve.normal,
+			type: 'corner'
+		};
+		var curveRatio = Math.min(serifCurve / Utils.distance(0, 0, serifDirection.x, serifDirection.y), 0.75);
+		pointOnSerif = {
+			x: serifCenter.x + serifDirection.x * curveRatio,
+			y: serifCenter.y + serifDirection.y * curveRatio,
+			dirIn: serifRadDirection,
+			dirOut: serifRadDirection,
+			type: 'corner'
+		};
+	} else {
+		if (pAnchors.inverseOrder) {
+			normalToCurve = serifCenter.handleIn.angleInRadians;
+		} else {
+			normalToCurve = serifCenter.handleOut.angleInRadians;
+		}
+		pointOnCurve = {
+			x: serifCenter.x,
+			y: serifCenter.y,
+			type: 'corner'
+		};
+		pointOnSerif = {
+			x: serifCenter.x,
+			y: serifCenter.y,
+			type: 'corner'
+		};
+	}
+	var leftEdge = {
+		x: serifCenter.x + serifDirection.x,
+		y: serifCenter.y + serifDirection.y,
+		dirIn: serifRadDirection,
+		dirOut: rotateRad
+	};
+	var rightEdge = {
+		x: rotationCenter.x - (baseWidth.y - rotationCenter.y + serifWidth * midWidth * yDir) * Math.sin(rotateRad),
+		y: rotationCenter.y + (baseWidth.y - rotationCenter.y + serifWidth * midWidth * yDir) * Math.cos(rotateRad),
+		dirIn: rotateRad,
+		typeOut: 'line'
+	};
+	var serifRoot = {
+		x: baseHeight.x,
+		y: baseHeight.y
+	};
+
+	var rootVector = Utils.normalize(Utils.vectorFromPoints(serifRoot, rightEdge));
+	var medianVector = Utils.normalize(Utils.vectorFromPoints(pointOnSerif, leftEdge));
+
+	var terminalVector = Utils.normalize({
+		x: rootVector.x + medianVector.x,
+		y: rootVector.y + medianVector.y
+	});
+
+	var midPoint = {
+		x: (leftEdge.x + rightEdge.x) / 2 + serifTerminal * serifHeight * terminalVector.x * xDir,
+		y: (leftEdge.y + rightEdge.y) / 2 + serifTerminal * serifHeight * terminalVector.y * xDir,
+		dirIn: rotateRad,
+		dirOut: rotateRad
+	};
+
+	if (serifTerminal !== 0) {
+		leftEdge.dirOut = Math.atan2(medianVector.y, medianVector.x);
+		rightEdge.dirIn = Math.atan2(rootVector.y, rootVector.x);
+	} else if (midWidth !== 1) {
+		var dirOut = Math.atan2(leftEdge.y - rightEdge.y, leftEdge.x - rightEdge.x);
+		leftEdge.dirOut = dirOut;
+		rightEdge.dirIn = dirOut;
+		midPoint.dirIn = dirOut;
+		midPoint.dirOut = dirOut;
+	}
+
+	var midStump = {
+		x: serifRoot.x + stumpNorm / 2 * stumpVector.x,
+		y: serifRoot.y + stumpNorm / 2 * stumpVector.y,
+		dirOut: baseWidth.dirIn,
+		typeIn: 'line',
+		type: 'corner'
+	};
+
+	var lastPoint = {
+		x: pointOnCurve.x - stumpNorm / 2 * Math.sin(normalToCurve) * yDir * xDir,
+		y: pointOnCurve.y + stumpNorm / 2 * Math.cos(normalToCurve) * yDir * xDir,
+		dirIn: normalToCurve,
+		typeOut: 'line',
+		type: 'corner'
+	};
+
+	if (serifCurve + serifHeight < 70) {
+		midStump.tensionOut = 0;
+		lastPoint.tensionIn = 0;
+	} else {
+		midStump.tensionOut = 1;
+		lastPoint.tensionIn = 1;
+	}
+
+	return [pointOnCurve, pointOnSerif, leftEdge, midPoint, rightEdge, rotationCenter, serifRoot, midStump, lastPoint];
+};
+/* eslint-enable */
+
+module.exports = Utils;
+
+/***/ },
+/* 7 */
 /***/ function(module, exports) {
 
 var DepTree = function() {
@@ -26644,2223 +29024,7 @@ module.exports = DepTree;
 
 
 /***/ },
-/* 32 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(1),
-    root = __webpack_require__(0);
-
-/* Built-in method references that are verified to be native. */
-var DataView = getNative(root, 'DataView');
-
-module.exports = DataView;
-
-
-/***/ },
-/* 33 */
-/***/ function(module, exports, __webpack_require__) {
-
-var hashClear = __webpack_require__(72),
-    hashDelete = __webpack_require__(73),
-    hashGet = __webpack_require__(74),
-    hashHas = __webpack_require__(75),
-    hashSet = __webpack_require__(76);
-
-/**
- * Creates a hash object.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function Hash(entries) {
-  var index = -1,
-      length = entries ? entries.length : 0;
-
-  this.clear();
-  while (++index < length) {
-    var entry = entries[index];
-    this.set(entry[0], entry[1]);
-  }
-}
-
-// Add methods to `Hash`.
-Hash.prototype.clear = hashClear;
-Hash.prototype['delete'] = hashDelete;
-Hash.prototype.get = hashGet;
-Hash.prototype.has = hashHas;
-Hash.prototype.set = hashSet;
-
-module.exports = Hash;
-
-
-/***/ },
-/* 34 */
-/***/ function(module, exports, __webpack_require__) {
-
-var mapCacheClear = __webpack_require__(88),
-    mapCacheDelete = __webpack_require__(89),
-    mapCacheGet = __webpack_require__(90),
-    mapCacheHas = __webpack_require__(91),
-    mapCacheSet = __webpack_require__(92);
-
-/**
- * Creates a map cache object to store key-value pairs.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function MapCache(entries) {
-  var index = -1,
-      length = entries ? entries.length : 0;
-
-  this.clear();
-  while (++index < length) {
-    var entry = entries[index];
-    this.set(entry[0], entry[1]);
-  }
-}
-
-// Add methods to `MapCache`.
-MapCache.prototype.clear = mapCacheClear;
-MapCache.prototype['delete'] = mapCacheDelete;
-MapCache.prototype.get = mapCacheGet;
-MapCache.prototype.has = mapCacheHas;
-MapCache.prototype.set = mapCacheSet;
-
-module.exports = MapCache;
-
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(1),
-    root = __webpack_require__(0);
-
-/* Built-in method references that are verified to be native. */
-var Promise = getNative(root, 'Promise');
-
-module.exports = Promise;
-
-
-/***/ },
-/* 36 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(1),
-    root = __webpack_require__(0);
-
-/* Built-in method references that are verified to be native. */
-var Set = getNative(root, 'Set');
-
-module.exports = Set;
-
-
-/***/ },
-/* 37 */
-/***/ function(module, exports, __webpack_require__) {
-
-var ListCache = __webpack_require__(2),
-    stackClear = __webpack_require__(97),
-    stackDelete = __webpack_require__(98),
-    stackGet = __webpack_require__(99),
-    stackHas = __webpack_require__(100),
-    stackSet = __webpack_require__(101);
-
-/**
- * Creates a stack cache object to store key-value pairs.
- *
- * @private
- * @constructor
- * @param {Array} [entries] The key-value pairs to cache.
- */
-function Stack(entries) {
-  var data = this.__data__ = new ListCache(entries);
-  this.size = data.size;
-}
-
-// Add methods to `Stack`.
-Stack.prototype.clear = stackClear;
-Stack.prototype['delete'] = stackDelete;
-Stack.prototype.get = stackGet;
-Stack.prototype.has = stackHas;
-Stack.prototype.set = stackSet;
-
-module.exports = Stack;
-
-
-/***/ },
-/* 38 */
-/***/ function(module, exports, __webpack_require__) {
-
-var root = __webpack_require__(0);
-
-/** Built-in value references. */
-var Symbol = root.Symbol;
-
-module.exports = Symbol;
-
-
-/***/ },
-/* 39 */
-/***/ function(module, exports, __webpack_require__) {
-
-var root = __webpack_require__(0);
-
-/** Built-in value references. */
-var Uint8Array = root.Uint8Array;
-
-module.exports = Uint8Array;
-
-
-/***/ },
-/* 40 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(1),
-    root = __webpack_require__(0);
-
-/* Built-in method references that are verified to be native. */
-var WeakMap = getNative(root, 'WeakMap');
-
-module.exports = WeakMap;
-
-
-/***/ },
-/* 41 */
-/***/ function(module, exports) {
-
-/**
- * Adds the key-value `pair` to `map`.
- *
- * @private
- * @param {Object} map The map to modify.
- * @param {Array} pair The key-value pair to add.
- * @returns {Object} Returns `map`.
- */
-function addMapEntry(map, pair) {
-  // Don't return `map.set` because it's not chainable in IE 11.
-  map.set(pair[0], pair[1]);
-  return map;
-}
-
-module.exports = addMapEntry;
-
-
-/***/ },
-/* 42 */
-/***/ function(module, exports) {
-
-/**
- * Adds `value` to `set`.
- *
- * @private
- * @param {Object} set The set to modify.
- * @param {*} value The value to add.
- * @returns {Object} Returns `set`.
- */
-function addSetEntry(set, value) {
-  // Don't return `set.add` because it's not chainable in IE 11.
-  set.add(value);
-  return set;
-}
-
-module.exports = addSetEntry;
-
-
-/***/ },
-/* 43 */
-/***/ function(module, exports) {
-
-/**
- * A specialized version of `_.forEach` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns `array`.
- */
-function arrayEach(array, iteratee) {
-  var index = -1,
-      length = array ? array.length : 0;
-
-  while (++index < length) {
-    if (iteratee(array[index], index, array) === false) {
-      break;
-    }
-  }
-  return array;
-}
-
-module.exports = arrayEach;
-
-
-/***/ },
-/* 44 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseTimes = __webpack_require__(55),
-    isArguments = __webpack_require__(102),
-    isArray = __webpack_require__(12),
-    isBuffer = __webpack_require__(26),
-    isIndex = __webpack_require__(80),
-    isTypedArray = __webpack_require__(104);
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Creates an array of the enumerable property names of the array-like `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @param {boolean} inherited Specify returning inherited property names.
- * @returns {Array} Returns the array of property names.
- */
-function arrayLikeKeys(value, inherited) {
-  var isArr = isArray(value),
-      isArg = !isArr && isArguments(value),
-      isBuff = !isArr && !isArg && isBuffer(value),
-      isType = !isArr && !isArg && !isBuff && isTypedArray(value),
-      skipIndexes = isArr || isArg || isBuff || isType,
-      result = skipIndexes ? baseTimes(value.length, String) : [],
-      length = result.length;
-
-  for (var key in value) {
-    if ((inherited || hasOwnProperty.call(value, key)) &&
-        !(skipIndexes && (
-           // Safari 9 has enumerable `arguments.length` in strict mode.
-           key == 'length' ||
-           // Node.js 0.10 has enumerable non-index properties on buffers.
-           (isBuff && (key == 'offset' || key == 'parent')) ||
-           // PhantomJS 2 has enumerable non-index properties on typed arrays.
-           (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
-           // Skip index properties.
-           isIndex(key, length)
-        ))) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-module.exports = arrayLikeKeys;
-
-
-/***/ },
-/* 45 */
-/***/ function(module, exports) {
-
-/**
- * Appends the elements of `values` to `array`.
- *
- * @private
- * @param {Array} array The array to modify.
- * @param {Array} values The values to append.
- * @returns {Array} Returns `array`.
- */
-function arrayPush(array, values) {
-  var index = -1,
-      length = values.length,
-      offset = array.length;
-
-  while (++index < length) {
-    array[offset + index] = values[index];
-  }
-  return array;
-}
-
-module.exports = arrayPush;
-
-
-/***/ },
-/* 46 */
-/***/ function(module, exports, __webpack_require__) {
-
-var copyObject = __webpack_require__(19),
-    keys = __webpack_require__(14);
-
-/**
- * The base implementation of `_.assign` without support for multiple sources
- * or `customizer` functions.
- *
- * @private
- * @param {Object} object The destination object.
- * @param {Object} source The source object.
- * @returns {Object} Returns `object`.
- */
-function baseAssign(object, source) {
-  return object && copyObject(source, keys(source), object);
-}
-
-module.exports = baseAssign;
-
-
-/***/ },
-/* 47 */
-/***/ function(module, exports, __webpack_require__) {
-
-var Stack = __webpack_require__(37),
-    arrayEach = __webpack_require__(43),
-    assignValue = __webpack_require__(17),
-    baseAssign = __webpack_require__(46),
-    cloneBuffer = __webpack_require__(57),
-    copyArray = __webpack_require__(64),
-    copySymbols = __webpack_require__(65),
-    getAllKeys = __webpack_require__(68),
-    getTag = __webpack_require__(70),
-    initCloneArray = __webpack_require__(77),
-    initCloneByTag = __webpack_require__(78),
-    initCloneObject = __webpack_require__(79),
-    isArray = __webpack_require__(12),
-    isBuffer = __webpack_require__(26),
-    isObject = __webpack_require__(6),
-    keys = __webpack_require__(14);
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]',
-    arrayTag = '[object Array]',
-    boolTag = '[object Boolean]',
-    dateTag = '[object Date]',
-    errorTag = '[object Error]',
-    funcTag = '[object Function]',
-    genTag = '[object GeneratorFunction]',
-    mapTag = '[object Map]',
-    numberTag = '[object Number]',
-    objectTag = '[object Object]',
-    regexpTag = '[object RegExp]',
-    setTag = '[object Set]',
-    stringTag = '[object String]',
-    symbolTag = '[object Symbol]',
-    weakMapTag = '[object WeakMap]';
-
-var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
-    float32Tag = '[object Float32Array]',
-    float64Tag = '[object Float64Array]',
-    int8Tag = '[object Int8Array]',
-    int16Tag = '[object Int16Array]',
-    int32Tag = '[object Int32Array]',
-    uint8Tag = '[object Uint8Array]',
-    uint8ClampedTag = '[object Uint8ClampedArray]',
-    uint16Tag = '[object Uint16Array]',
-    uint32Tag = '[object Uint32Array]';
-
-/** Used to identify `toStringTag` values supported by `_.clone`. */
-var cloneableTags = {};
-cloneableTags[argsTag] = cloneableTags[arrayTag] =
-cloneableTags[arrayBufferTag] = cloneableTags[dataViewTag] =
-cloneableTags[boolTag] = cloneableTags[dateTag] =
-cloneableTags[float32Tag] = cloneableTags[float64Tag] =
-cloneableTags[int8Tag] = cloneableTags[int16Tag] =
-cloneableTags[int32Tag] = cloneableTags[mapTag] =
-cloneableTags[numberTag] = cloneableTags[objectTag] =
-cloneableTags[regexpTag] = cloneableTags[setTag] =
-cloneableTags[stringTag] = cloneableTags[symbolTag] =
-cloneableTags[uint8Tag] = cloneableTags[uint8ClampedTag] =
-cloneableTags[uint16Tag] = cloneableTags[uint32Tag] = true;
-cloneableTags[errorTag] = cloneableTags[funcTag] =
-cloneableTags[weakMapTag] = false;
-
-/**
- * The base implementation of `_.clone` and `_.cloneDeep` which tracks
- * traversed objects.
- *
- * @private
- * @param {*} value The value to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @param {boolean} [isFull] Specify a clone including symbols.
- * @param {Function} [customizer] The function to customize cloning.
- * @param {string} [key] The key of `value`.
- * @param {Object} [object] The parent object of `value`.
- * @param {Object} [stack] Tracks traversed objects and their clone counterparts.
- * @returns {*} Returns the cloned value.
- */
-function baseClone(value, isDeep, isFull, customizer, key, object, stack) {
-  var result;
-  if (customizer) {
-    result = object ? customizer(value, key, object, stack) : customizer(value);
-  }
-  if (result !== undefined) {
-    return result;
-  }
-  if (!isObject(value)) {
-    return value;
-  }
-  var isArr = isArray(value);
-  if (isArr) {
-    result = initCloneArray(value);
-    if (!isDeep) {
-      return copyArray(value, result);
-    }
-  } else {
-    var tag = getTag(value),
-        isFunc = tag == funcTag || tag == genTag;
-
-    if (isBuffer(value)) {
-      return cloneBuffer(value, isDeep);
-    }
-    if (tag == objectTag || tag == argsTag || (isFunc && !object)) {
-      result = initCloneObject(isFunc ? {} : value);
-      if (!isDeep) {
-        return copySymbols(value, baseAssign(result, value));
-      }
-    } else {
-      if (!cloneableTags[tag]) {
-        return object ? value : {};
-      }
-      result = initCloneByTag(value, tag, baseClone, isDeep);
-    }
-  }
-  // Check for circular references and return its corresponding clone.
-  stack || (stack = new Stack);
-  var stacked = stack.get(value);
-  if (stacked) {
-    return stacked;
-  }
-  stack.set(value, result);
-
-  var props = isArr ? undefined : (isFull ? getAllKeys : keys)(value);
-  arrayEach(props || value, function(subValue, key) {
-    if (props) {
-      key = subValue;
-      subValue = value[key];
-    }
-    // Recursively populate clone (susceptible to call stack limits).
-    assignValue(result, key, baseClone(subValue, isDeep, isFull, customizer, key, value, stack));
-  });
-  return result;
-}
-
-module.exports = baseClone;
-
-
-/***/ },
-/* 48 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isObject = __webpack_require__(6);
-
-/** Built-in value references. */
-var objectCreate = Object.create;
-
-/**
- * The base implementation of `_.create` without support for assigning
- * properties to the created object.
- *
- * @private
- * @param {Object} proto The object to inherit from.
- * @returns {Object} Returns the new object.
- */
-var baseCreate = (function() {
-  function object() {}
-  return function(proto) {
-    if (!isObject(proto)) {
-      return {};
-    }
-    if (objectCreate) {
-      return objectCreate(proto);
-    }
-    object.prototype = proto;
-    var result = new object;
-    object.prototype = undefined;
-    return result;
-  };
-}());
-
-module.exports = baseCreate;
-
-
-/***/ },
-/* 49 */
-/***/ function(module, exports, __webpack_require__) {
-
-var arrayPush = __webpack_require__(45),
-    isArray = __webpack_require__(12);
-
-/**
- * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
- * `keysFunc` and `symbolsFunc` to get the enumerable property names and
- * symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @param {Function} symbolsFunc The function to get the symbols of `object`.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function baseGetAllKeys(object, keysFunc, symbolsFunc) {
-  var result = keysFunc(object);
-  return isArray(object) ? result : arrayPush(result, symbolsFunc(object));
-}
-
-module.exports = baseGetAllKeys;
-
-
-/***/ },
-/* 50 */
-/***/ function(module, exports) {
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var objectToString = objectProto.toString;
-
-/**
- * The base implementation of `getTag`.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-function baseGetTag(value) {
-  return objectToString.call(value);
-}
-
-module.exports = baseGetTag;
-
-
-/***/ },
-/* 51 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isObjectLike = __webpack_require__(13);
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]';
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var objectToString = objectProto.toString;
-
-/**
- * The base implementation of `_.isArguments`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- */
-function baseIsArguments(value) {
-  return isObjectLike(value) && objectToString.call(value) == argsTag;
-}
-
-module.exports = baseIsArguments;
-
-
-/***/ },
-/* 52 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isFunction = __webpack_require__(27),
-    isMasked = __webpack_require__(82),
-    isObject = __webpack_require__(6),
-    toSource = __webpack_require__(23);
-
-/**
- * Used to match `RegExp`
- * [syntax characters](http://ecma-international.org/ecma-262/7.0/#sec-patterns).
- */
-var reRegExpChar = /[\\^$.*+?()[\]{}|]/g;
-
-/** Used to detect host constructors (Safari). */
-var reIsHostCtor = /^\[object .+?Constructor\]$/;
-
-/** Used for built-in method references. */
-var funcProto = Function.prototype,
-    objectProto = Object.prototype;
-
-/** Used to resolve the decompiled source of functions. */
-var funcToString = funcProto.toString;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/** Used to detect if a method is native. */
-var reIsNative = RegExp('^' +
-  funcToString.call(hasOwnProperty).replace(reRegExpChar, '\\$&')
-  .replace(/hasOwnProperty|(function).*?(?=\\\()| for .+?(?=\\\])/g, '$1.*?') + '$'
-);
-
-/**
- * The base implementation of `_.isNative` without bad shim checks.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a native function,
- *  else `false`.
- */
-function baseIsNative(value) {
-  if (!isObject(value) || isMasked(value)) {
-    return false;
-  }
-  var pattern = isFunction(value) ? reIsNative : reIsHostCtor;
-  return pattern.test(toSource(value));
-}
-
-module.exports = baseIsNative;
-
-
-/***/ },
-/* 53 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isLength = __webpack_require__(28),
-    isObjectLike = __webpack_require__(13);
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]',
-    arrayTag = '[object Array]',
-    boolTag = '[object Boolean]',
-    dateTag = '[object Date]',
-    errorTag = '[object Error]',
-    funcTag = '[object Function]',
-    mapTag = '[object Map]',
-    numberTag = '[object Number]',
-    objectTag = '[object Object]',
-    regexpTag = '[object RegExp]',
-    setTag = '[object Set]',
-    stringTag = '[object String]',
-    weakMapTag = '[object WeakMap]';
-
-var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
-    float32Tag = '[object Float32Array]',
-    float64Tag = '[object Float64Array]',
-    int8Tag = '[object Int8Array]',
-    int16Tag = '[object Int16Array]',
-    int32Tag = '[object Int32Array]',
-    uint8Tag = '[object Uint8Array]',
-    uint8ClampedTag = '[object Uint8ClampedArray]',
-    uint16Tag = '[object Uint16Array]',
-    uint32Tag = '[object Uint32Array]';
-
-/** Used to identify `toStringTag` values of typed arrays. */
-var typedArrayTags = {};
-typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
-typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
-typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
-typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
-typedArrayTags[uint32Tag] = true;
-typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
-typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
-typedArrayTags[errorTag] = typedArrayTags[funcTag] =
-typedArrayTags[mapTag] = typedArrayTags[numberTag] =
-typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
-typedArrayTags[setTag] = typedArrayTags[stringTag] =
-typedArrayTags[weakMapTag] = false;
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var objectToString = objectProto.toString;
-
-/**
- * The base implementation of `_.isTypedArray` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- */
-function baseIsTypedArray(value) {
-  return isObjectLike(value) &&
-    isLength(value.length) && !!typedArrayTags[objectToString.call(value)];
-}
-
-module.exports = baseIsTypedArray;
-
-
-/***/ },
-/* 54 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isPrototype = __webpack_require__(22),
-    nativeKeys = __webpack_require__(94);
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */
-function baseKeys(object) {
-  if (!isPrototype(object)) {
-    return nativeKeys(object);
-  }
-  var result = [];
-  for (var key in Object(object)) {
-    if (hasOwnProperty.call(object, key) && key != 'constructor') {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-module.exports = baseKeys;
-
-
-/***/ },
-/* 55 */
-/***/ function(module, exports) {
-
-/**
- * The base implementation of `_.times` without support for iteratee shorthands
- * or max array length checks.
- *
- * @private
- * @param {number} n The number of times to invoke `iteratee`.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the array of results.
- */
-function baseTimes(n, iteratee) {
-  var index = -1,
-      result = Array(n);
-
-  while (++index < n) {
-    result[index] = iteratee(index);
-  }
-  return result;
-}
-
-module.exports = baseTimes;
-
-
-/***/ },
-/* 56 */
-/***/ function(module, exports) {
-
-/**
- * The base implementation of `_.unary` without support for storing metadata.
- *
- * @private
- * @param {Function} func The function to cap arguments for.
- * @returns {Function} Returns the new capped function.
- */
-function baseUnary(func) {
-  return function(value) {
-    return func(value);
-  };
-}
-
-module.exports = baseUnary;
-
-
-/***/ },
-/* 57 */
-/***/ function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {var root = __webpack_require__(0);
-
-/** Detect free variable `exports`. */
-var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Built-in value references. */
-var Buffer = moduleExports ? root.Buffer : undefined,
-    allocUnsafe = Buffer ? Buffer.allocUnsafe : undefined;
-
-/**
- * Creates a clone of  `buffer`.
- *
- * @private
- * @param {Buffer} buffer The buffer to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Buffer} Returns the cloned buffer.
- */
-function cloneBuffer(buffer, isDeep) {
-  if (isDeep) {
-    return buffer.slice();
-  }
-  var length = buffer.length,
-      result = allocUnsafe ? allocUnsafe(length) : new buffer.constructor(length);
-
-  buffer.copy(result);
-  return result;
-}
-
-module.exports = cloneBuffer;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)(module)))
-
-/***/ },
-/* 58 */
-/***/ function(module, exports, __webpack_require__) {
-
-var cloneArrayBuffer = __webpack_require__(10);
-
-/**
- * Creates a clone of `dataView`.
- *
- * @private
- * @param {Object} dataView The data view to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned data view.
- */
-function cloneDataView(dataView, isDeep) {
-  var buffer = isDeep ? cloneArrayBuffer(dataView.buffer) : dataView.buffer;
-  return new dataView.constructor(buffer, dataView.byteOffset, dataView.byteLength);
-}
-
-module.exports = cloneDataView;
-
-
-/***/ },
-/* 59 */
-/***/ function(module, exports, __webpack_require__) {
-
-var addMapEntry = __webpack_require__(41),
-    arrayReduce = __webpack_require__(16),
-    mapToArray = __webpack_require__(93);
-
-/**
- * Creates a clone of `map`.
- *
- * @private
- * @param {Object} map The map to clone.
- * @param {Function} cloneFunc The function to clone values.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned map.
- */
-function cloneMap(map, isDeep, cloneFunc) {
-  var array = isDeep ? cloneFunc(mapToArray(map), true) : mapToArray(map);
-  return arrayReduce(array, addMapEntry, new map.constructor);
-}
-
-module.exports = cloneMap;
-
-
-/***/ },
-/* 60 */
-/***/ function(module, exports) {
-
-/** Used to match `RegExp` flags from their coerced string values. */
-var reFlags = /\w*$/;
-
-/**
- * Creates a clone of `regexp`.
- *
- * @private
- * @param {Object} regexp The regexp to clone.
- * @returns {Object} Returns the cloned regexp.
- */
-function cloneRegExp(regexp) {
-  var result = new regexp.constructor(regexp.source, reFlags.exec(regexp));
-  result.lastIndex = regexp.lastIndex;
-  return result;
-}
-
-module.exports = cloneRegExp;
-
-
-/***/ },
-/* 61 */
-/***/ function(module, exports, __webpack_require__) {
-
-var addSetEntry = __webpack_require__(42),
-    arrayReduce = __webpack_require__(16),
-    setToArray = __webpack_require__(96);
-
-/**
- * Creates a clone of `set`.
- *
- * @private
- * @param {Object} set The set to clone.
- * @param {Function} cloneFunc The function to clone values.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned set.
- */
-function cloneSet(set, isDeep, cloneFunc) {
-  var array = isDeep ? cloneFunc(setToArray(set), true) : setToArray(set);
-  return arrayReduce(array, addSetEntry, new set.constructor);
-}
-
-module.exports = cloneSet;
-
-
-/***/ },
-/* 62 */
-/***/ function(module, exports, __webpack_require__) {
-
-var Symbol = __webpack_require__(38);
-
-/** Used to convert symbols to primitives and strings. */
-var symbolProto = Symbol ? Symbol.prototype : undefined,
-    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
-
-/**
- * Creates a clone of the `symbol` object.
- *
- * @private
- * @param {Object} symbol The symbol object to clone.
- * @returns {Object} Returns the cloned symbol object.
- */
-function cloneSymbol(symbol) {
-  return symbolValueOf ? Object(symbolValueOf.call(symbol)) : {};
-}
-
-module.exports = cloneSymbol;
-
-
-/***/ },
-/* 63 */
-/***/ function(module, exports, __webpack_require__) {
-
-var cloneArrayBuffer = __webpack_require__(10);
-
-/**
- * Creates a clone of `typedArray`.
- *
- * @private
- * @param {Object} typedArray The typed array to clone.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the cloned typed array.
- */
-function cloneTypedArray(typedArray, isDeep) {
-  var buffer = isDeep ? cloneArrayBuffer(typedArray.buffer) : typedArray.buffer;
-  return new typedArray.constructor(buffer, typedArray.byteOffset, typedArray.length);
-}
-
-module.exports = cloneTypedArray;
-
-
-/***/ },
-/* 64 */
-/***/ function(module, exports) {
-
-/**
- * Copies the values of `source` to `array`.
- *
- * @private
- * @param {Array} source The array to copy values from.
- * @param {Array} [array=[]] The array to copy values to.
- * @returns {Array} Returns `array`.
- */
-function copyArray(source, array) {
-  var index = -1,
-      length = source.length;
-
-  array || (array = Array(length));
-  while (++index < length) {
-    array[index] = source[index];
-  }
-  return array;
-}
-
-module.exports = copyArray;
-
-
-/***/ },
-/* 65 */
-/***/ function(module, exports, __webpack_require__) {
-
-var copyObject = __webpack_require__(19),
-    getSymbols = __webpack_require__(21);
-
-/**
- * Copies own symbol properties of `source` to `object`.
- *
- * @private
- * @param {Object} source The object to copy symbols from.
- * @param {Object} [object={}] The object to copy symbols to.
- * @returns {Object} Returns `object`.
- */
-function copySymbols(source, object) {
-  return copyObject(source, getSymbols(source), object);
-}
-
-module.exports = copySymbols;
-
-
-/***/ },
-/* 66 */
-/***/ function(module, exports, __webpack_require__) {
-
-var root = __webpack_require__(0);
-
-/** Used to detect overreaching core-js shims. */
-var coreJsData = root['__core-js_shared__'];
-
-module.exports = coreJsData;
-
-
-/***/ },
-/* 67 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getNative = __webpack_require__(1);
-
-var defineProperty = (function() {
-  try {
-    var func = getNative(Object, 'defineProperty');
-    func({}, '', {});
-    return func;
-  } catch (e) {}
-}());
-
-module.exports = defineProperty;
-
-
-/***/ },
-/* 68 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseGetAllKeys = __webpack_require__(49),
-    getSymbols = __webpack_require__(21),
-    keys = __webpack_require__(14);
-
-/**
- * Creates an array of own enumerable property names and symbols of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names and symbols.
- */
-function getAllKeys(object) {
-  return baseGetAllKeys(object, keys, getSymbols);
-}
-
-module.exports = getAllKeys;
-
-
-/***/ },
-/* 69 */
-/***/ function(module, exports, __webpack_require__) {
-
-var overArg = __webpack_require__(11);
-
-/** Built-in value references. */
-var getPrototype = overArg(Object.getPrototypeOf, Object);
-
-module.exports = getPrototype;
-
-
-/***/ },
-/* 70 */
-/***/ function(module, exports, __webpack_require__) {
-
-var DataView = __webpack_require__(32),
-    Map = __webpack_require__(9),
-    Promise = __webpack_require__(35),
-    Set = __webpack_require__(36),
-    WeakMap = __webpack_require__(40),
-    baseGetTag = __webpack_require__(50),
-    toSource = __webpack_require__(23);
-
-/** `Object#toString` result references. */
-var mapTag = '[object Map]',
-    objectTag = '[object Object]',
-    promiseTag = '[object Promise]',
-    setTag = '[object Set]',
-    weakMapTag = '[object WeakMap]';
-
-var dataViewTag = '[object DataView]';
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/**
- * Used to resolve the
- * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
- * of values.
- */
-var objectToString = objectProto.toString;
-
-/** Used to detect maps, sets, and weakmaps. */
-var dataViewCtorString = toSource(DataView),
-    mapCtorString = toSource(Map),
-    promiseCtorString = toSource(Promise),
-    setCtorString = toSource(Set),
-    weakMapCtorString = toSource(WeakMap);
-
-/**
- * Gets the `toStringTag` of `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @returns {string} Returns the `toStringTag`.
- */
-var getTag = baseGetTag;
-
-// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
-if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
-    (Map && getTag(new Map) != mapTag) ||
-    (Promise && getTag(Promise.resolve()) != promiseTag) ||
-    (Set && getTag(new Set) != setTag) ||
-    (WeakMap && getTag(new WeakMap) != weakMapTag)) {
-  getTag = function(value) {
-    var result = objectToString.call(value),
-        Ctor = result == objectTag ? value.constructor : undefined,
-        ctorString = Ctor ? toSource(Ctor) : undefined;
-
-    if (ctorString) {
-      switch (ctorString) {
-        case dataViewCtorString: return dataViewTag;
-        case mapCtorString: return mapTag;
-        case promiseCtorString: return promiseTag;
-        case setCtorString: return setTag;
-        case weakMapCtorString: return weakMapTag;
-      }
-    }
-    return result;
-  };
-}
-
-module.exports = getTag;
-
-
-/***/ },
-/* 71 */
-/***/ function(module, exports) {
-
-/**
- * Gets the value at `key` of `object`.
- *
- * @private
- * @param {Object} [object] The object to query.
- * @param {string} key The key of the property to get.
- * @returns {*} Returns the property value.
- */
-function getValue(object, key) {
-  return object == null ? undefined : object[key];
-}
-
-module.exports = getValue;
-
-
-/***/ },
-/* 72 */
-/***/ function(module, exports, __webpack_require__) {
-
-var nativeCreate = __webpack_require__(5);
-
-/**
- * Removes all key-value entries from the hash.
- *
- * @private
- * @name clear
- * @memberOf Hash
- */
-function hashClear() {
-  this.__data__ = nativeCreate ? nativeCreate(null) : {};
-  this.size = 0;
-}
-
-module.exports = hashClear;
-
-
-/***/ },
-/* 73 */
-/***/ function(module, exports) {
-
-/**
- * Removes `key` and its value from the hash.
- *
- * @private
- * @name delete
- * @memberOf Hash
- * @param {Object} hash The hash to modify.
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function hashDelete(key) {
-  var result = this.has(key) && delete this.__data__[key];
-  this.size -= result ? 1 : 0;
-  return result;
-}
-
-module.exports = hashDelete;
-
-
-/***/ },
-/* 74 */
-/***/ function(module, exports, __webpack_require__) {
-
-var nativeCreate = __webpack_require__(5);
-
-/** Used to stand-in for `undefined` hash values. */
-var HASH_UNDEFINED = '__lodash_hash_undefined__';
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Gets the hash value for `key`.
- *
- * @private
- * @name get
- * @memberOf Hash
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function hashGet(key) {
-  var data = this.__data__;
-  if (nativeCreate) {
-    var result = data[key];
-    return result === HASH_UNDEFINED ? undefined : result;
-  }
-  return hasOwnProperty.call(data, key) ? data[key] : undefined;
-}
-
-module.exports = hashGet;
-
-
-/***/ },
-/* 75 */
-/***/ function(module, exports, __webpack_require__) {
-
-var nativeCreate = __webpack_require__(5);
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Checks if a hash value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf Hash
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function hashHas(key) {
-  var data = this.__data__;
-  return nativeCreate ? data[key] !== undefined : hasOwnProperty.call(data, key);
-}
-
-module.exports = hashHas;
-
-
-/***/ },
-/* 76 */
-/***/ function(module, exports, __webpack_require__) {
-
-var nativeCreate = __webpack_require__(5);
-
-/** Used to stand-in for `undefined` hash values. */
-var HASH_UNDEFINED = '__lodash_hash_undefined__';
-
-/**
- * Sets the hash `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf Hash
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the hash instance.
- */
-function hashSet(key, value) {
-  var data = this.__data__;
-  this.size += this.has(key) ? 0 : 1;
-  data[key] = (nativeCreate && value === undefined) ? HASH_UNDEFINED : value;
-  return this;
-}
-
-module.exports = hashSet;
-
-
-/***/ },
-/* 77 */
-/***/ function(module, exports) {
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Initializes an array clone.
- *
- * @private
- * @param {Array} array The array to clone.
- * @returns {Array} Returns the initialized clone.
- */
-function initCloneArray(array) {
-  var length = array.length,
-      result = array.constructor(length);
-
-  // Add properties assigned by `RegExp#exec`.
-  if (length && typeof array[0] == 'string' && hasOwnProperty.call(array, 'index')) {
-    result.index = array.index;
-    result.input = array.input;
-  }
-  return result;
-}
-
-module.exports = initCloneArray;
-
-
-/***/ },
-/* 78 */
-/***/ function(module, exports, __webpack_require__) {
-
-var cloneArrayBuffer = __webpack_require__(10),
-    cloneDataView = __webpack_require__(58),
-    cloneMap = __webpack_require__(59),
-    cloneRegExp = __webpack_require__(60),
-    cloneSet = __webpack_require__(61),
-    cloneSymbol = __webpack_require__(62),
-    cloneTypedArray = __webpack_require__(63);
-
-/** `Object#toString` result references. */
-var boolTag = '[object Boolean]',
-    dateTag = '[object Date]',
-    mapTag = '[object Map]',
-    numberTag = '[object Number]',
-    regexpTag = '[object RegExp]',
-    setTag = '[object Set]',
-    stringTag = '[object String]',
-    symbolTag = '[object Symbol]';
-
-var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
-    float32Tag = '[object Float32Array]',
-    float64Tag = '[object Float64Array]',
-    int8Tag = '[object Int8Array]',
-    int16Tag = '[object Int16Array]',
-    int32Tag = '[object Int32Array]',
-    uint8Tag = '[object Uint8Array]',
-    uint8ClampedTag = '[object Uint8ClampedArray]',
-    uint16Tag = '[object Uint16Array]',
-    uint32Tag = '[object Uint32Array]';
-
-/**
- * Initializes an object clone based on its `toStringTag`.
- *
- * **Note:** This function only supports cloning values with tags of
- * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
- *
- * @private
- * @param {Object} object The object to clone.
- * @param {string} tag The `toStringTag` of the object to clone.
- * @param {Function} cloneFunc The function to clone values.
- * @param {boolean} [isDeep] Specify a deep clone.
- * @returns {Object} Returns the initialized clone.
- */
-function initCloneByTag(object, tag, cloneFunc, isDeep) {
-  var Ctor = object.constructor;
-  switch (tag) {
-    case arrayBufferTag:
-      return cloneArrayBuffer(object);
-
-    case boolTag:
-    case dateTag:
-      return new Ctor(+object);
-
-    case dataViewTag:
-      return cloneDataView(object, isDeep);
-
-    case float32Tag: case float64Tag:
-    case int8Tag: case int16Tag: case int32Tag:
-    case uint8Tag: case uint8ClampedTag: case uint16Tag: case uint32Tag:
-      return cloneTypedArray(object, isDeep);
-
-    case mapTag:
-      return cloneMap(object, isDeep, cloneFunc);
-
-    case numberTag:
-    case stringTag:
-      return new Ctor(object);
-
-    case regexpTag:
-      return cloneRegExp(object);
-
-    case setTag:
-      return cloneSet(object, isDeep, cloneFunc);
-
-    case symbolTag:
-      return cloneSymbol(object);
-  }
-}
-
-module.exports = initCloneByTag;
-
-
-/***/ },
-/* 79 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseCreate = __webpack_require__(48),
-    getPrototype = __webpack_require__(69),
-    isPrototype = __webpack_require__(22);
-
-/**
- * Initializes an object clone.
- *
- * @private
- * @param {Object} object The object to clone.
- * @returns {Object} Returns the initialized clone.
- */
-function initCloneObject(object) {
-  return (typeof object.constructor == 'function' && !isPrototype(object))
-    ? baseCreate(getPrototype(object))
-    : {};
-}
-
-module.exports = initCloneObject;
-
-
-/***/ },
-/* 80 */
-/***/ function(module, exports) {
-
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
-
-/** Used to detect unsigned integer values. */
-var reIsUint = /^(?:0|[1-9]\d*)$/;
-
-/**
- * Checks if `value` is a valid array-like index.
- *
- * @private
- * @param {*} value The value to check.
- * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
- * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
- */
-function isIndex(value, length) {
-  length = length == null ? MAX_SAFE_INTEGER : length;
-  return !!length &&
-    (typeof value == 'number' || reIsUint.test(value)) &&
-    (value > -1 && value % 1 == 0 && value < length);
-}
-
-module.exports = isIndex;
-
-
-/***/ },
-/* 81 */
-/***/ function(module, exports) {
-
-/**
- * Checks if `value` is suitable for use as unique object key.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is suitable, else `false`.
- */
-function isKeyable(value) {
-  var type = typeof value;
-  return (type == 'string' || type == 'number' || type == 'symbol' || type == 'boolean')
-    ? (value !== '__proto__')
-    : (value === null);
-}
-
-module.exports = isKeyable;
-
-
-/***/ },
-/* 82 */
-/***/ function(module, exports, __webpack_require__) {
-
-var coreJsData = __webpack_require__(66);
-
-/** Used to detect methods masquerading as native. */
-var maskSrcKey = (function() {
-  var uid = /[^.]+$/.exec(coreJsData && coreJsData.keys && coreJsData.keys.IE_PROTO || '');
-  return uid ? ('Symbol(src)_1.' + uid) : '';
-}());
-
-/**
- * Checks if `func` has its source masked.
- *
- * @private
- * @param {Function} func The function to check.
- * @returns {boolean} Returns `true` if `func` is masked, else `false`.
- */
-function isMasked(func) {
-  return !!maskSrcKey && (maskSrcKey in func);
-}
-
-module.exports = isMasked;
-
-
-/***/ },
-/* 83 */
-/***/ function(module, exports) {
-
-/**
- * Removes all key-value entries from the list cache.
- *
- * @private
- * @name clear
- * @memberOf ListCache
- */
-function listCacheClear() {
-  this.__data__ = [];
-  this.size = 0;
-}
-
-module.exports = listCacheClear;
-
-
-/***/ },
-/* 84 */
-/***/ function(module, exports, __webpack_require__) {
-
-var assocIndexOf = __webpack_require__(3);
-
-/** Used for built-in method references. */
-var arrayProto = Array.prototype;
-
-/** Built-in value references. */
-var splice = arrayProto.splice;
-
-/**
- * Removes `key` and its value from the list cache.
- *
- * @private
- * @name delete
- * @memberOf ListCache
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function listCacheDelete(key) {
-  var data = this.__data__,
-      index = assocIndexOf(data, key);
-
-  if (index < 0) {
-    return false;
-  }
-  var lastIndex = data.length - 1;
-  if (index == lastIndex) {
-    data.pop();
-  } else {
-    splice.call(data, index, 1);
-  }
-  --this.size;
-  return true;
-}
-
-module.exports = listCacheDelete;
-
-
-/***/ },
-/* 85 */
-/***/ function(module, exports, __webpack_require__) {
-
-var assocIndexOf = __webpack_require__(3);
-
-/**
- * Gets the list cache value for `key`.
- *
- * @private
- * @name get
- * @memberOf ListCache
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function listCacheGet(key) {
-  var data = this.__data__,
-      index = assocIndexOf(data, key);
-
-  return index < 0 ? undefined : data[index][1];
-}
-
-module.exports = listCacheGet;
-
-
-/***/ },
-/* 86 */
-/***/ function(module, exports, __webpack_require__) {
-
-var assocIndexOf = __webpack_require__(3);
-
-/**
- * Checks if a list cache value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf ListCache
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function listCacheHas(key) {
-  return assocIndexOf(this.__data__, key) > -1;
-}
-
-module.exports = listCacheHas;
-
-
-/***/ },
-/* 87 */
-/***/ function(module, exports, __webpack_require__) {
-
-var assocIndexOf = __webpack_require__(3);
-
-/**
- * Sets the list cache `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf ListCache
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the list cache instance.
- */
-function listCacheSet(key, value) {
-  var data = this.__data__,
-      index = assocIndexOf(data, key);
-
-  if (index < 0) {
-    ++this.size;
-    data.push([key, value]);
-  } else {
-    data[index][1] = value;
-  }
-  return this;
-}
-
-module.exports = listCacheSet;
-
-
-/***/ },
-/* 88 */
-/***/ function(module, exports, __webpack_require__) {
-
-var Hash = __webpack_require__(33),
-    ListCache = __webpack_require__(2),
-    Map = __webpack_require__(9);
-
-/**
- * Removes all key-value entries from the map.
- *
- * @private
- * @name clear
- * @memberOf MapCache
- */
-function mapCacheClear() {
-  this.size = 0;
-  this.__data__ = {
-    'hash': new Hash,
-    'map': new (Map || ListCache),
-    'string': new Hash
-  };
-}
-
-module.exports = mapCacheClear;
-
-
-/***/ },
-/* 89 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getMapData = __webpack_require__(4);
-
-/**
- * Removes `key` and its value from the map.
- *
- * @private
- * @name delete
- * @memberOf MapCache
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function mapCacheDelete(key) {
-  var result = getMapData(this, key)['delete'](key);
-  this.size -= result ? 1 : 0;
-  return result;
-}
-
-module.exports = mapCacheDelete;
-
-
-/***/ },
-/* 90 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getMapData = __webpack_require__(4);
-
-/**
- * Gets the map value for `key`.
- *
- * @private
- * @name get
- * @memberOf MapCache
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function mapCacheGet(key) {
-  return getMapData(this, key).get(key);
-}
-
-module.exports = mapCacheGet;
-
-
-/***/ },
-/* 91 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getMapData = __webpack_require__(4);
-
-/**
- * Checks if a map value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf MapCache
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function mapCacheHas(key) {
-  return getMapData(this, key).has(key);
-}
-
-module.exports = mapCacheHas;
-
-
-/***/ },
-/* 92 */
-/***/ function(module, exports, __webpack_require__) {
-
-var getMapData = __webpack_require__(4);
-
-/**
- * Sets the map `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf MapCache
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the map cache instance.
- */
-function mapCacheSet(key, value) {
-  var data = getMapData(this, key),
-      size = data.size;
-
-  data.set(key, value);
-  this.size += data.size == size ? 0 : 1;
-  return this;
-}
-
-module.exports = mapCacheSet;
-
-
-/***/ },
-/* 93 */
-/***/ function(module, exports) {
-
-/**
- * Converts `map` to its key-value pairs.
- *
- * @private
- * @param {Object} map The map to convert.
- * @returns {Array} Returns the key-value pairs.
- */
-function mapToArray(map) {
-  var index = -1,
-      result = Array(map.size);
-
-  map.forEach(function(value, key) {
-    result[++index] = [key, value];
-  });
-  return result;
-}
-
-module.exports = mapToArray;
-
-
-/***/ },
-/* 94 */
-/***/ function(module, exports, __webpack_require__) {
-
-var overArg = __webpack_require__(11);
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeKeys = overArg(Object.keys, Object);
-
-module.exports = nativeKeys;
-
-
-/***/ },
-/* 95 */
-/***/ function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(module) {var freeGlobal = __webpack_require__(20);
-
-/** Detect free variable `exports`. */
-var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Detect free variable `process` from Node.js. */
-var freeProcess = moduleExports && freeGlobal.process;
-
-/** Used to access faster Node.js helpers. */
-var nodeUtil = (function() {
-  try {
-    return freeProcess && freeProcess.binding('util');
-  } catch (e) {}
-}());
-
-module.exports = nodeUtil;
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(15)(module)))
-
-/***/ },
-/* 96 */
-/***/ function(module, exports) {
-
-/**
- * Converts `set` to an array of its values.
- *
- * @private
- * @param {Object} set The set to convert.
- * @returns {Array} Returns the values.
- */
-function setToArray(set) {
-  var index = -1,
-      result = Array(set.size);
-
-  set.forEach(function(value) {
-    result[++index] = value;
-  });
-  return result;
-}
-
-module.exports = setToArray;
-
-
-/***/ },
-/* 97 */
-/***/ function(module, exports, __webpack_require__) {
-
-var ListCache = __webpack_require__(2);
-
-/**
- * Removes all key-value entries from the stack.
- *
- * @private
- * @name clear
- * @memberOf Stack
- */
-function stackClear() {
-  this.__data__ = new ListCache;
-  this.size = 0;
-}
-
-module.exports = stackClear;
-
-
-/***/ },
-/* 98 */
-/***/ function(module, exports) {
-
-/**
- * Removes `key` and its value from the stack.
- *
- * @private
- * @name delete
- * @memberOf Stack
- * @param {string} key The key of the value to remove.
- * @returns {boolean} Returns `true` if the entry was removed, else `false`.
- */
-function stackDelete(key) {
-  var data = this.__data__,
-      result = data['delete'](key);
-
-  this.size = data.size;
-  return result;
-}
-
-module.exports = stackDelete;
-
-
-/***/ },
-/* 99 */
-/***/ function(module, exports) {
-
-/**
- * Gets the stack value for `key`.
- *
- * @private
- * @name get
- * @memberOf Stack
- * @param {string} key The key of the value to get.
- * @returns {*} Returns the entry value.
- */
-function stackGet(key) {
-  return this.__data__.get(key);
-}
-
-module.exports = stackGet;
-
-
-/***/ },
-/* 100 */
-/***/ function(module, exports) {
-
-/**
- * Checks if a stack value for `key` exists.
- *
- * @private
- * @name has
- * @memberOf Stack
- * @param {string} key The key of the entry to check.
- * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
- */
-function stackHas(key) {
-  return this.__data__.has(key);
-}
-
-module.exports = stackHas;
-
-
-/***/ },
-/* 101 */
-/***/ function(module, exports, __webpack_require__) {
-
-var ListCache = __webpack_require__(2),
-    Map = __webpack_require__(9),
-    MapCache = __webpack_require__(34);
-
-/** Used as the size to enable large array optimizations. */
-var LARGE_ARRAY_SIZE = 200;
-
-/**
- * Sets the stack `key` to `value`.
- *
- * @private
- * @name set
- * @memberOf Stack
- * @param {string} key The key of the value to set.
- * @param {*} value The value to set.
- * @returns {Object} Returns the stack cache instance.
- */
-function stackSet(key, value) {
-  var data = this.__data__;
-  if (data instanceof ListCache) {
-    var pairs = data.__data__;
-    if (!Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
-      pairs.push([key, value]);
-      this.size = ++data.size;
-      return this;
-    }
-    data = this.__data__ = new MapCache(pairs);
-  }
-  data.set(key, value);
-  this.size = data.size;
-  return this;
-}
-
-module.exports = stackSet;
-
-
-/***/ },
-/* 102 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseIsArguments = __webpack_require__(51),
-    isObjectLike = __webpack_require__(13);
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/** Built-in value references. */
-var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-
-/**
- * Checks if `value` is likely an `arguments` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- *  else `false`.
- * @example
- *
- * _.isArguments(function() { return arguments; }());
- * // => true
- *
- * _.isArguments([1, 2, 3]);
- * // => false
- */
-var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsArguments : function(value) {
-  return isObjectLike(value) && hasOwnProperty.call(value, 'callee') &&
-    !propertyIsEnumerable.call(value, 'callee');
-};
-
-module.exports = isArguments;
-
-
-/***/ },
-/* 103 */
-/***/ function(module, exports, __webpack_require__) {
-
-var isFunction = __webpack_require__(27),
-    isLength = __webpack_require__(28);
-
-/**
- * Checks if `value` is array-like. A value is considered array-like if it's
- * not a function and has a `value.length` that's an integer greater than or
- * equal to `0` and less than or equal to `Number.MAX_SAFE_INTEGER`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is array-like, else `false`.
- * @example
- *
- * _.isArrayLike([1, 2, 3]);
- * // => true
- *
- * _.isArrayLike(document.body.children);
- * // => true
- *
- * _.isArrayLike('abc');
- * // => true
- *
- * _.isArrayLike(_.noop);
- * // => false
- */
-function isArrayLike(value) {
-  return value != null && isLength(value.length) && !isFunction(value);
-}
-
-module.exports = isArrayLike;
-
-
-/***/ },
-/* 104 */
-/***/ function(module, exports, __webpack_require__) {
-
-var baseIsTypedArray = __webpack_require__(53),
-    baseUnary = __webpack_require__(56),
-    nodeUtil = __webpack_require__(95);
-
-/* Node.js helper references. */
-var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
-
-/**
- * Checks if `value` is classified as a typed array.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- * @example
- *
- * _.isTypedArray(new Uint8Array);
- * // => true
- *
- * _.isTypedArray([]);
- * // => false
- */
-var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
-
-module.exports = isTypedArray;
-
-
-/***/ },
-/* 105 */
-/***/ function(module, exports) {
-
-/**
- * This method returns a new empty array.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {Array} Returns the new empty array.
- * @example
- *
- * var arrays = _.times(2, _.stubArray);
- *
- * console.log(arrays);
- * // => [[], []]
- *
- * console.log(arrays[0] === arrays[1]);
- * // => false
- */
-function stubArray() {
-  return [];
-}
-
-module.exports = stubArray;
-
-
-/***/ },
-/* 106 */
-/***/ function(module, exports) {
-
-/**
- * This method returns `false`.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {boolean} Returns `false`.
- * @example
- *
- * _.times(2, _.stubFalse);
- * // => [false, false]
- */
-function stubFalse() {
-  return false;
-}
-
-module.exports = stubFalse;
-
-
-/***/ },
-/* 107 */
+/* 8 */
 /***/ function(module, exports) {
 
 var g;
@@ -28885,1225 +29049,36 @@ module.exports = g;
 
 
 /***/ },
-/* 108 */
-/***/ function(module, exports, __webpack_require__) {
+/* 9 */
+/***/ function(module, exports) {
 
-var plumin = __webpack_require__(7),
-	assign = __webpack_require__(8).assign,
-	Utils = __webpack_require__(29);
-
-var paper = plumin.paper,
-	naive = {},
-	_ = { assign: assign };
-
-function autoExpandableNodeSrc( node, i, j, inSkeleton ) {
-	return {
-		point: { _dependencies: [
-			Utils.cursor( i, j, 'x' ),
-			Utils.cursor( i, j, 'y' )
-		] },
-		all: { _dependencies: Object.keys( node.src ).map(function( key ) {
-			return Utils.cursor( i, j, key );
-		}) },
-		_dependencies: inSkeleton ?
-			// nodes in skeleton are never fully calculated (we don't calculate
-			// the position of handles because we never draw their contour).
-			// So we don't care about their dependencies.
-			[] :
-			[ Utils.cursor( 'contours', i, 'all' ) ]
-	};
-}
-
-function autoExpandedNodeSrc( node, i, j, side, isClosed ) {
-	return {
-		x: { _dependencies: [
-			Utils.cursor( i, j, 'expandedTo', side, 'point' )
-		] },
-		y: { _dependencies: [
-			Utils.cursor( i, j, 'expandedTo', side, 'point' )
-		] },
-		point: {
-			_dependencies: [
-				Utils.cursor( i, j, 'x' ),
-				Utils.cursor( i, j, 'y' ),
-				Utils.cursor( i, j, 'expand' )
-			],
-			_parameters: [ 'width' ],
-			_updaters: [ function() {
-				var width = arguments[
-						arguments.length - 1
-					];
-
-				naive.expandedNodeUpdater(
-					node.expandedTo[side], side === 0, width
-				);
-			} ]
-		},
-		all: {
-			_dependencies: Object.keys( node.src ).map(function( key ) {
-					return Utils.cursor( i, j, key );
-			}).concat([
-				Utils.cursor( i, j, 'expandedTo', side, 'point' )
-			]),
-			_updaters: [ function() {
-				naive.skeletonCopier( node );
-			} ]
-		},
-		_dependencies: [
-			Utils.cursor( 'contours', i, 'expandedTo',
-				( isClosed ? side : 0 ), 'all' )
-		]
-	};
-}
-
-function explicitExpandableNodeSrc( node, i, j ) {
-	return {
-		point: { _dependencies: [] },
-		all: { _dependencies: [ 0, 1 ].map(function( side ) {
-			return Utils.cursor( i, j, 'expandedTo', side, 'all' );
-		}) },
-		_dependencies: []
-	};
-}
-
-function explicitExpandedNodeSrc( node, i, j, side, isClosed ) {
-	return {
-		point: { _dependencies: [
-				Utils.cursor( i, j, 'expandedTo', side, 'x' ),
-				Utils.cursor( i, j, 'expandedTo', side, 'y' )
-		] },
-		all: { _dependencies:
-			Object.keys( node.src.expandedTo[ side ] ).map(function( key ) {
-				return Utils.cursor( i, j, 'expandedTo', side, key );
-			})
-		},
-		_dependencies: [
-			Utils.cursor( 'contours', i, 'expandedTo',
-				( isClosed ? side : 0 ), 'all' )
-		]
-	};
-}
-
-function expandedContourSrc( contour, i, side ) {
-	var half = contour.nodes.length / 2;
-
-	return {
-		all: {
-			_dependencies: contour.nodes.map(function(node, j) {
-				return side !== undefined ?
-					Utils.cursor( i, j, 'expandedTo', side, 'all' ) :
-					Utils.cursor(
-						i, j % half, 'expandedTo', ( j < half ? 0 : 1 ), 'all'
-					);
-			}),
-			_parameters: [ 'curviness' ],
-			_updaters: [ function() {
-				var curviness = arguments[ arguments.length - 1 ];
-
-				naive.prepareContour( contour );
-				naive.updateContour( contour, curviness );
-			} ]
-		},
-		// nodes: nodesSrc,
-		_dependencies: [
-			Utils.cursor( 'contours', i, 'expandedTo', side || 0, 'all' )
-		]
-	};
-}
-
-function contourSrc( contour, i ) {
-	return {
-		all: {
-			_dependencies: contour.nodes.map(function( node, j ) {
-				return Utils.cursor( i, j, 'all' );
-			}),
-			_parameters: [ 'curviness' ],
-			_updaters: [ function() {
-				var curviness = arguments[ arguments.length - 1 ];
-
-				naive.prepareContour( contour );
-				naive.updateContour( contour, curviness );
-			} ]
-		},
-		_dependencies: contour.nodes.map(function( node, j ) {
-			return Utils.cursor( i, j );
-		})
-	};
-}
-
-// default method to expand skeletons:
-// derives two additional node from every node with an .expand object
-naive.annotator = function( glyph ) {
-	var additionalContours = [];
-
-	glyph.contours.forEach(function( contour, i ) {
-		if ( contour.skeleton !== true ) {
-			// annotate nodes+points that aren't in a skeleton
-			contour.nodes.forEach(function( node, j ) {
-				_.assign( node.src, autoExpandableNodeSrc( node, i, j ) );
-			});
-
-			_.assign( contour.src, contourSrc( contour, i ) );
-
-			return;
-		}
-
-		var leftContour,
-			rightContour,
-			leftNodes = [],
-			rightNodes = [],
-			leftNodesSrc = [],
-			rightNodesSrc = [],
-			firstNode,
-			lastNode;
-
-		// skeletons should be hidden
-		contour.visible = false;
-
-		contour.nodes.forEach(function( node, j ) {
-
-			var left = new paper.Node(),
-				right = new paper.Node(),
-				leftSrc,
-				rightSrc;
-
-			leftNodes.push(left);
-			rightNodes.unshift(right);
-			node.expandedTo = [ left, right ];
-			left.expandedFrom = right.expandedFrom = node;
-
-			if ( !node.src.expandedTo ) {
-				// annotate nodes+points that are automatically expanded
-				leftSrc = autoExpandedNodeSrc( node, i, j, 0, contour.closed );
-				rightSrc = autoExpandedNodeSrc( node, i, j, 1, contour.closed );
-				node.src.expandedTo = [ leftSrc, rightSrc ];
-				_.assign( node.src,
-					autoExpandableNodeSrc( node, i, j, !!'inSkeleton' ) );
-
-			// the expanded node might have been defined explicitely
-			} else if ( node.src.expandedTo[0] &&
-					!node.src.expandedTo[0]._updaters ) {
-				node.src.expandedTo.forEach(function( src, k ) {
-					Utils.mergeStatic( node.expandedTo[k], src );
-				});
-
-				// annotate nodes+points that are explicitely expanded
-				leftSrc = _.assign( node.src.expandedTo[0],
-					explicitExpandedNodeSrc( node, i, j, 0, contour.closed )
-				);
-				rightSrc = _.assign( node.src.expandedTo[1],
-					explicitExpandedNodeSrc( node, i, j, 1, contour.closed )
-				);
-
-				_.assign( node.src,
-					explicitExpandableNodeSrc( node, i, j ) );
-
-				// A leaf shouldn't appear twice during the recursive
-				// dependency-tree building. Make the expanded nodes accessible
-				// from expanded contours, and provide accessors on the
-				// .expandedFrom node.
-				// leftNodesSrc.push( leftSrc );
-				// rightNodesSrc.push( rightSrc );
-			}
-
-			// if ( leftSrc && rightSrc ) {
-			// 	Object.defineProperties( node.src.expandedTo = {}, {
-			// 		0: { get: function() {
-			// 			return leftSrc;
-			// 		}},
-			// 		1: { get: function() {
-			// 				return rightSrc;
-			// 		}}
-			// 	});
-			// }
+module.exports = function(module) {
+	if(!module.webpackPolyfill) {
+		module.deprecate = function() {};
+		module.paths = [];
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			configurable: false,
+			get: function() { return module.l; }
 		});
-
-		if ( !contour.expandedTo && !contour.closed ) {
-			leftContour = new paper.Path({
-				closed: true,
-				segments: leftNodes.concat(rightNodes)
-			});
-			contour.expandedTo = [ leftContour ];
-			contour.src.expandedTo = [
-				expandedContourSrc( leftContour, i
-					//, 0, leftNodesSrc.concat( rightNodesSrc )
-				)
-			];
-			leftContour.expandedFrom = contour;
-			additionalContours.push( leftContour );
-
-			firstNode = contour.firstNode;
-			lastNode = contour.lastNode;
-
-			firstNode.type = 'corner';
-			lastNode.type = 'corner';
-
-			firstNode.expandedTo[0].type = 'corner';
-			firstNode.expandedTo[1].type = 'corner';
-			lastNode.expandedTo[0].type = 'corner';
-			lastNode.expandedTo[1].type = 'corner';
-
-			firstNode.expandedTo[0].typeIn = 'line';
-			firstNode.expandedTo[1].typeOut = 'line';
-			lastNode.expandedTo[0].typeOut = 'line';
-			lastNode.expandedTo[1].typeIn = 'line';
-
-		} else if ( !contour.expandedTo && contour.closed ) {
-			leftContour = new paper.Path({
-				closed: true,
-				segments: leftNodes
-			});
-			additionalContours.push( leftContour );
-			rightContour = new paper.Path({
-				closed: true,
-				segments: rightNodes
-			});
-			additionalContours.push( rightContour );
-
-			contour.expandedTo = [
-				leftContour,
-				rightContour
-			];
-			contour.src.expandedTo = [
-				expandedContourSrc( leftContour, i, 0, leftNodesSrc ),
-				expandedContourSrc( rightContour, i, 1, rightNodesSrc )
-			];
-			leftContour.expandedFrom = rightContour.expandedFrom = contour;
-		}
-	});
-
-	glyph.addContours( additionalContours );
-};
-
-// Calculate expanded node position
-naive.expandedNodeUpdater = function( node, isLeft, _width ) {
-	var origin = node.expandedFrom,
-		expand = origin.expand,
-		width = expand && expand.width !== undefined ?
-			expand.width : _width,
-		coef = expand && expand.distr !== undefined ?
-			( isLeft ? expand.distr : 1 - expand.distr ) :
-			0.5,
-		angle = ( isLeft ? Math.PI : 0 ) +
-			( expand && expand.angle !== undefined ?
-				expand.angle :
-				// We resort to using directions.
-				// This is wrong, directions are not included in the
-				// dependencies of the updater and might not be ready yet.
-				// TODO: Fix this (always require angle to be specified?)
-				( origin._dirOut !== undefined ?
-					origin._dirOut - Math.PI / 2 :
-					origin._dirIn + Math.PI / 2
-				)
-			);
-
-	// position
-	node.point.x = origin.point.x + ( width * coef * Math.cos( angle ) );
-	node.point.y = origin.point.y + ( width * coef * Math.sin( angle ) );
-};
-
-// copy skeleton properties such as types, directions and tensions to expanded
-// nodes
-naive.skeletonCopier = function( node ) {
-	var angle = node.expand && node.expand.angle || 0,
-		left = node.expandedTo[0],
-		right = node.expandedTo[1];
-
-	// node type
-	if ( node.type !== undefined ) {
-		left.type = right.type = node.type;
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			configurable: false,
+			get: function() { return module.i; }
+		});
+		module.webpackPolyfill = 1;
 	}
-
-	// direction type
-	if ( node.typeIn !== undefined ) {
-		left.typeIn = right.typeOut = node.typeIn;
-	}
-	if ( node.typeOut !== undefined ) {
-		left.typeOut = right.typeIn = node.typeOut;
-	}
-
-	// direction
-	if ( node._dirIn !== undefined ) {
-		left._dirIn = right._dirOut = node._dirIn;
-
-		if ( node.type === 'smooth' && node._dirOut === undefined ) {
-			left._dirOut = right._dirIn = node._dirIn + Math.PI;
-		}
-	}
-	if ( node._dirOut !== undefined ) {
-		left._dirOut = right._dirIn = node._dirOut;
-
-		if ( node.type === 'smooth' && node._dirIn === undefined ) {
-			left._dirIn = right._dirOut = node._dirOut + Math.PI;
-		}
-	}
-	// use angle if direction isn't already defined
-	if ( left._dirIn === undefined ) { // implies right._dirOut === undefined
-		left._dirIn = angle - Math.PI / 2;
-		right._dirOut = angle + Math.PI / 2;
-	}
-	if ( left._dirOut === undefined ) { // implies right._dirIn === undefined
-		left._dirOut = angle + Math.PI / 2;
-		right._dirIn = angle - Math.PI / 2;
-	}
-
-	// tension
-	left.tensionIn = right.tensionOut = node.tensionIn !== undefined ?
-		node.tensionIn :
-		( node.tension !== undefined ? node.tension : 1 );
-	left.tensionOut = right.tensionIn = node.tensionOut !== undefined ?
-		node.tensionOut :
-		( node.tension !== undefined ? node.tension : 1 );
-};
-
-// Make sure 'line' types are set on both side of segments
-// and if a smooth node is used in a straight segment, update the directions
-// appropriately this can only be done once the types, directions and position
-// of all nodes have been updated can be renamed #prepareLines if no other
-// operation is added
-// TODO: try doing it at the same time as updateContour (once we have more
-// complex glyphs)
-naive.prepareContour = function( path ) {
-	path.nodes.forEach(function(node) {
-		if ( node.typeIn === 'line' && node.previous ) {
-			node.previous.typeOut = 'line';
-		}
-
-		if ( node.typeOut === 'line' && node.next ) {
-			node.next.typeIn = 'line';
-		}
-	});
-
-	path.nodes.forEach(function(node) {
-		if ( node.typeIn === 'line' && node.type === 'smooth' &&
-				node.previous ) {
-
-			node._dirIn = Utils.lineAngle(
-				node.point, node.previous.point
-			);
-			node._dirOut = node._dirIn + Math.PI;
-		}
-
-		if ( node.typeOut === 'line' && node.type === 'smooth' &&
-				node.next ) {
-
-			node._dirOut = Utils.lineAngle(
-				node.point, node.next.point
-			);
-			node._dirIn = node._dirOut + Math.PI;
-		}
-	});
-};
-
-// sets the position of control points
-// can be renamed #updateControls if no other operation is added
-naive.updateContour = function( path, curviness ) {
-	if ( curviness === undefined ) {
-		curviness = 2 / 3;
-	}
-
-	path.nodes.forEach(function(node) {
-		var start = node,
-			end,
-			startCtrl,
-			endCtrl,
-			startType,
-			endType,
-			startTension,
-			endTension,
-			startDir,
-			endDir,
-			rri;
-
-		if ( !node.next ) {
-			return;
-		}
-
-		end = node.next;
-		startCtrl = start.handleOut;
-		endCtrl = end.handleIn;
-
-		startType = start.typeOut;
-		endType = end.typeIn;
-
-		if ( startType === 'line' || endType === 'line' ) {
-			startCtrl.x = 0;
-			startCtrl.y = 0;
-			endCtrl.x = 0;
-			endCtrl.y = 0;
-
-			return;
-		}
-
-		startTension = start.tensionOut !== undefined ?
-			start.tensionOut :
-			( start.tension !== undefined ? start.tension : 1 );
-		endTension = end.tensionIn !== undefined ?
-			end.tensionIn :
-			( end.tension !== undefined ? end.tension : 1 );
-
-		startDir = start._dirOut !== undefined ?
-			start._dirOut :
-			( start.type === 'smooth' ? start._dirIn + Math.PI : 0 );
-		endDir = end._dirIn !== undefined ?
-			end._dirIn :
-			( end.type === 'smooth' ? end._dirOut - Math.PI : 0 );
-
-		rri = Utils.rayRayIntersection(
-			start._point,
-			startDir,
-			end._point,
-			endDir
-		);
-
-		// direction of handles is parallel
-		if ( rri === null ) {
-			var angle = Utils.lineAngle( start._point, end._point ),
-				middle = {
-					x: ( end._point.x - start._point.x ) / 2 + start._point.x,
-					y: ( end._point.y - start._point.y ) / 2 + start._point.y
-				},
-				p0 = Utils.rayRayIntersection(
-					start._point, startDir, middle, angle - Math.PI / 2
-				),
-				p1 = Utils.rayRayIntersection(
-					middle, angle + Math.PI / 2, end._point, endDir
-				);
-
-			if ( p0 === null ) {
-				startCtrl.x = 0;
-				startCtrl.y = 0;
-				endCtrl.x = 0;
-				endCtrl.y = 0;
-
-				return;
-			}
-
-			startCtrl.x = ( Math.round(p0[0]) - start._point.x ) *
-				curviness * startTension;
-			startCtrl.y = ( Math.round(p0[1]) - start._point.y ) *
-				curviness * startTension;
-			endCtrl.x = ( Math.round(p1[0]) - end._point.x ) *
-				curviness * endTension;
-			endCtrl.y = ( Math.round(p1[1]) - end._point.y ) *
-				curviness * endTension;
-
-			return;
-		}
-
-		startCtrl.x = ( Math.round(rri[0]) - start.point.x ) *
-			curviness * startTension;
-		startCtrl.y = ( Math.round(rri[1]) - start.point.y ) *
-			curviness * startTension;
-		endCtrl.x = ( Math.round(rri[0]) - end.point.x ) *
-			curviness * endTension;
-		endCtrl.y = ( Math.round(rri[1]) - end.point.y ) *
-			curviness * endTension;
-	});
-};
-
-var rdeg = /deg$/;
-Object.defineProperties(paper.PaperScope.prototype.Segment.prototype, {
-	expand: {
-		get: function() {
-			return this._expand;
-		},
-		set: function( expand ) {
-			if ( typeof expand.angle === 'string' && rdeg.test(expand.angle) ) {
-				expand.angle = parseFloat(expand.angle) * ( Math.PI * 2 / 360 );
-			}
-
-			this._expand = expand;
-		}
-	},
-	dirIn: {
-		get: function() {
-			return this._dirIn;
-		},
-		set: function( dir ) {
-			if ( typeof dir === 'string' && rdeg.test( dir ) ) {
-				this._dirIn = parseFloat(dir) * ( Math.PI * 2 / 360 );
-			} else {
-				this._dirIn = dir;
-			}
-		}
-	},
-	dirOut: {
-		get: function() {
-			return this._dirOut;
-		},
-		set: function( dir ) {
-			if ( typeof dir === 'string' && rdeg.test( dir ) ) {
-				this._dirOut = parseFloat(dir) * ( Math.PI * 2 / 360 );
-			} else {
-				this._dirOut = dir;
-			}
-		}
-	}
-});
-
-module.exports = naive;
+	return module;
+}
 
 
 /***/ },
-/* 109 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-var plumin = __webpack_require__(7),
-	paper = plumin.paper;
-
-var Utils = {};
-
-/* eslint-disable */
-// The following function should be useless, thanks to paper
-Utils.lineLineIntersection = function( p1, p2, p3, p4 ) {
-	var x1 = p1.x,
-		y1 = p1.y,
-		x2 = p2.x,
-		y2 = p2.y,
-		x3 = p3.x,
-		y3 = p3.y,
-		x4 = p4.x,
-		y4 = p4.y,
-		d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-
-	if ( d === 0 ) {
-		return null;
-	}
-
-	return new Float32Array([
-		( (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4) ) /
-		d,
-		( (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4) ) /
-		d
-	]);
-};
-
-// Find the intersection of two rays.
-// A ray is defined by a point and an angle.
-Utils.rayRayIntersection = function( p1, a1, p2, a2 ) {
-	// line equations
-	var a = Math.tan(a1),
-		b = Math.tan(a2),
-		c = p1.y - a * p1.x,
-		d = p2.y - b * p2.x,
-		x,
-		y;
-
-	// When searching for lines intersection,
-	// angles can be normalized to 0 < a < PI
-	// This will be helpful in detecting special cases below.
-	a1 = a1 % Math.PI;
-	if ( a1 < 0 ) {
-		a1 += Math.PI;
-	}
-	a2 = a2 % Math.PI;
-	if ( a2 < 0 ) {
-		a2 += Math.PI;
-	}
-
-	// no intersection
-	if ( a1 === a2 ) {
-		return null;
-	}
-
-	//We want to round a1, a2 and PI to avoid problems with approximation
-	a1 = a1.toFixed(6);
-	a2 = a2.toFixed(6);
-	var piOver2 = (Math.PI / 2).toFixed(6);
-
-	// Optimize frequent and easy special cases.
-	// Without optimization, results would be incorrect when cos(a) === 0
-	if ( a1 === 0 ) {
-		y = p1.y;
-	} else if ( a1 === piOver2 ) {
-		x = p1.x;
-	}
-	if ( a2 === 0 ) {
-		y = p2.y;
-	} else if ( a2 === piOver2 ) {
-		x = p2.x;
-	}
-
-	// easiest case
-	if ( x !== undefined && y !== undefined ) {
-		return new Float32Array([ x, y ]);
-	}
-
-	// other cases that can be optimized
-	if ( a1 === 0 ) {
-		return new Float32Array([ ( y - d ) / b, y ]);
-	}
-	if ( a1 === piOver2 ) {
-		return new Float32Array([ x, b * x + d ]);
-	}
-	if ( a2 === 0 ) {
-		return new Float32Array([ ( y - c ) / a, y ]);
-	}
-	if ( a2 === piOver2 ) {
-		return new Float32Array([ x, a * x + c ]);
-	}
-
-	// intersection from two line equations
-	// algo: http://en.wikipedia.org/wiki/Line–line_intersection#Given_the_equations_of_the_lines
-	return new Float32Array([
-		x = (d - c) / (a - b),
-		// this should work equally well with ax+c or bx+d
-		a * x + c
-	]);
-};
-
-// return the angle between two points
-Utils.lineAngle = function( p0, p1 ) {
-	return Math.atan2( p1.y - p0.y, p1.x - p0.x );
-};
-
-Utils.onLine = function( params ) {
-	if ( params.on[0].x === params.on[1].x &&
-		params.on[0].y === params.on[1].y ) {
-		return 'x' in params ?
-			params.on[0].y :
-			params.on[0].x;
-	}
-
-	var origin = params.on[0],
-		vector = [
-			params.on[1].x - params.on[0].x,
-			params.on[1].y - params.on[0].y
-		];
-
-	return 'x' in params ?
-		( params.x - origin.x ) / vector[0] * vector[1] + origin.y :
-		( params.y - origin.y ) / vector[1] * vector[0] + origin.x;
-};
-
-Utils.pointOnCurve = function(pointHandleOut,
-	pointHandleIn,
-	distanceFromOut,
-	inverseOrientation,
-	linePrecision) {
-	linePrecision = linePrecision || 3;
-	var length = 0;
-	var previousPoint;
-
-	var points;
-	if (!inverseOrientation) {
-		points = [
-			pointHandleOut.point,
-			pointHandleOut.point.add(pointHandleOut.handleOut),
-			pointHandleIn.point.add(pointHandleIn.handleIn),
-			pointHandleIn.point
-		];
-	} else {
-		points = [
-			pointHandleIn.point,
-			pointHandleIn.point.add(pointHandleIn.handleIn),
-			pointHandleOut.point.add(pointHandleOut.handleOut),
-			pointHandleOut.point
-		];
-	}
-
-	for (var i = 0; i < linePrecision; i++) {
-		var point = Utils.getPointOnCurve(points,
-			( i / ( linePrecision - 1 ) ) );
-
-		if (previousPoint) {
-			length += Utils.distance(previousPoint.x,
-				previousPoint.y,
-				point.x,
-				point.y);
-
-		}
-
-		previousPoint = point;
-	}
-
-	var t = length === 0 ? 0 : distanceFromOut / length;
-
-	t = Math.max(0.001, Math.min(1, t));
-
-    return Utils.getPointOnCurve(points, t);
-};
-
-Utils.getPointOnCurve = function(points, t) {
-	var inverseT = 1 - t;
-	var a = inverseT * inverseT * inverseT;
-	var b = inverseT * inverseT * t * 3;
-	var c = inverseT * t * t * 3;
-	var d = t * t * t;
-
-	return {
-		x: a * points[0].x + b * points[1].x + c * points[2].x + d * points[3].x,
-		y: a * points[0].y + b * points[1].y + c * points[2].y + d * points[3].y,
-		normal: Utils.lineAngle(
-			{
-				x: 0,
-				y: 0
-			},
-			{
-				x: (points[1].x - points[0].x) * inverseT * inverseT + 2 * ( points[2].x - points[1].x ) * t * inverseT + (points[3].x - points[2].x) * t * t,
-				y: (points[1].y - points[0].y) * inverseT * inverseT + 2 * ( points[2].y - points[1].y ) * t * inverseT + (points[3].y - points[2].y) * t * t,
-			}
-		)
-	}
-}
-
-Utils.split = function(points, t, base) {
-	t = t || 1;
-	var result = points;
-	while (points.length > 1) {
-		var newPoints = [];
-		for (var i = 1; i < points.length; i++) {
-			newPoints.push(
-				points[i - 1]
-					.multiply(1 - t)
-					.add(
-						points[i]
-							.multiply(t)
-					)
-				);
-		}
-
-		result = result.concat(newPoints);
-		points = newPoints;
-	}
-
-	if (t === 1) {
-		return {
-			left: [
-				base[1],
-				base[0]
-			],
-			right: [
-				base[1],
-				base[1]
-			]
-		}
-	}
-
-	var splitBezier = {
-		left: [
-			{
-				x: result[0].x,
-				y: result[0].y,
-				point: new paper.Point(
-					result[0].x,
-					result[0].y
-				),
-				handleOut:new paper.Point(
-					result[4].x - result[0].x,
-					result[4].y - result[0].y
-				),
-			},
-			{
-				x: result[9].x,
-				y: result[9].y,
-				point: new paper.Point(
-					result[9].x,
-					result[9].y
-				),
-				handleIn:new paper.Point(
-					result[7].x - result[9].x,
-					result[7].y - result[9].y
-				),
-				handleOut:new paper.Point(
-					result[8].x - result[9].x,
-					result[8].y - result[9].y
-				),
-			}
-		],
-		right: [
-			{
-				x: result[9].x,
-				y: result[9].y,
-				point: new paper.Point(
-					result[9].x,
-					result[9].y
-				),
-				handleIn:new paper.Point(
-					result[7].x - result[9].x,
-					result[7].y - result[9].y
-				),
-				handleOut:new paper.Point(
-					result[8].x - result[9].x,
-					result[8].y - result[9].y
-				),
-			},
-			{
-				x: result[3].x,
-				y: result[3].y,
-				point: new paper.Point(
-					result[3].x,
-					result[3].y
-				),
-				handleIn:new paper.Point(
-					result[6].x - result[3].x,
-					result[6].y - result[3].y
-				),
-			}
-		]
-	};
-	return splitBezier;
-};
-
-Utils.distance = function(x1, y1, x2, y2) {
-	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y1 - y2, 2));
-};
-
-Utils.align = function(points, lineStart, lineEnd) {
-	var tx = lineStart.x,
-	ty = lineStart.y,
-	a = -Math.atan2(lineEnd.y - ty, lineEnd.x - tx),
-	d = function(v) {
-		return {
-			x: (v.x - tx) * Math.cos(a) - (v.y - ty) * Math.sin(a),
-			y: (v.x - tx) * Math.sin(a) + (v.y - ty) * Math.cos(a)
-		};
-	};
-	return points.map(d);
-}
-
-function crt(v) {
-	return v < 0 ?
-		-Math.pow( -v, 1/3) :
-		Math.pow( v, 1/3);
-}
-
-// see https://github.com/Pomax/bezierjs/blob/gh-pages/lib/utils.js line 313
-Utils.lineCurveIntersection = function(pointHandleOut, pointHandleIn, lineStart, lineEnd) {
-	lineStart = lineStart || {x:0,y:0};
-	lineEnd = lineEnd || {x:1,y:0};
-	var points = [
-		pointHandleOut.point,
-		pointHandleOut.point.add(pointHandleOut.handleOut),
-		pointHandleIn.point.add(pointHandleIn.handleIn),
-		pointHandleIn.point
-	];
-	var p = Utils.align(points, lineStart, lineEnd);
-	var reduce = function(t) { return 0<=t && t <=1; };
-
-	// see http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
-	var pa = p[0].y;
-	var pb = p[1].y;
-	var pc = p[2].y;
-	var pd = p[3].y;
-	var d = (-pa + 3 * pb - 3 * pc + pd);
-	var a = (3 * pa - 6 * pb + 3 * pc) / d;
-	var b = (-3 * pa + 3 * pb) / d;
-	var c = pa / d;
-	var p3 = ((3 * b - a * a) / 3 ) / 3;
-	var q = (2 * a * a * a - 9 * a * b + 27 * c) / 27;
-	var q2 = q/2;
-	var discriminant = q2 * q2 + p3 * p3 * p3;
-	var u1;
-	var v1;
-	var x1;
-	var x2;
-	var x3;
-
-	var result;
-
-	if (discriminant < 0) {
-		var mp3 = -p3,
-		mp33 = mp3 * mp3 * mp3,
-		r = Math.sqrt( mp33 ),
-		t = -q / ( 2 * r ),
-		cosphi = t < -1 ? -1 : t > 1 ? 1 : t,
-		phi = Math.acos( cosphi ),
-		crtr = crt( r ),
-		t1 = 2 * crtr;
-		x1 = t1 * Math.cos( phi / 3) - a / 3;
-		x2 = t1 * Math.cos((phi+ Math.PI * 2)/3) - a / 3;
-		x3 = t1 * Math.cos((phi+ 4 * Math.PI)/3) - a / 3;
-		result = [x1, x2, x3].filter(reduce);
-	} else if(discriminant === 0) {
-		u1 = q2 < 0 ? crt(-q2) : -crt(q2);
-		x1 = 2 * u1 -a / 3;
-		x2 = -u1 - a / 3;
-		result = [x1,x2].filter(reduce);
-	} else {
-		var sd = Math.sqrt(discriminant);
-		u1 = crt(-q2 + sd);
-		v1 = crt(q2 + sd);
-		result = [u1 - v1 - a / 3].filter(reduce);
-	}
-
-	return Utils.split(points, result[0], [pointHandleIn, pointHandleOut]);
-}
-
-Utils.log = function() {
-	/*eslint-disable no-console */
-	console.log.apply( console, arguments );
-	/*eslint-enable no-console */
-	return arguments[0];
-};
-
-Utils.normalize = function(vector) {
-	var x = vector.x;
-	var y = vector.y;
-
-	var norm = Utils.distance(0, 0, x, y);
-
-	if (norm === 0) {
-		return {
-			x: 0,
-			y: 0
-		};
-	}
-
-	return {
-		x: x / norm,
-		y: y / norm
-	};
-}
-
-Utils.vectorFromPoints = function(a, b) {
-	return {
-		x:b.x - a.x,
-		y:b.y - a.y
-	}
-}
-
-Utils.parseInt = function(int) {
-	return parseInt(int);
-}
-
-Utils.makeCurveInsideSerif = function(
-	pAnchors,
-	serifHeight,
-	serifWidth,
-	serifMedian,
-	serifCurve,
-	serifTerminal,
-	thickness,
-	midWidth,
-	serifRotate
-) {
-	var yDir = pAnchors.down ? -1 : 1;
-	var xDir = pAnchors.left ? -1 : 1;
-	var midStumpOrient = pAnchors.inverseMidStump ? -1: 1;
-	var realThickness = pAnchors.thickness || thickness;
-
-	var rotateRad = (serifRotate * pAnchors.rotationAngle || 0) * Math.PI/180;
-	var baseWidth = pAnchors.baseWidth;
-	var baseHeight = pAnchors.baseHeight;
-	var stumpOpposite = pAnchors.opposite;
-	var stumpVector = {
-		x: stumpOpposite.x - baseHeight.x,
-		y: stumpOpposite.y - baseHeight.y,
-	};
-	var stumpNorm = Utils.distance(0, 0, stumpVector.x, stumpVector.y);
-	stumpVector = Utils.normalize(stumpVector);
-	var stumpAngle = Utils.lineAngle(baseHeight, stumpOpposite);
-
-	var rotationCenter = pAnchors.rotationCenter;
-	var topLeft = {
-		x: rotationCenter.x + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.cos(rotateRad) - (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.sin(rotateRad),
-		y: rotationCenter.y + (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.cos(rotateRad) + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.sin(rotateRad),
-	};
-	var bottomLeft = {
-		x: rotationCenter.x + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.cos(rotateRad) - (baseHeight.y - rotationCenter.y) * Math.sin(rotateRad),
-		y: rotationCenter.y + (baseHeight.y - rotationCenter.y) * Math.cos(rotateRad) + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.sin(rotateRad),
-	}
-
-	//We get the intersection with the left edge of the serif and the curve support
-	//this operation is direction dependent
-	var splitBase;
-	if (pAnchors.inverseOrder) {
-		splitBase = Utils.lineCurveIntersection(
-			pAnchors.curveEnd,
-			pAnchors.baseWidth,
-			{x: topLeft.x, y: topLeft.y},
-			{x: bottomLeft.x, y: bottomLeft.y}
-		);
-	}
-	else {
-		splitBase = Utils.lineCurveIntersection(
-			pAnchors.baseWidth,
-			pAnchors.curveEnd,
-			{x: topLeft.x, y: topLeft.y},
-			{x: bottomLeft.x, y: bottomLeft.y}
-		);
-	}
-
-
-	// We chose a serifCenter depending on if the left edge intersect or not with
-	// the curve support
-	var serifCenter;
-	var splitCurveEnd;
-
-	if (!pAnchors.inverseOrder) {
-		if (splitBase.right[0].x !== splitBase.right[1].x || splitBase.right[0].y !== splitBase.right[1].y) {
-			serifCenter = splitBase.right[0];
-			splitCurveEnd = splitBase.right[1];
-		}
-		else {
-			serifCenter = splitBase.left[0];
-			splitCurveEnd = splitBase.left[1];
-		}
-	}
-	else {
-		if (splitBase.left[0].x !== splitBase.left[1].x || splitBase.left[0].y !== splitBase.left[1].y) {
-			serifCenter = splitBase.left[1];
-			splitCurveEnd = splitBase.left[0];
-		}
-		else {
-			serifCenter = splitBase.right[1];
-			splitCurveEnd = splitBase.right[0];
-		}
-	}
-
-	// The serif direction is the line from the serif center
-	// to the serif left edge
-	var serifDirection = Utils.vectorFromPoints(
-		serifCenter,
-		{
-			x: rotationCenter.x + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * serifMedian * Math.cos(rotateRad) - (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.sin(rotateRad),
-			y: rotationCenter.y + (baseWidth.y - rotationCenter.y + serifWidth * yDir) * Math.cos(rotateRad) + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * serifMedian * Math.sin(rotateRad),
-		}
-	);
-
-	var serifBasis = Utils.normalize(serifDirection);
-	var serifRadDirection = Math.atan2(serifBasis.y, serifBasis.x);
-
-	var pointOnCurve;
-	var pointOnSerif;
-	var pointWithCurve = {};
-	var normalToCurve;
-
-	if (pAnchors.inverseOrder) {
-		pointWithCurve = Utils.pointOnCurve(splitCurveEnd, serifCenter, serifCurve, true, 200)
-	}
-	else {
-		pointWithCurve = Utils.pointOnCurve(serifCenter, splitCurveEnd, serifCurve, false, 200)
-	}
-
-	if (serifCurve > 0) {
-		normalToCurve = pointWithCurve.normal;
-		pointOnCurve = {
-			x: pointWithCurve.x,
-			y: pointWithCurve.y,
-			dirOut: pointWithCurve.normal,
-			type:'corner'
-		};
-		var curveRatio = Math.min(serifCurve / Utils.distance(0, 0, serifDirection.x, serifDirection.y), 0.75);
-		pointOnSerif = {
-			x: serifCenter.x + serifDirection.x * curveRatio,
-			y: serifCenter.y + serifDirection.y * curveRatio,
-			dirIn: serifRadDirection,
-			dirOut: serifRadDirection,
-			type:'corner'
-		};
-	}
-	else {
-		if (pAnchors.inverseOrder) {
-			normalToCurve = serifCenter.handleIn.angleInRadians;
-		}
-		else {
-			normalToCurve = serifCenter.handleOut.angleInRadians;
-		}
-		pointOnCurve = {
-			x: serifCenter.x,
-			y: serifCenter.y,
-			type:'corner',
-		};
-		pointOnSerif = {
-			x: serifCenter.x,
-			y: serifCenter.y,
-			type:'corner'
-		};
-	}
-	var leftEdge = {
-		x: serifCenter.x + serifDirection.x,
-		y: serifCenter.y + serifDirection.y,
-		dirIn: serifRadDirection,
-		dirOut: rotateRad,
-	};
-	var rightEdge = {
-		x: rotationCenter.x - (baseWidth.y - rotationCenter.y + serifWidth * midWidth * yDir) * Math.sin(rotateRad),
-		y: rotationCenter.y + (baseWidth.y - rotationCenter.y + serifWidth * midWidth * yDir) * Math.cos(rotateRad),
-		dirIn: rotateRad,
-		typeOut: 'line'
-	};
-	var serifRoot = {
-		x: baseHeight.x,
-		y: baseHeight.y,
-	};
-
-	var rootVector = Utils.normalize(Utils.vectorFromPoints(serifRoot, rightEdge));
-	var medianVector = Utils.normalize(Utils.vectorFromPoints(pointOnSerif, leftEdge));
-
-	var terminalVector = Utils.normalize({
-		x: rootVector.x + medianVector.x,
-		y: rootVector.y + medianVector.y,
-	});
-
-	var midPoint = {
-		x: (leftEdge.x + rightEdge.x) / 2 + serifTerminal * serifHeight * terminalVector.x * xDir,
-		y: (leftEdge.y + rightEdge.y) / 2 + serifTerminal * serifHeight * terminalVector.y * xDir,
-		dirIn: rotateRad,
-		dirOut: rotateRad,
-	};
-
-	if (serifTerminal !== 0) {
-		leftEdge.dirOut = Math.atan2(medianVector.y, medianVector.x);
-		rightEdge.dirIn = Math.atan2(rootVector.y, rootVector.x);
-	}
-	else if (midWidth !== 1) {
-		var dirOut = Math.atan2(leftEdge.y - rightEdge.y, leftEdge.x - rightEdge.x);
-		leftEdge.dirOut = dirOut;
-		rightEdge.dirIn = dirOut;
-		midPoint.dirIn = dirOut
-		midPoint.dirOut = dirOut
-	}
-
-	var midStump = {
-		x: serifRoot.x + stumpNorm / 2 * stumpVector.x,
-		y: serifRoot.y + stumpNorm / 2 * stumpVector.y,
-		dirOut: baseWidth.dirIn,
-		typeIn: 'line',
-		type: 'corner',
-	}
-
-	var lastPoint = {
-		x: pointOnCurve.x - stumpNorm / 2 * Math.sin(normalToCurve) * yDir * xDir,
-		y: pointOnCurve.y + stumpNorm / 2 * Math.cos(normalToCurve) * yDir * xDir,
-		dirIn: normalToCurve,
-		typeOut: 'line',
-		type: 'corner',
-	}
-
-	if (serifCurve + serifHeight < 70) {
-		midStump.tensionOut = 0;
-		lastPoint.tensionIn = 0;
-	}
-	else {
-		midStump.tensionOut = 1;
-		lastPoint.tensionIn = 1;
-	}
-
-	return [
-		pointOnCurve,
-		pointOnSerif,
-		leftEdge,
-		midPoint,
-		rightEdge,
-		rotationCenter,
-		serifRoot,
-		midStump,
-		lastPoint
-	]
-}
-/* eslint-enable */
-
-module.exports = Utils;
-
-
-/***/ },
-/* 110 */
-/***/ function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(30);
+module.exports = __webpack_require__(4);
 
 
 /***/ }
