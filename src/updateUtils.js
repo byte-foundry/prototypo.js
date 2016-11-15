@@ -437,10 +437,18 @@ Utils.makeCurveInsideSerif = function(
 	var baseWidth = pAnchors.baseWidth;
 	var baseHeight = pAnchors.baseHeight;
 	var stumpOpposite = pAnchors.opposite;
+	var stumpBase = baseHeight;
 	var stumpVector = {
-		x: stumpOpposite.x - baseHeight.x,
-		y: stumpOpposite.y - baseHeight.y,
+		x: stumpOpposite.x - stumpBase.x,
+		y: stumpOpposite.y - stumpBase.y,
 	};
+
+	if (baseHeight.x === stumpOpposite.x && baseHeight.y === stumpOpposite.y) {
+		var stumpVector = {
+			x: -stumpOpposite.x + baseWidth.x,
+			y: -stumpOpposite.y + baseWidth.y,
+		};
+	}
 	var stumpNorm = Utils.distance(0, 0, stumpVector.x, stumpVector.y);
 	stumpVector = Utils.normalize(stumpVector);
 	var stumpAngle = Utils.lineAngle(baseHeight, stumpOpposite);
