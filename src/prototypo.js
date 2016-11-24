@@ -1,12 +1,13 @@
 var plumin = require('plumin.js'),
 	assign = require('lodash.assign'),
 	cloneDeep = require('lodash.clonedeep'),
+	forEach = require('lodash/forEach'),
 	Utils = require('./Utils.js'),
 	naive = require('./naive.js');
 
 var paper = plumin.paper,
 	psProto = paper.PaperScope.prototype,
-	_ = { assign: assign };
+	_ = { assign: assign, forEach: forEach };
 
 function parametricFont( src ) {
 	var font = Utils.fontFromSrc( src );
@@ -48,6 +49,22 @@ plumin.Utils.naive = naive;
 
 psProto.Font.prototype.update = function( params, set ) {
 	var font = this;
+	var subset = this.getGlyphSubset(set);
+
+	if (params.altList) {
+		_.forEach(Object.keys(params.altList), (unicode) => {
+			const charMap = font.charMap;
+			if (charMap[unicode].name !== params.altList[unicode]) {
+				var oldGlyph = charMap[unicode];
+				font.setAlternateFor(unicode, params.altList[unicode]);
+
+				var index = subset.indexOf(oldGlyph);
+				if (index !== -1) {
+					subset[index] = charMap[unicode];
+				}
+			}
+		});
+	}
 
 	Utils.updateParameters( font, params );
 
@@ -58,7 +75,7 @@ psProto.Font.prototype.update = function( params, set ) {
 
 	Utils.updateXscenderProperties( font, params );
 
-	this.getGlyphSubset( set ).map(function( glyph ) {
+	subset.map(function( glyph ) {
 		return glyph.update( params );
 	}, this);
 
@@ -121,6 +138,7 @@ psProto.Font.prototype.setAlternatesFor = function(unicode, glyphName) {
 	var font = this;
 	var glyph = font.charMap[unicode].src;
 	var nextGlyph = font.children[glyphName].src;
+	var result = [];
 
 	(glyph.relatedGlyphs || []).forEach(function(name) {
 		var relatedGlyph = font.children[name].src;
@@ -131,10 +149,20 @@ psProto.Font.prototype.setAlternatesFor = function(unicode, glyphName) {
 				relatedGlyph.unicode,
 				alternateName
 			);
+			result.push({
+				glyph: relatedGlyph.unicode,
+				name: alternateName
+			});
 		}
 	});
 
 	font.setAlternateFor(unicode, glyphName);
+	result.push({
+		glyph: unicode,
+		name: glyphName
+	});
+
+	return result;
 };
 
 /* Update the shape of the glyph, according to formula and parameters
@@ -230,7 +258,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 	// 1. calculate node properties
 
 	if (_params.manualChanges) {
-		params.manualChanges = cloneDeep(_params.manualChanges[glyph.ot.unicode]);
+		params.manualChanges = cloneDeep(_params.manualChanges[glyph.name]);
 	}
 	Utils.updateProperties( glyph, params );
 
