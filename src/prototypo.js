@@ -54,7 +54,7 @@ psProto.Font.prototype.update = function( params, set ) {
 	if (params.altList) {
 		_.forEach(Object.keys(params.altList), (unicode) => {
 			const charMap = font.charMap;
-			if (charMap[unicode].name !== params.altList[unicode]) {
+			if (charMap[unicode] && charMap[unicode].name !== params.altList[unicode]) {
 				var oldGlyph = charMap[unicode];
 				font.setAlternateFor(unicode, params.altList[unicode]);
 
