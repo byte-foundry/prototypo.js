@@ -29407,14 +29407,14 @@ naive.skeletonCopier = function (node) {
 	if (node._dirIn !== undefined) {
 		left._dirIn = right._dirOut = node._dirIn;
 
-		if (node.type === 'smooth' && node._dirOut === undefined) {
+		if (node.type === 'smooth' && !node._dirOut) {
 			left._dirOut = right._dirIn = node._dirIn + Math.PI;
 		}
 	}
 	if (node._dirOut !== undefined) {
 		left._dirOut = right._dirIn = node._dirOut;
 
-		if (node.type === 'smooth' && node._dirIn === undefined) {
+		if (node.type === 'smooth' && !node._dirIn) {
 			left._dirIn = right._dirOut = node._dirOut + Math.PI;
 		}
 	}
