@@ -666,13 +666,6 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 		// assignment logic
 		if ( result !== undefined ) {
 			if (params.manualChanges && params.manualChanges.cursors) {
-				/*if (!_cursor.manual && params.manualChanges.cursors[cursor.join('.')] !== undefined) {
-					_cursor.manual = true;
-					params.manualChanges.dirty--;
-				}
-			}
-
-			if (_cursor.manual) {*/
 				var cursorName = cursor.join('.');
 				var changes = params.manualChanges.cursors[cursorName];
 
@@ -709,11 +702,18 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 		for (i = 0; i < cursorKeys.length; i++) {
 			cursor = cursorKeys[i].split('.');
 			var tmpObj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 );
-			var tmpSrc = {
-				_updaters: [ Utils.createUpdater({
-					_operation: JSON.stringify(tmpObj[cursor[cursor.length - 1]] || 0),
-				}) ],
-			};
+			var tmpSrc;
+			if (tmpObj.oldUpdaters) {
+				tmpSrc = tmpObj.oldUpdaters[cursor[cursor.length - 1]];
+			} else {
+				tmpSrc = {
+					_updaters: [ Utils.createUpdater({
+						_operation: JSON.stringify(tmpObj[cursor[cursor.length - 1]] || 0),
+					}) ],
+				};
+				tmpObj.oldUpdaters = tmpObj.oldUpdaters || {};
+				tmpObj.oldUpdaters[cursor[cursor.length - 1]] = tmpSrc;
+			}
 			var newCursor = {
 				cursor: cursor,
 				obj: tmpObj,
