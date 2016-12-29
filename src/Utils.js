@@ -611,15 +611,12 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 							if ( !(_name in params) ) {
 								/* eslint-disable no-console */
 								console.warn(
-									[
-										'undefined parameter',
-										_name,
-										'used in property',
-										cursor.join('.'),
-										'from component',
-										leaf.name
-									].join(' '),
-									leaf
+									'undefined parameter',
+									_name,
+									'used in property',
+									cursor.join('.'),
+									'from component',
+									leaf.name
 								);
 								/* eslint-enable no-console */
 							}
@@ -631,13 +628,10 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 				if ( typeof result === 'number' && isNaN(result) ) {
 					/* eslint-disable no-console */
 					console.warn(
-						[
-							'NaN returned by property',
-							cursor.join('.'),
-							'from component',
-							leaf.name
-						].join(' '),
-						leaf
+						'NaN returned by property',
+						cursor.join('.'),
+						'from component',
+						leaf.name
 					);
 					/* eslint-enable no-console */
 				}
@@ -645,13 +639,10 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 			} catch (e) {
 				/* eslint-disable no-console */
 				console.warn(
-					[
-						'Could not update property',
-						cursor.join('.'),
-						'from component',
-						leaf.name
-					].join(' '),
-					leaf,
+					'Could not update property',
+					cursor.join('.'),
+					'from component',
+					leaf.name,
 					e
 				);
 				/* eslint-enable no-console */
