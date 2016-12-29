@@ -8,25 +8,13 @@ module.exports = {
 		library: 'prototypo',
         libraryTarget: 'umd',
 	},
-	resolve: {
-		alias: {
-			'plumin.js': 'plumin.js/dist/plumin.js',
-		}
-	},
 	module: {
-		loaders: [
+		rules: [
 			{
 				test: /\.js$/,
 				exclude: /node_modules/,
-				loader: 'babel',
+				loader: 'babel-loader',
 			}
 		],
 	},
-	externals: [{
-		'./node/window': true,
-		'./node/extend': true,
-	}],
-	node: {
-		Buffer: false,
-	}
 };

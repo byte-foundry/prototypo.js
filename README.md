@@ -17,5 +17,5 @@ Based on [paper.js](https://github.com/paperjs/paper.js)'s API and [opentype.js]
 Before starting to hack on this lib, you need to install its dev dependencies.
 
 ```bash
-npm install
+npm install && npm build:watch
 ```

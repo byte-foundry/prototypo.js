@@ -1,13 +1,12 @@
 var plumin = require('plumin.js'),
 	assign = require('lodash.assign'),
 	cloneDeep = require('lodash.clonedeep'),
-	forEach = require('lodash/forEach'),
 	Utils = require('./Utils.js'),
 	naive = require('./naive.js');
 
 var paper = plumin.paper,
 	psProto = paper.PaperScope.prototype,
-	_ = { assign: assign, forEach: forEach };
+	_ = { assign: assign };
 
 function parametricFont( src ) {
 	var font = Utils.fontFromSrc( src );
@@ -52,7 +51,7 @@ psProto.Font.prototype.update = function( params, set ) {
 	var subset = this.getGlyphSubset(set);
 
 	if (params.altList) {
-		_.forEach(Object.keys(params.altList), (unicode) => {
+		Object.keys(params.altList).forEach((unicode) => {
 			const charMap = font.charMap;
 			if (charMap[unicode] && charMap[unicode].name !== params.altList[unicode]) {
 				var oldGlyph = charMap[unicode];
