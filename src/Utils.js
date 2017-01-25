@@ -709,7 +709,7 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 			cursor = cursorKeys[i].split('.');
 			var tmpObj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 );
 			var tmpSrc;
-			if (tmpObj.oldUpdaters) {
+			if (tmpObj.oldUpdaters && tmpObj.oldUpdaters[cursor[cursor.length - 1]]) {
 				tmpSrc = tmpObj.oldUpdaters[cursor[cursor.length - 1]];
 			} else {
 				tmpSrc = {
