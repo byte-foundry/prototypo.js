@@ -3,11 +3,12 @@ var plumin = require('plumin.js'),
 	cloneDeep = require('lodash.clonedeep'),
 	forEach = require('lodash/forEach'),
 	Utils = require('./Utils.js'),
-	naive = require('./naive.js');
+	naive = require('./naive.js'),
+	find = require('lodash/find');
 
 var paper = plumin.paper,
 	psProto = paper.PaperScope.prototype,
-	_ = { assign: assign, forEach: forEach };
+	_ = { assign: assign, forEach: forEach, find: find };
 
 function parametricFont( src ) {
 	var font = Utils.fontFromSrc( src );
@@ -50,21 +51,6 @@ plumin.Utils.naive = naive;
 psProto.Font.prototype.update = function( params, set ) {
 	var font = this;
 	var subset = this.getGlyphSubset(set);
-
-	if (params.altList) {
-		_.forEach(Object.keys(params.altList), (unicode) => {
-			const charMap = font.charMap;
-			if (charMap[unicode] && charMap[unicode].name !== params.altList[unicode]) {
-				var oldGlyph = charMap[unicode];
-				font.setAlternateFor(unicode, params.altList[unicode]);
-
-				var index = subset.indexOf(oldGlyph);
-				if (index !== -1) {
-					subset[index] = charMap[unicode];
-				}
-			}
-		});
-	}
 
 	Utils.updateParameters( font, params );
 
@@ -177,6 +163,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 	var glyph = this,
 		font = glyph.parent,
 		matrix,
+		subset = font.subset,
 		params;
 
 	if (_params) {
@@ -185,6 +172,23 @@ psProto.Glyph.prototype.update = function( _params ) {
 		_params = this.oldParams;
 	} else {
 		return;
+	}
+
+	if (_params.altList && font.charMap && subset) {
+		const unicode = _.find(Object.keys(_params.altList), (o) => {
+			return parseInt(o) === this.ot.unicode;
+		});
+		if (unicode && this.name !== _params.altList[unicode].name) {
+			const charMap = font.charMap;
+			if (charMap[unicode] && charMap[unicode].name !== _params.altList[unicode]) {
+				var index = subset.indexOf(charMap[unicode]);
+				font.setAlternateFor(unicode, _params.altList[unicode]);
+
+				subset[index] = charMap[unicode];
+				charMap[unicode].update(_params, subset);
+				return charMap[unicode];
+			}
+		}
 	}
 
 	// 0. calculate local parameters
