@@ -609,6 +609,7 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 					].concat(
 						( src._parameters || [] ).map(function(_name) {
 							if ( !(_name in params) ) {
+								/* #if dev */
 								/* eslint-disable no-console */
 								console.warn(
 									'undefined parameter',
@@ -619,6 +620,7 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 									leaf.name
 								);
 								/* eslint-enable no-console */
+								/* #end */
 							}
 							return params[_name];
 						})
@@ -626,6 +628,7 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 				);
 
 				if ( typeof result === 'number' && isNaN(result) ) {
+					/* #if dev */
 					/* eslint-disable no-console */
 					console.warn(
 						'NaN returned by property',
@@ -634,9 +637,11 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 						leaf.name
 					);
 					/* eslint-enable no-console */
+					/* #end */
 				}
 
 			} catch (e) {
+				/* #if dev */
 				/* eslint-disable no-console */
 				console.warn(
 					'Could not update property',
@@ -646,6 +651,7 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 					e
 				);
 				/* eslint-enable no-console */
+				/* #end */
 
 				// add the failing properties at the end of the solvingOrder
 				leaf.solvingOrder.push(_cursor);
