@@ -26304,23 +26304,12 @@ Utils.updateProperties = function (leaf, params, erroredPreviously) {
 		if (src && src._updaters) {
 			try {
 				result = src._updaters[0].apply(obj, [propName, leaf.contours, leaf.anchors, leaf.parentAnchors, Utils].concat((src._parameters || []).map(function (_name) {
-					if (!(_name in params)) {
-						/* eslint-disable no-console */
-						console.warn(['undefined parameter', _name, 'used in property', cursor.join('.'), 'from component', leaf.name].join(' '), leaf);
-						/* eslint-enable no-console */
-					}
+					if (!(_name in params)) {}
 					return params[_name];
 				})));
 
-				if (typeof result === 'number' && isNaN(result)) {
-					/* eslint-disable no-console */
-					console.warn(['NaN returned by property', cursor.join('.'), 'from component', leaf.name].join(' '), leaf);
-					/* eslint-enable no-console */
-				}
+				if (typeof result === 'number' && isNaN(result)) {}
 			} catch (e) {
-				/* eslint-disable no-console */
-				console.warn(['Could not update property', cursor.join('.'), 'from component', leaf.name].join(' '), leaf, e);
-				/* eslint-enable no-console */
 
 				// add the failing properties at the end of the solvingOrder
 				leaf.solvingOrder.push(_cursor);

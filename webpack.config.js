@@ -1,4 +1,5 @@
 var path = require('path');
+var webpack = require('webpack');
 
 module.exports = {
 	entry: [ './src/prototypo.js' ],
@@ -18,7 +19,7 @@ module.exports = {
 			{
 				test: /\.js$/,
 				exclude: /node_modules/,
-				loader: 'babel',
+				loader: ['babel', 'if-loader'],
 			}
 		],
 	},
@@ -28,5 +29,12 @@ module.exports = {
 	}],
 	node: {
 		Buffer: false,
-	}
+	},
+	plugins: [
+		new webpack.LoaderOptionsPlugin({
+			options: {
+				'if-loader': process.env.BUILD_ENV,
+			}
+		})
+	]
 };
