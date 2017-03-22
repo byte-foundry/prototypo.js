@@ -528,12 +528,12 @@ Utils.updateParameters = function( leaf, params ) {
 	var paramsToUpdate = (leaf.src && leaf.src.parameters) || [];
 
 	if (leaf.parent && leaf.parent.src) {
-		_.assign(paramsToUpdate, leaf.parent.src.parameters);
+		paramsToUpdate = _.assign([], leaf.parent.src.parameters, paramsToUpdate);
 	}
 
-	Object.keys( ( leaf.src && leaf.src.parameters ) || [] )
+	Object.keys( ( leaf.src && paramsToUpdate ) || [] )
 		.forEach(function( name ) {
-			var src = leaf.src.parameters[name];
+			var src = paramsToUpdate[name];
 
 			params[name] = src._updaters ?
 				src._updaters[0].apply( null, [

@@ -26207,11 +26207,11 @@ Utils.updateParameters = function (leaf, params) {
 	var paramsToUpdate = leaf.src && leaf.src.parameters || [];
 
 	if (leaf.parent && leaf.parent.src) {
-		_.assign(paramsToUpdate, leaf.parent.src.parameters);
+		paramsToUpdate = _.assign([], leaf.parent.src.parameters, paramsToUpdate);
 	}
 
-	Object.keys(leaf.src && leaf.src.parameters || []).forEach(function (name) {
-		var src = leaf.src.parameters[name];
+	Object.keys(leaf.src && paramsToUpdate || []).forEach(function (name) {
+		var src = paramsToUpdate[name];
 
 		params[name] = src._updaters ? src._updaters[0].apply(null, [name, [], [], leaf.parentAnchors, Utils].concat((src._parameters || []).map(function (_name) {
 			return params[_name];
