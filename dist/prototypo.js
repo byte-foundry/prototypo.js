@@ -30144,8 +30144,8 @@ Utils.makeCurveInsideSerif = function (pAnchors, serifHeight, serifWidth, serifM
 	});
 
 	var midPoint = {
-		x: (leftEdge.x + rightEdge.x) / 2 + serifTerminal * serifHeight * terminalVector.x * xDir,
-		y: (leftEdge.y + rightEdge.y) / 2 + serifTerminal * serifHeight * terminalVector.y * xDir,
+		x: (leftEdge.x + rightEdge.x) / 2 + serifTerminal * serifHeight * terminalVector.x,
+		y: (leftEdge.y + rightEdge.y) / 2 + serifTerminal * serifHeight * terminalVector.y,
 		dirIn: rotateRad,
 		dirOut: rotateRad
 	};
