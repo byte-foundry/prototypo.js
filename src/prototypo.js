@@ -265,8 +265,12 @@ psProto.Glyph.prototype.update = function( _params ) {
 			});
 			if (componentFilter.length > 0) {
 				var component = componentFilter[0];
+				var availableComponent = (
+					glyph.src.components.find(function(compAvail) { return compAvail.id === key})
+					|| {base: []}
+				).base.indexOf(componentsChoices[key]) !== -1;
 
-				if (component.chosen !== componentsChoices[key]) {
+				if (component.chosen !== componentsChoices[key] && availableComponent) {
 					glyph.changeComponent(key, componentsChoices[key]);
 				}
 			}

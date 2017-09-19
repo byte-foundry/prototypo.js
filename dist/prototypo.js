@@ -16,9 +16,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -29024,8 +29024,11 @@ psProto.Glyph.prototype.update = function (_params) {
 			});
 			if (componentFilter.length > 0) {
 				var component = componentFilter[0];
+				var availableComponent = (glyph.src.components.find(function (compAvail) {
+					return compAvail.id === key;
+				}) || { base: [] }).base.indexOf(componentsChoices[key]) !== -1;
 
-				if (component.chosen !== componentsChoices[key]) {
+				if (component.chosen !== componentsChoices[key] && availableComponent) {
 					glyph.changeComponent(key, componentsChoices[key]);
 				}
 			}
@@ -30030,11 +30033,10 @@ Utils.makeCurveInsideSerif = function (pAnchors, serifHeight, serifWidth, serifM
 	var bottomLeft = {
 		x: rotationCenter.x + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.cos(rotateRad) - (baseHeight.y - rotationCenter.y) * Math.sin(rotateRad),
 		y: rotationCenter.y + (baseHeight.y - rotationCenter.y) * Math.cos(rotateRad) + (baseHeight.x - rotationCenter.x - serifHeight * xDir) * Math.sin(rotateRad)
-	};
 
-	//We get the intersection with the left edge of the serif and the curve support
-	//this operation is direction dependent
-	var splitBase;
+		//We get the intersection with the left edge of the serif and the curve support
+		//this operation is direction dependent
+	};var splitBase;
 	if (pAnchors.inverseOrder) {
 		splitBase = Utils.lineCurveIntersection(pAnchors.curveEnd, pAnchors.baseWidth, { x: topLeft.x, y: topLeft.y }, { x: bottomLeft.x, y: bottomLeft.y });
 	} else {
