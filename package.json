@@ -1,6 +1,6 @@
 {
   "name": "prototypo.js",
-  "version": "1.16.5",
+  "version": "1.16.6",
   "description": "parametric-glyph engine",
   "dependencies": {
     "deptree": "^0.1.0",
