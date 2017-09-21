@@ -2608,9 +2608,9 @@ pkg-dir@^1.0.0:
   dependencies:
     find-up "^1.0.0"
 
-plumin.js@^1.10.5:
-  version "1.10.5"
-  resolved "https://registry.yarnpkg.com/plumin.js/-/plumin.js-1.10.5.tgz#1545012c3340742fa5b4efe35d99d7c74f5eaffb"
+plumin.js@^1.10.6:
+  version "1.10.6"
+  resolved "https://registry.yarnpkg.com/plumin.js/-/plumin.js-1.10.6.tgz#280b3d0c017d3d47d4de2a577063ecf22a947173"
 
 pluralize@^1.2.1:
   version "1.2.1"
