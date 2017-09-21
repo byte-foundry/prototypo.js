@@ -3,11 +3,12 @@
   "version": "1.16.6",
   "description": "parametric-glyph engine",
   "dependencies": {
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "deptree": "^0.1.0",
     "if-loader": "^1.0.1",
     "lodash.assign": "^4.2.0",
     "lodash.clonedeep": "^4.5.0",
-    "plumin.js": "^1.10.0"
+    "plumin.js": "^1.10.5"
   },
   "devDependencies": {
     "babel-core": "^6.18.0",
