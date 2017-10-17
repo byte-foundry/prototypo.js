@@ -1,6 +1,7 @@
 var plumin = require('plumin.js'),
 	DepTree = require('deptree'),
 	cloneDeep = require('lodash.clonedeep'),
+	filter = require('lodash.filter'),
 	assign = require('lodash.assign'),
 	updateUtils = require('./updateUtils.js');
 
@@ -278,6 +279,9 @@ Utils.propFromCursor = function( cursor, context, length ) {
 	}
 
 	for ( var i = -1; ++i < length; ) {
+		if (context === undefined) {
+			return undefined;
+		}
 		context = context[ cursor[i] ];
 	}
 
@@ -701,24 +705,30 @@ Utils.updateProperties = function( leaf, params, erroredPreviously ) {
 	}
 
 	var cursorKeys = params.manualChanges && params.manualChanges.cursors ? Object.keys(params.manualChanges.cursors) : [];
-	if (cursorKeys.length > 0) {
-		for (i = 0; i < cursorKeys.length; i++) {
-			cursor = cursorKeys[i].split('.');
-			var tmpObj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 );
+	var validCursor = filter(cursorKeys, function(cursorString) {
+		var cursor = cursorString.split('.');
+		var tmpObj = Utils.propFromCursor( cursor, leaf, cursor.length - 1 );
+
+		return tmpObj !== undefined;
+	});
+	if (validCursor.length > 0) {
+		for (i = 0; i < validCursor.length; i++) {
+			var cursorKeyArray = validCursor[i].split('.');
+			var tmpObj = Utils.propFromCursor( cursorKeyArray, leaf, cursorKeyArray.length - 1 );
 			var tmpSrc;
-			if (tmpObj.oldUpdaters && tmpObj.oldUpdaters[cursor[cursor.length - 1]]) {
-				tmpSrc = tmpObj.oldUpdaters[cursor[cursor.length - 1]];
+			if (tmpObj.oldUpdaters && tmpObj.oldUpdaters[cursorKeyArray[cursorKeyArray.length - 1]]) {
+				tmpSrc = tmpObj.oldUpdaters[cursorKeyArray[cursorKeyArray.length - 1]];
 			} else {
 				tmpSrc = {
 					_updaters: [ Utils.createUpdater({
-						_operation: JSON.stringify(tmpObj[cursor[cursor.length - 1]] || 0),
+						_operation: JSON.stringify(tmpObj[cursorKeyArray[cursorKeyArray.length - 1]] || 0),
 					}) ],
 				};
 				tmpObj.oldUpdaters = tmpObj.oldUpdaters || {};
-				tmpObj.oldUpdaters[cursor[cursor.length - 1]] = tmpSrc;
+				tmpObj.oldUpdaters[cursorKeyArray[cursorKeyArray.length - 1]] = tmpSrc;
 			}
 			var newCursor = {
-				cursor: cursor,
+				cursor: cursorKeyArray,
 				obj: tmpObj,
 				src: tmpSrc,
 				manual: true,

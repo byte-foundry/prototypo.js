@@ -9,6 +9,7 @@
     "if-loader": "^1.0.1",
     "lodash.assign": "^4.2.0",
     "lodash.clonedeep": "^4.5.0",
+    "lodash.filter": "^4.6.0",
     "plumin.js": "^1.10.7"
   },
   "devDependencies": {
