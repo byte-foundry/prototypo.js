@@ -1,6 +1,6 @@
 {
   "name": "prototypo.js",
-  "version": "1.16.10",
+  "version": "1.16.11",
   "description": "parametric-glyph engine",
   "dependencies": {
     "antique.ptf": "byte-foundry/antique.ptf",
