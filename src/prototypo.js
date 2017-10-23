@@ -216,7 +216,7 @@ psProto.Glyph.prototype.update = function( _params ) {
 			if ( typeof _params[param] === 'number' ) {
 				var groups = _params['indiv_group_param'][
 						_params['indiv_glyphs'][glyph.ot.unicode]
-					],
+					] || {},
 					multiplier = groups[param + '_rel'] || {
 						state: 'relative',
 						value: 1

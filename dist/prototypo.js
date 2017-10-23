@@ -32632,7 +32632,7 @@ psProto.Glyph.prototype.update = function (_params) {
 
 		Object.keys(_params).forEach(function (param) {
 			if (typeof _params[param] === 'number') {
-				var groups = _params['indiv_group_param'][_params['indiv_glyphs'][glyph.ot.unicode]],
+				var groups = _params['indiv_group_param'][_params['indiv_glyphs'][glyph.ot.unicode]] || {},
 				    multiplier = groups[param + '_rel'] || {
 					state: 'relative',
 					value: 1
