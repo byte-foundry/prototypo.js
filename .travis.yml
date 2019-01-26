@@ -2,5 +2,8 @@
 sudo: false
 language: node_js
 node_js:
-- 'v4.2.3'
+  - 'node'
+  - '10'
+  - '8'
+  - '6'
 script: npm run dist
